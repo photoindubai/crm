@@ -26,10 +26,11 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 - Refactored `/companies`, `/participations`, `/smm`, and `/tasks` to use flat view queries with pagination and simple filters instead of nested relational selects.
 - Added `/companies/[id]` detail page for heavier company, contact, participation, booth, brand, material, SMM task, note, and task data.
 - Removed `force-dynamic` from dashboard and list pages; dashboard uses lightweight head count queries.
+- Added Supabase Auth login/logout flow, magic-link email sign-in, Google OAuth sign-in, callback handling, middleware session gate, and active-profile checks backed by existing `public.profiles` roles/statuses.
 
 ## In Progress
 
-- Authentication screens and role-aware routing.
+- Role-specific module access rules, if a concrete access matrix is needed.
 
 ## Not Started
 

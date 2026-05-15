@@ -5,7 +5,7 @@ import type { Database } from "./database.types";
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
   type CookieToSet = {
     name: string;
     value: string;
@@ -13,7 +13,7 @@ export async function createSupabaseServerClient() {
   };
 
   if (!url || !anonKey) {
-    throw new Error("Supabase URL and anon key are required.");
+    throw new Error("Supabase URL and anon key (NEXT_PUBLIC_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY) are required.");
   }
 
   return createServerClient<Database>(url, anonKey, {

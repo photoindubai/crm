@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { requireActiveProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -19,6 +20,8 @@ export default async function CompaniesPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
+  await requireActiveProfile();
+
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
   const from = (page - 1) * PAGE_SIZE;

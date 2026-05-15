@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { requireActiveProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -104,6 +105,8 @@ type NoteRow = Pick<
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  await requireActiveProfile();
+
   const supabase = createSupabaseAdminClient();
 
   const [companyResult, contactsResult, participationsResult, notesResult, companyBrandsResult, companyTasksResult] =

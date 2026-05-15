@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { requireActiveProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -28,6 +29,8 @@ export default async function SmmPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
+  await requireActiveProfile();
+
   const page = getPageParam(params);
   const filter = getStringParam(params, "filter")?.trim() ?? "";
   const query = getStringParam(params, "q")?.trim() ?? "";

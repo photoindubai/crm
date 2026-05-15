@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarDays, Megaphone, ClipboardList } from "lucide-react";
+import { requireActiveProfile } from "@/lib/auth";
 
 const modules = [
   {
@@ -28,7 +29,9 @@ const modules = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  await requireActiveProfile();
+
   return (
     <main className="min-h-screen">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8">
@@ -73,4 +76,3 @@ export default function Home() {
     </main>
   );
 }
-

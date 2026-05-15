@@ -14,11 +14,11 @@ const isDryRun = process.argv.includes("--dry-run");
 
 loadDotEnv(path.join(projectRoot, ".env"));
 
-const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !serviceRoleKey) {
-  console.error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required.");
+  console.error("NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY are required.");
   process.exit(1);
 }
 

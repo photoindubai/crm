@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/app-shell";
+import { requireActiveProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const revalidate = 30;
@@ -6,6 +7,8 @@ export const revalidate = 30;
 const pendingStatuses = ["published", "cancelled"];
 
 export default async function DashboardPage() {
+  await requireActiveProfile();
+
   const supabase = createSupabaseAdminClient();
   const [
     { count: companiesCount },
