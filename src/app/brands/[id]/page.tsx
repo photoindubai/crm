@@ -94,12 +94,16 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
         throw new Error((eventsResult.error ?? participationCompaniesResult.error)?.message);
       }
 
+      const directCompanies = (companiesResult.data ?? []) as Company[];
+      const participationCompanies = (participationCompaniesResult.data ?? []) as Company[];
+      const companies = dedupeCompanies([...directCompanies, ...participationCompanies]);
+
       return {
         brand,
-        companies: (companiesResult.data ?? []) as Company[],
+        companies,
         participations,
         events: (eventsResult.data ?? []) as Event[],
-        participationCompanies: (participationCompaniesResult.data ?? []) as Company[],
+        participationCompanies,
         booths: (boothsResult.data ?? []) as unknown as BoothRow[],
       };
     },
@@ -262,4 +266,14 @@ function groupBy<T>(rows: T[], getKey: (row: T) => string | null | undefined) {
 
 function emptyResult<T>(data: T = [] as T) {
   return { data, error: null };
+}
+
+function dedupeCompanies(companies: Company[]) {
+  const map = new Map<string, Company>();
+
+  for (const company of companies) {
+    map.set(company.id, company);
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.company_name.localeCompare(b.company_name));
 }
