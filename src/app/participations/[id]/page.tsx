@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Building2, CalendarDays, ClipboardList, Tags, Users } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { MediaCardGrid, MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
@@ -44,6 +45,10 @@ type BoothRow = {
 };
 type BrandLinkRow = Pick<Database["public"]["Tables"]["participation_brands"]["Row"], "brand_id">;
 type BrandRow = Pick<Database["public"]["Tables"]["brands"]["Row"], "id" | "brand_name" | "website" | "brand_logo_url">;
+type MaterialRow = Pick<
+  Database["public"]["Tables"]["exhibitor_materials"]["Row"],
+  "id" | "title" | "material_type" | "status" | "url" | "notes"
+>;
 type ActionRow = Database["public"]["Views"]["participation_action_list_view"]["Row"];
 type TemplateRow = Pick<
   Database["public"]["Tables"]["action_templates"]["Row"],
@@ -54,7 +59,7 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
   const { id } = await params;
   const { profile } = await requireActiveProfile();
 
-  const { participation, company, event, contacts, booths, brands, actions, templates } = await loadCached(
+  const { participation, company, event, contacts, booths, brands, materials, actions, templates } = await loadCached(
     {
       keyParts: ["participation-detail", profile.organization_id, id],
       tags: [cacheTags.participations, cacheTags.participation(id), cacheTags.companies, cacheTags.events, cacheTags.brands, cacheTags.actions, cacheTags.actionTemplates],
@@ -72,7 +77,7 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
       }
 
       const participation = participationResult.data as Participation;
-      const [companyResult, eventResult, contactsResult, boothsResult, brandLinksResult, actionsResult, templatesResult] =
+      const [companyResult, eventResult, contactsResult, boothsResult, brandLinksResult, materialsResult, actionsResult, templatesResult] =
         await Promise.all([
           participation.company_id
             ? supabase
@@ -99,6 +104,11 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
             .eq("participation_id", id),
           supabase.from("participation_brands").select("brand_id").eq("participation_id", id),
           supabase
+            .from("exhibitor_materials")
+            .select("id,title,material_type,status,url,notes")
+            .eq("participation_id", id)
+            .order("created_at", { ascending: false }),
+          supabase
             .from("participation_action_list_view")
             .select("*")
             .eq("participation_id", id)
@@ -118,6 +128,7 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
         contactsResult.error ??
         boothsResult.error ??
         brandLinksResult.error ??
+        materialsResult.error ??
         actionsResult.error ??
         templatesResult.error;
 
@@ -147,6 +158,7 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
         contacts: (contactsResult.data ?? []) as unknown as ContactLinkRow[],
         booths: (boothsResult.data ?? []) as unknown as BoothRow[],
         brands: (brandsResult.data ?? []) as BrandRow[],
+        materials: ((materialsResult.data ?? []) as MaterialRow[]).filter((item) => Boolean(item.url)),
         actions: (actionsResult.data ?? []) as ActionRow[],
         templates: (templatesResult.data ?? []) as TemplateRow[],
       };
@@ -169,7 +181,17 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
           <div className="flex flex-col gap-5 md:flex-row md:items-center">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
               {company?.company_logo_url ? (
-                <img src={company.company_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
+                <MediaThumbnailButton
+                  item={{
+                    id: `${company.id}-logo`,
+                    title: `${company.company_name} logo`,
+                    url: company.company_logo_url,
+                    subtitle: "Company logo",
+                  }}
+                  className="h-full w-full"
+                  imageClassName="h-full w-full object-contain"
+                  fallbackClassName="flex h-full w-full items-center justify-center"
+                />
               ) : (
                 <Building2 size={30} className="text-muted-foreground" aria-hidden="true" />
               )}
@@ -262,6 +284,22 @@ export default async function ParticipationDetailPage({ params }: { params: Prom
             )}
           </Panel>
         </div>
+
+        <Panel title="Materials" icon={<ClipboardList size={18} aria-hidden="true" />}>
+          {materials.length > 0 ? (
+            <MediaCardGrid
+              items={materials.map((item) => ({
+                id: item.id,
+                title: item.title ?? item.material_type ?? "Material",
+                url: item.url ?? "",
+                subtitle: [item.material_type, item.status].filter(Boolean).join(" / ") || "Material",
+                description: item.notes,
+              }))}
+            />
+          ) : (
+            <EmptyText>No materials linked.</EmptyText>
+          )}
+        </Panel>
 
         <Panel title="Actions" icon={<ClipboardList size={18} aria-hidden="true" />}>
           <ActionTable title="Required" rows={requiredActions} />

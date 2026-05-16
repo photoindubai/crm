@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
+import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
@@ -29,6 +30,7 @@ import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { assignCompanyBrand, updateCompanyDetails } from "./actions";
+import { BrandPortfolio } from "./brand-portfolio";
 import { CompanyContactForm } from "./company-contact-form";
 import { DeleteContactButton } from "@/app/contacts/delete-contact-button";
 
@@ -74,7 +76,7 @@ type ParticipationRow = Pick<
 
 type BrandRow = Pick<
   Database["public"]["Tables"]["brands"]["Row"],
-  "id" | "brand_name" | "website" | "brand_logo_url" | "country"
+  "id" | "brand_name" | "website" | "brand_logo_url" | "brand_description" | "country"
 >;
 
 type BrandOptionRow = Pick<Database["public"]["Tables"]["brands"]["Row"], "id" | "brand_name">;
@@ -218,7 +220,7 @@ export default async function CompanyDetailPage({
         brandIds.length > 0
           ? await supabase
               .from("brands")
-              .select("id,brand_name,website,brand_logo_url,country")
+              .select("id,brand_name,website,brand_logo_url,brand_description,country")
               .in("id", brandIds)
               .order("brand_name", { ascending: true })
           : emptyResult<BrandRow>();
@@ -340,7 +342,17 @@ export default async function CompanyDetailPage({
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
               {company.company_logo_url ? (
-                <img src={company.company_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
+                <MediaThumbnailButton
+                  item={{
+                    id: `${company.id}-logo`,
+                    title: `${company.company_name} logo`,
+                    url: company.company_logo_url,
+                    subtitle: "Company logo",
+                  }}
+                  className="h-full w-full"
+                  imageClassName="h-full w-full object-contain"
+                  fallbackClassName="flex h-full w-full items-center justify-center"
+                />
               ) : (
                 <Building2 size={34} className="text-muted-foreground" aria-hidden="true" />
               )}
@@ -354,6 +366,19 @@ export default async function CompanyDetailPage({
                 <MetaItem icon={<MapPin size={15} aria-hidden="true" />}>{location}</MetaItem>
                 <MetaItem icon={<Phone size={15} aria-hidden="true" />}>{company.company_phone ?? "No company phone"}</MetaItem>
                 <MetaItem icon={<Mail size={15} aria-hidden="true" />}>{company.company_email ?? "No company email"}</MetaItem>
+                {company.company_logo_url ? (
+                  <a
+                    href={company.company_logo_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    className="inline-flex items-center gap-2 text-primary hover:underline"
+                  >
+                    <Building2 size={15} aria-hidden="true" />
+                    Download company logo
+                    <ExternalLinkIcon size={13} aria-hidden="true" />
+                  </a>
+                ) : null}
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {[company.address, company.description].filter(Boolean).join("\n\n") || "No company description yet."}
@@ -453,16 +478,7 @@ export default async function CompanyDetailPage({
               </div>
             ) : null}
             {brandPortfolio.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {brandPortfolio.slice(0, 7).map((brand) => (
-                  <BrandTile key={brand.id} brand={brand} />
-                ))}
-                {brandPortfolio.length > 7 ? (
-                  <div className="flex min-h-24 flex-col items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground">
-                    +{brandPortfolio.length - 7} more
-                  </div>
-                ) : null}
-              </div>
+              <BrandPortfolio brands={brandPortfolio} />
             ) : (
               <EmptyText>No brands.</EmptyText>
             )}
@@ -679,21 +695,6 @@ function ContactCard({ item, companyId }: { item: ContactRow; companyId: string 
   );
 }
 
-function BrandTile({ brand }: { brand: BrandRow }) {
-  return (
-    <div className="flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-border p-3 text-center hover:bg-muted/50">
-      <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-md bg-muted">
-        {brand.brand_logo_url ? (
-          <img src={brand.brand_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
-        ) : (
-          <Tags size={22} className="text-primary" aria-hidden="true" />
-        )}
-      </div>
-      <ExternalLink href={brand.website}>{brand.brand_name}</ExternalLink>
-    </div>
-  );
-}
-
 function ActionIcon({ type }: { type: string | null }) {
   const className = "mt-0.5 shrink-0 text-primary";
 
@@ -819,18 +820,6 @@ function TextAreaField({
         className="rounded-md border border-border bg-white px-3 py-3 text-sm text-primary outline-none ring-0 transition focus:border-primary"
       />
     </label>
-  );
-}
-
-function ExternalLink({ href, children }: { href: string | null | undefined; children: React.ReactNode }) {
-  if (!href) {
-    return <span>{children}</span>;
-  }
-
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className="text-primary hover:underline">
-      {children}
-    </a>
   );
 }
 
