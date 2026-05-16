@@ -3,9 +3,12 @@ import Link from "next/link";
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/companies", label: "Companies" },
+  { href: "/contacts", label: "Contacts" },
+  { href: "/events", label: "Events" },
   { href: "/participations", label: "Participations" },
+  { href: "/brands", label: "Brands" },
   { href: "/smm", label: "SMM" },
-  { href: "/tasks", label: "Tasks" },
+  { href: "/tasks", label: "Actions" },
 ];
 
 export function AppShell({

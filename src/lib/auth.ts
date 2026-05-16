@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { cacheTags } from "@/lib/cache-tags";
+import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -19,14 +21,28 @@ export async function requireActiveProfile() {
     redirect("/login");
   }
 
-  const admin = createSupabaseAdminClient();
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("id,full_name,role,status,organization_id")
-    .eq("id", user.id)
-    .single();
+  const profile = await loadCached(
+    {
+      keyParts: ["active-profile", user.id],
+      tags: [cacheTags.profiles],
+    },
+    async () => {
+      const admin = createSupabaseAdminClient();
+      const { data, error: profileError } = await admin
+        .from("profiles")
+        .select("id,full_name,role,status,organization_id")
+        .eq("id", user.id)
+        .single();
 
-  if (profileError || !profile || profile.status !== "active") {
+      if (profileError || !data) {
+        return null;
+      }
+
+      return data as ActiveProfile;
+    },
+  );
+
+  if (!profile || profile.status !== "active") {
     await supabase.auth.signOut();
     redirect("/login");
   }

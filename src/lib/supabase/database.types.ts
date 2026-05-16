@@ -14,6 +14,396 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_recipients: {
+        Row: {
+          action_id: string
+          company_id: string | null
+          contact_id: string
+          created_at: string | null
+          id: string
+          participation_id: string | null
+        }
+        Insert: {
+          action_id: string
+          company_id?: string | null
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          participation_id?: string | null
+        }
+        Update: {
+          action_id?: string
+          company_id?: string | null
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          participation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "company_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "contact_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "event_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "participation_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "task_list_view"
+            referencedColumns: ["task_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_recipients_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_list_view"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_recipients_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participation_list_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "action_recipients_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_recipients_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "smm_workspace_view"
+            referencedColumns: ["participation_id"]
+          },
+        ]
+      }
+      action_subjects: {
+        Row: {
+          action_id: string
+          company_id: string | null
+          contact_id: string | null
+          created_at: string | null
+          event_id: string | null
+          id: string
+          participation_id: string | null
+        }
+        Insert: {
+          action_id: string
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          participation_id?: string | null
+        }
+        Update: {
+          action_id?: string
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          event_id?: string | null
+          id?: string
+          participation_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "company_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "contact_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "event_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "participation_action_list_view"
+            referencedColumns: ["action_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "task_list_view"
+            referencedColumns: ["task_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_subjects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_list_view"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_subjects_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_subjects_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participation_list_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "action_subjects_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_subjects_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "smm_workspace_view"
+            referencedColumns: ["participation_id"]
+          },
+        ]
+      }
+      action_templates: {
+        Row: {
+          action_type: string | null
+          channel: string | null
+          created_at: string | null
+          default_due_offset_days: number | null
+          description: string | null
+          event_id: string
+          id: string
+          is_required: boolean | null
+          sort_order: number | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          channel?: string | null
+          created_at?: string | null
+          default_due_offset_days?: number | null
+          description?: string | null
+          event_id: string
+          id?: string
+          is_required?: boolean | null
+          sort_order?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          channel?: string | null
+          created_at?: string | null
+          default_due_offset_days?: number | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          is_required?: boolean | null
+          sort_order?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_templates_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      actions: {
+        Row: {
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          external_url: string | null
+          id: string
+          is_required: boolean | null
+          organization_id: string | null
+          priority: string | null
+          source_template_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type?: string | null
+          assigned_to?: string | null
+          channel?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          external_url?: string | null
+          id?: string
+          is_required?: boolean | null
+          organization_id?: string | null
+          priority?: string | null
+          source_template_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string | null
+          assigned_to?: string | null
+          channel?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          external_url?: string | null
+          id?: string
+          is_required?: boolean | null
+          organization_id?: string | null
+          priority?: string | null
+          source_template_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "actions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "actions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "actions_source_template_id_fkey"
+            columns: ["source_template_id"]
+            isOneToOne: false
+            referencedRelation: "action_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_log: {
         Row: {
           action: string | null
@@ -356,9 +746,12 @@ export type Database = {
       }
       companies: {
         Row: {
+          address: string | null
           city: string | null
+          company_email: string | null
           company_logo_url: string | null
           company_name: string
+          company_phone: string | null
           country: string | null
           created_at: string | null
           description: string | null
@@ -376,9 +769,12 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
+          address?: string | null
           city?: string | null
+          company_email?: string | null
           company_logo_url?: string | null
           company_name: string
+          company_phone?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
@@ -396,9 +792,12 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
+          address?: string | null
           city?: string | null
+          company_email?: string | null
           company_logo_url?: string | null
           company_name?: string
+          company_phone?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
@@ -563,6 +962,104 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_program_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          ends_at: string | null
+          event_id: string
+          id: string
+          item_type: string | null
+          section_id: string | null
+          starts_at: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          venue: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          ends_at?: string | null
+          event_id: string
+          id?: string
+          item_type?: string | null
+          section_id?: string | null
+          starts_at?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          venue?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          ends_at?: string | null
+          event_id?: string
+          id?: string
+          item_type?: string | null
+          section_id?: string | null
+          starts_at?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_program_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_program_items_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "event_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_sections: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          name: string
+          slug: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          name: string
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          name?: string
+          slug?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_sections_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
@@ -918,6 +1415,62 @@ export type Database = {
           },
         ]
       }
+      participation_contacts: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          participation_id: string
+          role: string | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          participation_id: string
+          role?: string | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          participation_id?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participation_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participation_contacts_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participation_list_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "participation_contacts_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participation_contacts_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "smm_workspace_view"
+            referencedColumns: ["participation_id"]
+          },
+        ]
+      }
       participation_logistics: {
         Row: {
           badges_status: string | null
@@ -999,6 +1552,7 @@ export type Database = {
           booking_status: string | null
           company_id: string | null
           created_at: string | null
+          display_name: string | null
           event_id: string | null
           id: string
           internal_notes: string | null
@@ -1018,6 +1572,7 @@ export type Database = {
           booking_status?: string | null
           company_id?: string | null
           created_at?: string | null
+          display_name?: string | null
           event_id?: string | null
           id?: string
           internal_notes?: string | null
@@ -1037,6 +1592,7 @@ export type Database = {
           booking_status?: string | null
           company_id?: string | null
           created_at?: string | null
+          display_name?: string | null
           event_id?: string | null
           id?: string
           internal_notes?: string | null
@@ -1436,6 +1992,48 @@ export type Database = {
       }
     }
     Views: {
+      action_list_view: {
+        Row: {
+          action_id: string | null
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          company_id: string | null
+          company_name: string | null
+          completed_at: string | null
+          contact_id: string | null
+          contact_name: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          event_id: string | null
+          event_name: string | null
+          external_url: string | null
+          is_required: boolean | null
+          participation_id: string | null
+          participation_name: string | null
+          priority: string | null
+          status: string | null
+          subject_summary: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "actions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_booth_applications: {
         Row: {
           association: string[] | null
@@ -1631,6 +2229,32 @@ export type Database = {
         }
         Relationships: []
       }
+      company_action_list_view: {
+        Row: {
+          action_id: string | null
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          company_id: string | null
+          company_name: string | null
+          description: string | null
+          due_date: string | null
+          is_required: boolean | null
+          participation_id: string | null
+          priority: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_list_view: {
         Row: {
           booth_numbers: string | null
@@ -1652,6 +2276,65 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_action_list_view: {
+        Row: {
+          action_id: string | null
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          company_id: string | null
+          contact_id: string | null
+          contact_name: string | null
+          description: string | null
+          due_date: string | null
+          is_required: boolean | null
+          participation_id: string | null
+          priority: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_action_list_view: {
+        Row: {
+          action_id: string | null
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          description: string | null
+          due_date: string | null
+          event_id: string | null
+          event_name: string | null
+          is_required: boolean | null
+          priority: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_subjects_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1763,6 +2446,32 @@ export type Database = {
           whatsapp_unsubscribed?: boolean | null
         }
         Relationships: []
+      }
+      participation_action_list_view: {
+        Row: {
+          action_id: string | null
+          action_type: string | null
+          assigned_to: string | null
+          channel: string | null
+          company_id: string | null
+          description: string | null
+          due_date: string | null
+          event_id: string | null
+          is_required: boolean | null
+          participation_id: string | null
+          priority: string | null
+          status: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       participation_list_view: {
         Row: {
@@ -2027,46 +2736,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "tasks_assigned_to_fkey"
+            foreignKeyName: "actions_assigned_to_fkey"
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "company_list_view"
-            referencedColumns: ["company_id"]
-          },
-          {
-            foreignKeyName: "tasks_participation_id_fkey"
-            columns: ["participation_id"]
-            isOneToOne: false
-            referencedRelation: "participation_list_view"
-            referencedColumns: ["participation_id"]
-          },
-          {
-            foreignKeyName: "tasks_participation_id_fkey"
-            columns: ["participation_id"]
-            isOneToOne: false
-            referencedRelation: "participations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_participation_id_fkey"
-            columns: ["participation_id"]
-            isOneToOne: false
-            referencedRelation: "smm_workspace_view"
-            referencedColumns: ["participation_id"]
           },
         ]
       }

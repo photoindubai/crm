@@ -16,9 +16,19 @@ const config: Config = {
         "muted-foreground": "hsl(var(--muted-foreground))",
         primary: "hsl(var(--primary))",
         "primary-foreground": "hsl(var(--primary-foreground))",
+        secondary: "hsl(var(--secondary))",
+        tertiary: "hsl(var(--tertiary))",
+        surface: "hsl(var(--surface))",
+        "surface-container": "hsl(var(--surface-container))",
+        "surface-container-low": "hsl(var(--surface-container-low))",
+        outline: "hsl(var(--outline))",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(15, 23, 42, 0.05)",
+        soft: "0 8px 24px rgba(30, 41, 59, 0.08)",
+      },
+      fontFamily: {
+        sans: ["Inter", "Arial", "sans-serif"],
+        mono: ["JetBrains Mono", "monospace"],
       },
     },
   },
@@ -26,4 +36,3 @@ const config: Config = {
 };
 
 export default config;
-

@@ -2,7 +2,9 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -11,7 +13,7 @@ export const revalidate = 30;
 
 const PAGE_SIZE = 50;
 
-type TaskListRow = Database["public"]["Views"]["task_list_view"]["Row"];
+type ActionListRow = Database["public"]["Views"]["action_list_view"]["Row"];
 
 export default async function TasksPage({
   searchParams,
@@ -19,7 +21,7 @@ export default async function TasksPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
-  await requireActiveProfile();
+  const { profile } = await requireActiveProfile();
 
   const page = getPageParam(params);
   const status = getStringParam(params, "status")?.trim() ?? "";
@@ -28,31 +30,42 @@ export default async function TasksPage({
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const supabase = createSupabaseAdminClient();
-  let request = supabase
-    .from("task_list_view")
-    .select("*", { count: "exact" })
-    .order("due_date", { ascending: sort === "due_asc", nullsFirst: false })
-    .range(from, to);
+  const { actions, count } = await loadCached(
+    {
+      keyParts: ["actions", profile.organization_id, page, status, assignedTo, sort],
+      tags: [cacheTags.actions],
+    },
+    async () => {
+      const supabase = createSupabaseAdminClient();
+      let request = supabase
+        .from("action_list_view")
+        .select("*", { count: "exact" })
+        .order("due_date", { ascending: sort === "due_asc", nullsFirst: false })
+        .range(from, to);
 
-  if (status) {
-    request = request.eq("status", status);
-  }
+      if (status) {
+        request = request.eq("status", status);
+      }
 
-  if (assignedTo) {
-    request = request.eq("assigned_to", assignedTo);
-  }
+      if (assignedTo) {
+        request = request.eq("assigned_to", assignedTo);
+      }
 
-  const { data, error, count } = await request;
+      const { data, error, count } = await request;
 
-  if (error) {
-    throw new Error(error.message);
-  }
+      if (error) {
+        throw new Error(error.message);
+      }
 
-  const tasks = data ?? [];
+      return {
+        actions: data ?? [],
+        count: count ?? 0,
+      };
+    },
+  );
 
   return (
-    <AppShell title="Tasks">
+    <AppShell title="Actions">
       <form className="mb-4 grid gap-2 md:grid-cols-[180px_1fr_180px_auto_auto]">
         <select
           name="status"
@@ -61,8 +74,10 @@ export default async function TasksPage({
         >
           <option value="">All statuses</option>
           <option value="open">Open</option>
+          <option value="not_started">Not started</option>
           <option value="in_progress">In progress</option>
           <option value="done">Done</option>
+          <option value="published">Published</option>
           <option value="cancelled">Cancelled</option>
         </select>
         <input
@@ -93,21 +108,21 @@ export default async function TasksPage({
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="w-[28%] px-4 py-3 font-semibold">Task</th>
-              <th className="w-[22%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[28%] px-4 py-3 font-semibold">Action</th>
+              <th className="w-[22%] px-4 py-3 font-semibold">Subject</th>
               <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Priority</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Type</th>
               <th className="w-[14%] px-4 py-3 font-semibold">Due date</th>
               <th className="w-[12%] px-4 py-3 font-semibold">Assigned</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {tasks.length > 0 ? (
-              tasks.map((task) => <TaskRow key={task.task_id} task={task} />)
+            {actions.length > 0 ? (
+              actions.map((action) => <ActionRow key={action.action_id} action={action} />)
             ) : (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                  No tasks found.
+                  No actions found.
                 </td>
               </tr>
             )}
@@ -116,7 +131,7 @@ export default async function TasksPage({
         <Pagination
           page={page}
           pageSize={PAGE_SIZE}
-          total={count ?? 0}
+          total={count}
           basePath="/tasks"
           params={{
             status: status || undefined,
@@ -129,30 +144,42 @@ export default async function TasksPage({
   );
 }
 
-function TaskRow({ task }: { task: TaskListRow }) {
+function ActionRow({ action }: { action: ActionListRow }) {
+  const subjectHref = action.participation_id
+    ? `/participations/${action.participation_id}`
+    : action.company_id
+      ? `/companies/${action.company_id}`
+      : action.contact_id
+        ? `/contacts/${action.contact_id}`
+        : null;
+  const subjectName = action.participation_name ?? action.company_name ?? action.contact_name ?? action.event_name;
+
   return (
     <tr className="align-top">
       <td className="px-4 py-4">
-        <div className="truncate font-medium">{task.title}</div>
-        <div className="truncate text-xs text-muted-foreground">{task.category ?? "No category"}</div>
+        <div className="truncate font-medium">{action.title}</div>
+        <div className="truncate text-xs text-muted-foreground">
+          {[action.action_type, action.channel, action.is_required ? "required" : null].filter(Boolean).join(" / ") ||
+            "No type"}
+        </div>
       </td>
       <td className="px-4 py-4">
-        {task.company_id ? (
-          <Link href={`/companies/${task.company_id}`} className="truncate hover:text-primary">
-            {task.company_name ?? "Unknown company"}
+        {subjectHref ? (
+          <Link href={subjectHref} className="truncate hover:text-primary">
+            {subjectName ?? "Unknown subject"}
           </Link>
         ) : (
-          <span className="text-muted-foreground">No company</span>
+          <span className="text-muted-foreground">No subject</span>
         )}
       </td>
       <td className="px-4 py-4">
-        <StatusBadge value={task.status} />
+        <StatusBadge value={action.status} />
       </td>
       <td className="px-4 py-4">
-        <StatusBadge value={task.priority} />
+        <StatusBadge value={action.action_type ?? action.priority} />
       </td>
-      <td className="px-4 py-4 text-muted-foreground">{task.due_date ?? "No due date"}</td>
-      <td className="px-4 py-4 text-muted-foreground">{task.assigned_to ?? "Unassigned"}</td>
+      <td className="px-4 py-4 text-muted-foreground">{action.due_date ?? "No due date"}</td>
+      <td className="px-4 py-4 text-muted-foreground">{action.assigned_to ?? "Unassigned"}</td>
     </tr>
   );
 }

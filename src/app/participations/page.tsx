@@ -3,7 +3,9 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -21,7 +23,7 @@ export default async function ParticipationsPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
-  await requireActiveProfile();
+  const { profile } = await requireActiveProfile();
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -30,40 +32,51 @@ export default async function ParticipationsPage({
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const supabase = createSupabaseAdminClient();
-  let request = supabase
-    .from("participation_list_view")
-    .select("*", { count: "exact" })
-    .order("company_name", { ascending: true })
-    .range(from, to);
+  const { participations, events, count } = await loadCached(
+    {
+      keyParts: ["participations", profile.organization_id, page, query, status, eventId],
+      tags: [cacheTags.participations, cacheTags.events],
+    },
+    async () => {
+      const supabase = createSupabaseAdminClient();
+      let request = supabase
+        .from("participation_list_view")
+        .select("*", { count: "exact" })
+        .order("company_name", { ascending: true })
+        .range(from, to);
 
-  if (query) {
-    request = request.ilike("company_name", `%${query}%`);
-  }
+      if (query) {
+        request = request.ilike("company_name", `%${query}%`);
+      }
 
-  if (status) {
-    request = request.eq("status", status);
-  }
+      if (status) {
+        request = request.eq("status", status);
+      }
 
-  if (eventId) {
-    request = request.eq("event_id", eventId);
-  }
+      if (eventId) {
+        request = request.eq("event_id", eventId);
+      }
 
-  const [{ data, error, count }, { data: eventsData, error: eventsError }] = await Promise.all([
-    request,
-    supabase.from("events").select("id,event_name").order("event_name", { ascending: true }),
-  ]);
+      const [{ data, error, count }, { data: eventsData, error: eventsError }] = await Promise.all([
+        request,
+        supabase.from("events").select("id,event_name").order("event_name", { ascending: true }),
+      ]);
 
-  if (error) {
-    throw new Error(error.message);
-  }
+      if (error) {
+        throw new Error(error.message);
+      }
 
-  if (eventsError) {
-    throw new Error(eventsError.message);
-  }
+      if (eventsError) {
+        throw new Error(eventsError.message);
+      }
 
-  const participations = data ?? [];
-  const events = (eventsData ?? []) as EventRow[];
+      return {
+        participations: data ?? [],
+        events: (eventsData ?? []) as EventRow[],
+        count: count ?? 0,
+      };
+    },
+  );
 
   return (
     <AppShell title="Participations">
@@ -138,7 +151,7 @@ export default async function ParticipationsPage({
         <Pagination
           page={page}
           pageSize={PAGE_SIZE}
-          total={count ?? 0}
+          total={count}
           basePath="/participations"
           params={{
             q: query || undefined,
@@ -167,12 +180,10 @@ function ParticipationRow({ participation }: { participation: ParticipationListR
             <div className="h-10 w-10 shrink-0 rounded-md border border-border bg-muted" />
           )}
           <div className="min-w-0">
-            <Link href={`/companies/${participation.company_id}`} className="truncate font-medium hover:text-primary">
+            <Link href={`/participations/${participation.participation_id}`} className="truncate font-medium hover:text-primary">
               {participation.company_name}
             </Link>
-            <div className="truncate text-xs text-muted-foreground">
-              {participation.package_name ?? "No package"}
-            </div>
+            <div className="truncate text-xs text-muted-foreground">{participation.package_name ?? "No package"}</div>
           </div>
         </div>
       </td>

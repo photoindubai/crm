@@ -2,7 +2,9 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -29,7 +31,7 @@ export default async function SmmPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
-  await requireActiveProfile();
+  const { profile } = await requireActiveProfile();
 
   const page = getPageParam(params);
   const filter = getStringParam(params, "filter")?.trim() ?? "";
@@ -37,38 +39,49 @@ export default async function SmmPage({
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const supabase = createSupabaseAdminClient();
-  let request = supabase
-    .from("smm_workspace_view")
-    .select("*", { count: "exact" })
-    .order("company_name", { ascending: true })
-    .range(from, to);
+  const { rows, count } = await loadCached(
+    {
+      keyParts: ["smm", profile.organization_id, page, filter, query],
+      tags: [cacheTags.smm, cacheTags.participations, cacheTags.companies],
+    },
+    async () => {
+      const supabase = createSupabaseAdminClient();
+      let request = supabase
+        .from("smm_workspace_view")
+        .select("*", { count: "exact" })
+        .order("company_name", { ascending: true })
+        .range(from, to);
 
-  if (query) {
-    request = request.ilike("company_name", `%${query}%`);
-  }
+      if (query) {
+        request = request.ilike("company_name", `%${query}%`);
+      }
 
-  if (filter === "missing_logo") {
-    request = request.eq("logo_status", "missing");
-  } else if (filter === "missing_description") {
-    request = request.eq("description_status", "missing");
-  } else if (filter === "missing_socials") {
-    request = request.is("instagram_url", null).is("facebook_url", null).is("linkedin_url", null).is("youtube_url", null);
-  } else if (filter === "ready_materials") {
-    request = request.eq("materials_status", "ready");
-  } else if (filter === "pending_smm") {
-    request = request.not("smm_status", "in", "(published,cancelled)");
-  } else if (filter === "published") {
-    request = request.eq("smm_status", "published");
-  }
+      if (filter === "missing_logo") {
+        request = request.eq("logo_status", "missing");
+      } else if (filter === "missing_description") {
+        request = request.eq("description_status", "missing");
+      } else if (filter === "missing_socials") {
+        request = request.is("instagram_url", null).is("facebook_url", null).is("linkedin_url", null).is("youtube_url", null);
+      } else if (filter === "ready_materials") {
+        request = request.eq("materials_status", "ready");
+      } else if (filter === "pending_smm") {
+        request = request.not("smm_status", "in", "(published,cancelled)");
+      } else if (filter === "published") {
+        request = request.eq("smm_status", "published");
+      }
 
-  const { data, error, count } = await request;
+      const { data, error, count } = await request;
 
-  if (error) {
-    throw new Error(error.message);
-  }
+      if (error) {
+        throw new Error(error.message);
+      }
 
-  const rows = data ?? [];
+      return {
+        rows: data ?? [],
+        count: count ?? 0,
+      };
+    },
+  );
 
   return (
     <AppShell title="SMM Workspace">
@@ -129,7 +142,7 @@ export default async function SmmPage({
         <Pagination
           page={page}
           pageSize={PAGE_SIZE}
-          total={count ?? 0}
+          total={count}
           basePath="/smm"
           params={{
             q: query || undefined,

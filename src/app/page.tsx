@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Building2, CalendarDays, Megaphone, ClipboardList } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, ClipboardList, Megaphone, Tags, Users } from "lucide-react";
 import { requireActiveProfile } from "@/lib/auth";
 
 const modules = [
@@ -10,10 +10,28 @@ const modules = [
     icon: Building2,
   },
   {
+    title: "Contacts",
+    description: "People linked to companies, participations, and actions.",
+    href: "/contacts",
+    icon: Users,
+  },
+  {
+    title: "Events",
+    description: "Exhibition records with participants, program items, and event actions.",
+    href: "/events",
+    icon: CalendarDays,
+  },
+  {
     title: "Participations",
     description: "Event-specific exhibitor records with booths, logistics, and materials.",
     href: "/participations",
     icon: CalendarDays,
+  },
+  {
+    title: "Brands",
+    description: "Global brand portfolio represented by companies and participants.",
+    href: "/brands",
+    icon: Tags,
   },
   {
     title: "SMM Workspace",
@@ -22,8 +40,8 @@ const modules = [
     icon: Megaphone,
   },
   {
-    title: "Tasks",
-    description: "Operational task board for sales, logistics, SMM, and internal follow-ups.",
+    title: "Actions",
+    description: "Unified action list for companies, participations, contacts, and events.",
     href: "/tasks",
     icon: ClipboardList,
   },
@@ -61,7 +79,7 @@ export default async function Home() {
               <Link
                 key={module.href}
                 href={module.href}
-                className="rounded-lg border border-border bg-white p-5 shadow-soft transition hover:border-slate-300"
+                className="rounded-lg border border-border bg-white p-5 shadow-soft transition hover:border-outline"
               >
                 <Icon className="mb-4 text-primary" size={22} aria-hidden="true" />
                 <h2 className="text-base font-semibold">{module.title}</h2>

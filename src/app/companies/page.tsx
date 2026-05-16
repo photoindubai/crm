@@ -3,7 +3,9 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -20,31 +22,42 @@ export default async function CompaniesPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const params = await resolveSearchParams(searchParams);
-  await requireActiveProfile();
+  const { profile } = await requireActiveProfile();
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  const supabase = createSupabaseAdminClient();
-  let request = supabase
-    .from("company_list_view")
-    .select("*", { count: "exact" })
-    .order("company_name", { ascending: true })
-    .range(from, to);
+  const { companies, count } = await loadCached(
+    {
+      keyParts: ["companies", profile.organization_id, page, query],
+      tags: [cacheTags.companies],
+    },
+    async () => {
+      const supabase = createSupabaseAdminClient();
+      let request = supabase
+        .from("company_list_view")
+        .select("*", { count: "exact" })
+        .order("company_name", { ascending: true })
+        .range(from, to);
 
-  if (query) {
-    request = request.ilike("company_name", `%${query}%`);
-  }
+      if (query) {
+        request = request.ilike("company_name", `%${query}%`);
+      }
 
-  const { data, error, count } = await request;
+      const { data, error, count } = await request;
 
-  if (error) {
-    throw new Error(error.message);
-  }
+      if (error) {
+        throw new Error(error.message);
+      }
 
-  const companies = data ?? [];
+      return {
+        companies: data ?? [],
+        count: count ?? 0,
+      };
+    },
+  );
 
   return (
     <AppShell title="Companies">
@@ -92,7 +105,7 @@ export default async function CompaniesPage({
         <Pagination
           page={page}
           pageSize={PAGE_SIZE}
-          total={count ?? 0}
+          total={count}
           basePath="/companies"
           params={{ q: query || undefined }}
         />
