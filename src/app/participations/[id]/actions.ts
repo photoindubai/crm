@@ -379,6 +379,69 @@ export async function deleteParticipationContact(formData: FormData) {
   redirect(buildParticipationUrl(participationId, { notice: "participant_contact_deleted" }));
 }
 
+export async function saveParticipationLogistics(formData: FormData) {
+  const { profile } = await requireActiveProfile();
+  const supabase = createSupabaseAdminClient();
+  const organizationId = getOrganizationId(profile.organization_id);
+
+  const participationId = String(formData.get("participation_id") ?? "");
+
+  if (!participationId) {
+    redirect("/participations");
+  }
+
+  const { data: participation, error: participationError } = await supabase
+    .from("participations")
+    .select("id")
+    .eq("id", participationId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (participationError || !participation) {
+    redirect("/participations");
+  }
+
+  const payload = {
+    participation_id: participationId,
+    badges_status: nullableText(formData.get("badges_status")),
+    room_asset_status: nullableText(formData.get("room_asset_status")),
+    check_in_status: nullableText(formData.get("check_in_status")),
+    furniture_status: nullableText(formData.get("furniture_status")),
+    electricity_status: nullableText(formData.get("electricity_status")),
+    internet_status: nullableText(formData.get("internet_status")),
+    fascia_status: nullableText(formData.get("fascia_status")),
+    stand_design_status: nullableText(formData.get("stand_design_status")),
+    conference_status: nullableText(formData.get("conference_status")),
+  };
+
+  const { data: existing, error: existingError } = await supabase
+    .from("participation_logistics")
+    .select("id")
+    .eq("participation_id", participationId)
+    .maybeSingle();
+
+  if (existingError) {
+    redirect(buildParticipationUrl(participationId, { error: "logistics_save_failed" }));
+  }
+
+  if (existing?.id) {
+    const { error } = await supabase.from("participation_logistics").update(payload).eq("id", existing.id);
+
+    if (error) {
+      redirect(buildParticipationUrl(participationId, { error: "logistics_save_failed" }));
+    }
+  } else {
+    const { error } = await supabase.from("participation_logistics").insert(payload);
+
+    if (error) {
+      redirect(buildParticipationUrl(participationId, { error: "logistics_save_failed" }));
+    }
+  }
+
+  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.smm]);
+  redirect(buildParticipationUrl(participationId, { notice: "logistics_saved" }));
+}
+
 function nullableText(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
   return normalized ? normalized : null;

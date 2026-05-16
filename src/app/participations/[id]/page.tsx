@@ -15,6 +15,7 @@ import { saveParticipationBrand, saveParticipationContact, saveParticipationMate
 import { DeleteMaterialButton } from "./delete-material-button";
 import { DeleteParticipationBrandButton } from "./delete-participation-brand-button";
 import { DeleteParticipationContactButton } from "./delete-participation-contact-button";
+import { ParticipationLogisticsEditor, type LogisticsItem } from "./participation-logistics-editor";
 
 export const revalidate = 30;
 
@@ -348,23 +349,9 @@ export default async function ParticipationDetailPage({
           </Panel>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <Panel title="Logistics Requests" icon={<ClipboardList size={18} aria-hidden="true" />}>
-              <div className="space-y-1">
-                {getLogisticsItems(logistics).map((item) => (
-                  <LogisticsRequestRow key={item.key} label={item.label} status={item.status} />
-                ))}
-              </div>
-              {logistics?.notes ? (
-                <div className="mt-4 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-                  <div className="mb-1 text-xs font-semibold uppercase text-primary">Notes</div>
-                  <p className="whitespace-pre-line">{logistics.notes}</p>
-                </div>
-              ) : null}
-            </Panel>
-          </div>
-        </div>
+        <Panel title="Logistics Requests" icon={<ClipboardList size={18} aria-hidden="true" />}>
+          <ParticipationLogisticsEditor participationId={participation.id} items={getLogisticsItems(logistics)} notes={logistics?.notes} />
+        </Panel>
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Panel
@@ -738,33 +725,6 @@ function BadgeLine({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-function LogisticsRequestRow({ label, status }: { label: string; status: string | null }) {
-  const sent = isLogisticsSubmitted(status);
-
-  return (
-    <div className="flex items-center justify-between gap-4 py-3">
-      <div className="min-w-0">
-        <div className="text-sm font-medium text-primary">{label}</div>
-      </div>
-      <div className="flex items-center">
-        <span className="sr-only">{`${label}: ${formatLogisticsStatus(status)}`}</span>
-        <span
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            sent ? "bg-slate-400" : "bg-slate-300"
-          }`}
-          aria-hidden="true"
-        >
-          <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
-              sent ? "translate-x-5" : "translate-x-0.5"
-            }`}
-          />
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function ContactRow({ participationId, item }: { participationId: string; item: ContactLinkRow }) {
   const name = formatContactName(item.contacts);
 
@@ -953,6 +913,7 @@ function getFlashMessage(notice?: string, error?: string) {
         participant_contact_invalid: "Selected contact is not linked to this company.",
         participant_contact_save_failed: "Failed to save participant contact.",
         participant_contact_delete_failed: "Failed to delete participant contact.",
+        logistics_save_failed: "Failed to save logistics requests.",
       }[error] ?? "The operation failed.";
 
     return { type: "error" as const, message };
@@ -970,6 +931,7 @@ function getFlashMessage(notice?: string, error?: string) {
         participant_contact_added: "Participant contact added.",
         participant_contact_updated: "Participant contact updated.",
         participant_contact_deleted: "Participant contact removed.",
+        logistics_saved: "Logistics requests updated.",
       }[notice] ?? "Saved.";
 
     return { type: "success" as const, message };
@@ -978,33 +940,18 @@ function getFlashMessage(notice?: string, error?: string) {
   return null;
 }
 
-function getLogisticsItems(logistics: LogisticsRow | null) {
+function getLogisticsItems(logistics: LogisticsRow | null): LogisticsItem[] {
   return [
-    { key: "badges", label: "Badges", status: logistics?.badges_status ?? null },
-    { key: "room_asset", label: "Room Asset", status: logistics?.room_asset_status ?? null },
-    { key: "check_in", label: "Check In", status: logistics?.check_in_status ?? null },
-    { key: "furniture", label: "Furniture", status: logistics?.furniture_status ?? null },
-    { key: "electricity", label: "Electricity", status: logistics?.electricity_status ?? null },
-    { key: "internet", label: "Internet", status: logistics?.internet_status ?? null },
-    { key: "fascia", label: "Fascia", status: logistics?.fascia_status ?? null },
-    { key: "stand_design", label: "Stand Design", status: logistics?.stand_design_status ?? null },
-    { key: "conference", label: "Conference", status: logistics?.conference_status ?? null },
+    { key: "badges_status", label: "Badges", status: logistics?.badges_status ?? null },
+    { key: "room_asset_status", label: "Room Asset", status: logistics?.room_asset_status ?? null },
+    { key: "check_in_status", label: "Check In", status: logistics?.check_in_status ?? null },
+    { key: "furniture_status", label: "Furniture", status: logistics?.furniture_status ?? null },
+    { key: "electricity_status", label: "Electricity", status: logistics?.electricity_status ?? null },
+    { key: "internet_status", label: "Internet", status: logistics?.internet_status ?? null },
+    { key: "fascia_status", label: "Fascia", status: logistics?.fascia_status ?? null },
+    { key: "stand_design_status", label: "Stand Design", status: logistics?.stand_design_status ?? null },
+    { key: "conference_status", label: "Conference", status: logistics?.conference_status ?? null },
   ];
-}
-
-function isLogisticsSubmitted(status: string | null) {
-  return ["submitted", "approved", "completed", "rejected", "waiting_for_organizer"].includes(status ?? "");
-}
-
-function formatLogisticsStatus(status: string | null) {
-  if (!status) {
-    return "No submission";
-  }
-
-  return status
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }
 
 function emptyResult<T>(data: T = [] as T) {
