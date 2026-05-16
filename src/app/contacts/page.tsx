@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { cacheTags } from "@/lib/cache-tags";
@@ -7,6 +8,7 @@ import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
+import { DeleteContactButton } from "./delete-contact-button";
 
 export const revalidate = 30;
 
@@ -22,8 +24,11 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
+  const notice = getStringParam(params, "notice");
+  const error = getStringParam(params, "error");
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+  const returnTo = buildContactsReturnTo(page, query);
 
   const { contacts, companies, links, count } = await loadCached(
     {
@@ -84,6 +89,17 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
 
   return (
     <AppShell title="Contacts">
+      {getFlashMessage(notice, error) ? (
+        <div
+          className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+            getFlashMessage(notice, error)?.type === "error"
+              ? "border-red-200 bg-red-50 text-red-700"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {getFlashMessage(notice, error)?.message}
+        </div>
+      ) : null}
       <form className="mb-4 flex max-w-xl gap-2">
         <input
           name="q"
@@ -106,8 +122,9 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
               <th className="w-[26%] px-4 py-3 font-semibold">Contact</th>
               <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[18%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Phone</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Email</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Phone</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Email</th>
+              <th className="w-[8%] px-4 py-3 text-right font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -120,7 +137,7 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
                 return (
                   <tr key={contact.id} className="align-top">
                     <td className="px-4 py-4">
-                      <Link href={`/contacts/${contact.id}`} className="truncate font-medium text-primary hover:underline">
+                      <Link href={`/contacts/${contact.id}?returnTo=${encodeURIComponent(returnTo)}`} className="truncate font-medium text-primary hover:underline">
                         {formatContactName(contact)}
                       </Link>
                       <div className="truncate text-xs text-muted-foreground">{contact.position ?? "No position"}</div>
@@ -137,12 +154,24 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
                     <td className="px-4 py-4 text-muted-foreground">{primaryLink?.role ?? "No role"}</td>
                     <td className="px-4 py-4 text-muted-foreground">{contact.phone ?? "No phone"}</td>
                     <td className="truncate px-4 py-4 text-muted-foreground">{contact.email ?? "No email"}</td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/contacts/${contact.id}?edit=1&returnTo=${encodeURIComponent(returnTo)}`}
+                          title="Edit contact"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-primary"
+                        >
+                          <Pencil size={15} aria-hidden="true" />
+                        </Link>
+                        <DeleteContactButton contactId={contact.id} returnTo={returnTo} compact />
+                      </div>
+                    </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   No contacts found.
                 </td>
               </tr>
@@ -179,4 +208,43 @@ function groupBy<T>(rows: T[], getKey: (row: T) => string | null | undefined) {
 
 function emptyResult<T>(data: T = [] as T) {
   return { data, error: null };
+}
+
+function buildContactsReturnTo(page: number, query: string) {
+  const params = new URLSearchParams();
+
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+
+  if (query) {
+    params.set("q", query);
+  }
+
+  const search = params.toString();
+  return search ? `/contacts?${search}` : "/contacts";
+}
+
+function getFlashMessage(notice?: string, error?: string) {
+  if (error) {
+    const message =
+      {
+        contact_not_found: "Contact was not found.",
+        contact_delete_failed: "Failed to delete contact.",
+      }[error] ?? "The operation failed.";
+
+    return { type: "error" as const, message };
+  }
+
+  if (notice) {
+    const message =
+      {
+        contact_updated: "Contact updated.",
+        contact_deleted: "Contact deleted.",
+      }[notice] ?? "Saved.";
+
+    return { type: "success" as const, message };
+  }
+
+  return null;
 }

@@ -40,11 +40,29 @@ Organization
       → Contacts
       → Brands
       → Logistics
-      → SMM tasks
+      → Actions
       → Materials
 ```
 
 For the first version there may be only one organization and one event, but the schema should already support multiple organizations and events.
+
+### 2.1 Current implementation notes
+
+The current CRM implementation already made several architectural choices that should be treated as the working baseline for this repository:
+
+- Frontend stack is `Next.js App Router`, not Vite.
+- Authentication is already implemented through `Supabase Auth` with:
+  - magic-link email sign-in;
+  - Google OAuth sign-in;
+  - `profiles` as the operational user table.
+- Read performance is based on:
+  - flat Supabase views for list pages;
+  - pagination;
+  - lightweight count queries;
+  - server-side cache with explicit invalidation after writes.
+- Heavy nested relational reads should be limited to detail pages only.
+- `Company` does not own booth numbers in UI or domain logic. Booths belong only to `participations` through `booth_assignments`.
+- Operational workflow is now centered on a unified `actions` model. Legacy `tasks` and `smm_tasks` may remain in the database only as transitional source tables during migration/history-preservation stages.
 
 ---
 
@@ -64,7 +82,7 @@ The MVP should include:
 8. Booth / stand number assignment.
 9. Basic exhibitor logistics statuses.
 10. SMM/content workflow for participant promotion.
-11. Internal task system.
+11. Internal operational workflow/action system.
 12. Dashboard views for different roles.
 13. File/material links storage.
 14. Basic audit/activity history.
@@ -572,7 +590,28 @@ published
 
 ---
 
-### 5.14 smm_tasks
+### 5.14 Workflow model note
+
+For this codebase, the canonical operational model is now:
+
+```text
+actions
+action_subjects
+action_recipients
+action_templates
+```
+
+This replaces the need to build new product logic around separate general tasks and SMM-only tasks.
+
+Practical rule:
+
+- use `actions` for operational work;
+- use `action_templates` for required/optional event-driven workflows;
+- treat legacy `tasks` / `smm_tasks` as transitional only if they still exist in some environments.
+
+---
+
+### 5.15 smm_tasks (legacy / transitional)
 
 SMM-specific tasks and publication tracking.
 
@@ -638,7 +677,7 @@ other
 
 ---
 
-### 5.15 tasks
+### 5.16 tasks (legacy / transitional)
 
 General internal task system.
 
@@ -688,7 +727,7 @@ urgent
 
 ---
 
-### 5.16 notes
+### 5.17 notes
 
 Internal notes linked to different entities.
 
@@ -719,7 +758,7 @@ general
 
 ---
 
-### 5.17 activity_log
+### 5.18 activity_log
 
 Basic audit log.
 
@@ -786,23 +825,20 @@ For MVP, use simple role-based checks in the frontend and Supabase RLS policies.
 
 Build a web admin frontend.
 
-Recommended stack:
+Current stack:
 
 ```text
-React + Vite + TypeScript
-Supabase JS client
-TanStack Query
-React Router
-Tailwind CSS or another component system
+Next.js App Router + TypeScript
+Supabase
+Tailwind CSS
 ```
 
-Alternative if preferred:
+Implementation note:
 
-```text
-Next.js + Supabase
-```
-
-For the first implementation, Vite + React is acceptable and consistent with current project experience.
+- server-rendered list/detail pages are acceptable;
+- list pages should prefer flat view queries and pagination;
+- detail pages may use several bounded queries instead of one deep nested select;
+- simple server actions are acceptable for CRUD before introducing heavier client-side state tools.
 
 ---
 
@@ -817,13 +853,15 @@ For the first implementation, Vite + React is acceptable and consistent with cur
 /companies/:companyId
 /participations
 /participations/:participationId
-/booths
 /brands
+/brands/:brandId
 /contacts
+/contacts/:contactId
 /tasks
 /smm
-/settings
 ```
+
+Routes such as `/booths` or `/settings` can be added later, but they are not required for the current implemented MVP if booth management is handled from participation and event screens.
 
 ---
 
@@ -1106,4 +1144,3 @@ The MVP is successful when:
 13. Build import scripts.
 14. Add activity log.
 15. Polish UI and permissions.
-

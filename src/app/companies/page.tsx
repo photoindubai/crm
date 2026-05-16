@@ -82,12 +82,11 @@ export default async function CompaniesPage({
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="w-[30%] px-4 py-3 font-semibold">Company</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Location</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Booth</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Main contact</th>
-              <th className="w-[11%] px-4 py-3 font-semibold">Status</th>
-              <th className="w-[13%] px-4 py-3 font-semibold">Website</th>
+              <th className="w-[32%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[18%] px-4 py-3 font-semibold">Location</th>
+              <th className="w-[24%] px-4 py-3 font-semibold">Main contact</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Website</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -95,7 +94,7 @@ export default async function CompaniesPage({
               companies.map((company) => <CompanyRow key={company.company_id} company={company} />)
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   No companies found.
                 </td>
               </tr>
@@ -140,7 +139,6 @@ function CompanyRow({ company }: { company: CompanyListRow }) {
         </div>
       </td>
       <td className="px-4 py-4 text-muted-foreground">{location}</td>
-      <td className="px-4 py-4 text-muted-foreground">{company.booth_numbers || "No booth"}</td>
       <td className="px-4 py-4">
         <div className="truncate">{company.main_contact_name || "No contact"}</div>
         <div className="truncate text-xs text-muted-foreground">

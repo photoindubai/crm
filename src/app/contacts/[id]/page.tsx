@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Building2, ClipboardList, Mail, Phone, UserRound } from "lucide-react";
+import { ArrowLeft, Building2, ClipboardList, Mail, Pencil, Phone, UserRound } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
-import { requireActiveProfile } from "@/lib/auth";
+import { getSafeNextPath, requireActiveProfile } from "@/lib/auth";
+import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
+import { DeleteContactButton } from "../delete-contact-button";
+import { updateContactDetails } from "../actions";
 
 export const revalidate = 30;
 
@@ -36,9 +39,20 @@ type ParticipationContactRow = {
 };
 type ActionRow = Database["public"]["Views"]["contact_action_list_view"]["Row"];
 
-export default async function ContactDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ContactDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<PageSearchParams>;
+}) {
   const { id } = await params;
+  const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const returnTo = getSafeNextPath(getStringParam(resolvedSearchParams, "returnTo") ?? "/contacts");
+  const isEditing = getStringParam(resolvedSearchParams, "edit") === "1";
+  const notice = getStringParam(resolvedSearchParams, "notice");
+  const error = getStringParam(resolvedSearchParams, "error");
 
   const { contact, companies, participations, actions } = await loadCached(
     {
@@ -89,14 +103,72 @@ export default async function ContactDetailPage({ params }: { params: Promise<{ 
     },
   );
   const name = [contact.first_name, contact.last_name].filter(Boolean).join(" ") || contact.email || "Unnamed contact";
+  const flashMessage = getFlashMessage(notice, error);
 
   return (
     <AppShell title="Contact Detail">
       <div className="space-y-6">
-        <Link href="/companies" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
-          <ArrowLeft size={16} aria-hidden="true" />
-          Back to companies
-        </Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link href={returnTo} className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            <ArrowLeft size={16} aria-hidden="true" />
+            Back
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/contacts/${id}?edit=1&returnTo=${encodeURIComponent(returnTo)}`}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-medium text-primary hover:bg-muted"
+            >
+              <Pencil size={15} aria-hidden="true" />
+              Edit contact
+            </Link>
+            <DeleteContactButton contactId={contact.id} returnTo={returnTo} />
+          </div>
+        </div>
+
+        {flashMessage ? (
+          <div
+            className={`rounded-lg border px-4 py-3 text-sm ${
+              flashMessage.type === "error"
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+            }`}
+          >
+            {flashMessage.message}
+          </div>
+        ) : null}
+
+        {isEditing ? (
+          <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-primary">Edit contact</h3>
+              <Link href={`/contacts/${id}?returnTo=${encodeURIComponent(returnTo)}`} className="text-sm font-medium text-primary hover:underline">
+                Close
+              </Link>
+            </div>
+            <form action={updateContactDetails} className="space-y-4">
+              <input type="hidden" name="contact_id" value={contact.id} />
+              <input type="hidden" name="return_to" value={returnTo} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="First name" name="first_name" defaultValue={contact.first_name ?? ""} />
+                <Field label="Last name" name="last_name" defaultValue={contact.last_name ?? ""} />
+                <Field label="Email" name="email" type="email" defaultValue={contact.email ?? ""} />
+                <Field label="Phone" name="phone" defaultValue={contact.phone ?? ""} />
+                <Field label="Position" name="position" defaultValue={contact.position ?? ""} />
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                >
+                  Save contact
+                </button>
+                <Link href={`/contacts/${id}?returnTo=${encodeURIComponent(returnTo)}`} className="text-sm font-medium text-muted-foreground hover:text-primary">
+                  Cancel
+                </Link>
+              </div>
+            </form>
+          </section>
+        ) : null}
 
         <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-5 md:flex-row md:items-center">
@@ -235,4 +307,51 @@ function getInitials(value: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  defaultValue?: string;
+}) {
+  return (
+    <label className="grid gap-2 text-sm">
+      <span className="font-medium text-primary">{label}</span>
+      <input
+        type={type}
+        name={name}
+        defaultValue={defaultValue}
+        className="h-11 rounded-md border border-border bg-white px-3 text-sm text-primary outline-none ring-0 transition focus:border-primary"
+      />
+    </label>
+  );
+}
+
+function getFlashMessage(notice?: string, error?: string) {
+  if (error) {
+    const message =
+      {
+        contact_identity_required: "Add at least a contact name or email.",
+        contact_update_failed: "Failed to update contact.",
+      }[error] ?? "The operation failed.";
+
+    return { type: "error" as const, message };
+  }
+
+  if (notice) {
+    const message =
+      {
+        contact_updated: "Contact updated.",
+      }[notice] ?? "Saved.";
+
+    return { type: "success" as const, message };
+  }
+
+  return null;
 }

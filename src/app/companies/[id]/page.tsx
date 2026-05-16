@@ -10,7 +10,6 @@ import {
   FileText,
   Globe2,
   Mail,
-  Map as MapIcon,
   MapPin,
   Megaphone,
   MoreVertical,
@@ -25,9 +24,13 @@ import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
+import { assignCompanyBrand, updateCompanyDetails } from "./actions";
+import { CompanyContactForm } from "./company-contact-form";
+import { DeleteContactButton } from "@/app/contacts/delete-contact-button";
 
 export const revalidate = 30;
 
@@ -69,21 +72,12 @@ type ParticipationRow = Pick<
   } | null;
 };
 
-type BoothAssignmentRow = {
-  participation_id: string | null;
-  booths: {
-    booth_number: string;
-    hall: string | null;
-    zone: string | null;
-    area_sqm: number | null;
-    status: string | null;
-  } | null;
-};
-
 type BrandRow = Pick<
   Database["public"]["Tables"]["brands"]["Row"],
   "id" | "brand_name" | "website" | "brand_logo_url" | "country"
 >;
+
+type BrandOptionRow = Pick<Database["public"]["Tables"]["brands"]["Row"], "id" | "brand_name">;
 
 type CompanyBrandLinkRow = Pick<Database["public"]["Tables"]["company_brands"]["Row"], "brand_id">;
 
@@ -113,11 +107,22 @@ type NoteRow = Pick<
   "id" | "body" | "note_type" | "created_at" | "participation_id"
 >;
 
-export default async function CompanyDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CompanyDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<PageSearchParams>;
+}) {
   const { id } = await params;
+  const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const organizationId = profile.organization_id ?? notFound();
+  const panel = getStringParam(resolvedSearchParams, "panel");
+  const notice = getStringParam(resolvedSearchParams, "notice");
+  const error = getStringParam(resolvedSearchParams, "error");
 
-  const { company, contacts, participations, notes, actions, booths, logistics, brands } = await loadCached(
+  const { company, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
     {
       keyParts: ["company-detail", profile.organization_id, id],
       tags: [cacheTags.companies, cacheTags.company(id), cacheTags.participations, cacheTags.brands, cacheTags.actions, cacheTags.notes],
@@ -179,13 +184,9 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
       const participations = (participationsResult.data ?? []) as unknown as ParticipationRow[];
       const participationIds = participations.map((participation) => participation.id);
 
-      const [boothsResult, participationBrandsResult, logisticsResult] =
+        const [participationBrandsResult, logisticsResult] =
         participationIds.length > 0
           ? await Promise.all([
-              supabase
-                .from("booth_assignments")
-                .select("participation_id,booths(booth_number,hall,zone,area_sqm,status)")
-                .in("participation_id", participationIds),
               supabase
                 .from("participation_brands")
                 .select("participation_id,brand_id")
@@ -197,10 +198,9 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                 )
                 .in("participation_id", participationIds),
             ])
-          : [emptyResult(), emptyResult(), emptyResult()];
+          : [emptyResult(), emptyResult()];
 
       const relationError =
-        boothsResult.error ??
         participationBrandsResult.error ??
         logisticsResult.error;
 
@@ -233,19 +233,35 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
         participations,
         notes: (notesResult.data ?? []) as NoteRow[],
         actions: ((actionsResult.data ?? []) as CompanyActionRow[]).slice(0, 8),
-        booths: (boothsResult.data ?? []) as unknown as BoothAssignmentRow[],
         logistics: (logisticsResult.data ?? []) as LogisticsRow[],
         brands: (brandsResult.data ?? []) as BrandRow[],
+        companyBrandLinks,
       };
     },
   );
 
-  const boothsByParticipation = groupBy(booths, (row) => row.participation_id);
+  let availableBrands: BrandOptionRow[] = [];
+  if (panel === "brand") {
+    const assignedBrandIds = new Set(companyBrandLinks.map((row) => row.brand_id));
+    const supabase = createSupabaseAdminClient();
+    const { data: brandOptionsResult, error: brandOptionsError } = await supabase
+      .from("brands")
+      .select("id,brand_name")
+      .eq("organization_id", organizationId)
+      .order("brand_name", { ascending: true });
+
+    if (brandOptionsError) {
+      throw new Error(brandOptionsError.message);
+    }
+
+    availableBrands = (brandOptionsResult ?? []).filter((brand) => !assignedBrandIds.has(brand.id));
+  }
+
   const logisticsByParticipation = new Map(logistics.map((row) => [row.participation_id, row]));
   const actionRows = actions;
-  const allBooths = booths.filter((row) => row.booths);
   const brandPortfolio = brands;
   const location = [company.city, company.country].filter(Boolean).join(", ") || "No location";
+  const flashMessage = getFlashMessage(notice, error);
 
   return (
     <AppShell title="Company Detail">
@@ -255,14 +271,70 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             <ArrowLeft size={16} aria-hidden="true" />
             Back to companies
           </Link>
-          <button
-            disabled
-            className="inline-flex h-10 cursor-not-allowed items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-medium text-primary opacity-50"
+          <Link
+            href={`/companies/${id}?panel=edit`}
+            className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-medium text-primary hover:bg-muted"
           >
             <Pencil size={16} aria-hidden="true" />
             Edit details
-          </button>
+          </Link>
         </div>
+
+        {flashMessage ? (
+          <div
+            className={`rounded-lg border px-4 py-3 text-sm ${
+              flashMessage.type === "error"
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+            }`}
+          >
+            {flashMessage.message}
+          </div>
+        ) : null}
+
+        {panel === "edit" ? (
+          <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-primary">Edit company</h3>
+                <p className="text-sm text-muted-foreground">Update base company fields. Participation data stays separate.</p>
+              </div>
+              <Link href={`/companies/${id}`} className="text-sm font-medium text-primary hover:underline">
+                Close
+              </Link>
+            </div>
+            <form action={updateCompanyDetails} className="space-y-4">
+              <input type="hidden" name="company_id" value={company.id} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <Field label="Company name" name="company_name" defaultValue={company.company_name} required />
+                <Field label="Website" name="website" defaultValue={company.website ?? ""} placeholder="https://example.com" />
+                <Field label="Company email" name="company_email" type="email" defaultValue={company.company_email ?? ""} />
+                <Field label="Company phone" name="company_phone" defaultValue={company.company_phone ?? ""} />
+                <Field label="City" name="city" defaultValue={company.city ?? ""} />
+                <Field label="Country" name="country" defaultValue={company.country ?? ""} />
+                <Field label="Facebook" name="facebook_url" defaultValue={company.facebook_url ?? ""} />
+                <Field label="Instagram" name="instagram_url" defaultValue={company.instagram_url ?? ""} />
+                <Field label="LinkedIn" name="linkedin_url" defaultValue={company.linkedin_url ?? ""} />
+                <Field label="YouTube" name="youtube_url" defaultValue={company.youtube_url ?? ""} />
+                <Field label="Other social" name="other_social_url" defaultValue={company.other_social_url ?? ""} />
+                <Field label="Logo URL" name="company_logo_url" defaultValue={company.company_logo_url ?? ""} />
+              </div>
+              <Field label="Address" name="address" defaultValue={company.address ?? ""} />
+              <TextAreaField label="Description" name="description" defaultValue={company.description ?? ""} rows={7} />
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                >
+                  Save company
+                </button>
+                <Link href={`/companies/${id}`} className="text-sm font-medium text-muted-foreground hover:text-primary">
+                  Cancel
+                </Link>
+              </div>
+            </form>
+          </section>
+        ) : null}
 
         <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
@@ -282,15 +354,6 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                 <MetaItem icon={<MapPin size={15} aria-hidden="true" />}>{location}</MetaItem>
                 <MetaItem icon={<Phone size={15} aria-hidden="true" />}>{company.company_phone ?? "No company phone"}</MetaItem>
                 <MetaItem icon={<Mail size={15} aria-hidden="true" />}>{company.company_email ?? "No company email"}</MetaItem>
-                {allBooths.length > 0 ? (
-                  allBooths.slice(0, 4).map((booth) => (
-                    <span key={`${booth.participation_id}-${booth.booths?.booth_number}`} className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                      Booth #{booth.booths?.booth_number}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">No booth</span>
-                )}
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {[company.address, company.description].filter(Boolean).join("\n\n") || "No company description yet."}
@@ -305,16 +368,27 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             title="Company Contacts"
             icon={<Users size={19} aria-hidden="true" />}
             action={
-              <button disabled className="inline-flex cursor-not-allowed items-center gap-1 text-xs font-semibold text-primary opacity-50">
+              <Link href={`/companies/${id}?panel=contact`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
                 <Plus size={14} aria-hidden="true" />
                 Add contact
-              </button>
+              </Link>
             }
           >
+            {panel === "contact" ? (
+              <div className="mb-4 rounded-lg border border-border bg-muted/30 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h4 className="font-semibold text-primary">Add contact</h4>
+                  <Link href={`/companies/${id}`} className="text-sm font-medium text-primary hover:underline">
+                    Close
+                  </Link>
+                </div>
+                <CompanyContactForm companyId={company.id} />
+              </div>
+            ) : null}
             {contacts.length > 0 ? (
               <div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
                 {contacts.map((item) => (
-                  <ContactCard key={item.contacts?.id ?? item.role ?? "contact"} item={item} />
+                  <ContactCard key={item.contacts?.id ?? item.role ?? "contact"} item={item} companyId={company.id} />
                 ))}
               </div>
             ) : (
@@ -327,12 +401,57 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             title="Brand Portfolio"
             icon={<Tags size={19} aria-hidden="true" />}
             action={
-              <button disabled className="inline-flex cursor-not-allowed items-center gap-1 text-xs font-semibold text-primary opacity-50">
+              <Link href={`/companies/${id}?panel=brand`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
                 <Plus size={14} aria-hidden="true" />
                 Assign brand
-              </button>
+              </Link>
             }
           >
+            {panel === "brand" ? (
+              <div className="mb-4 rounded-lg border border-border bg-muted/30 p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h4 className="font-semibold text-primary">Assign brand</h4>
+                  <Link href={`/companies/${id}`} className="text-sm font-medium text-primary hover:underline">
+                    Close
+                  </Link>
+                </div>
+                {availableBrands.length > 0 ? (
+                  <form action={assignCompanyBrand} className="space-y-4">
+                    <input type="hidden" name="company_id" value={company.id} />
+                    <label className="grid gap-2 text-sm">
+                      <span className="font-medium text-primary">Brand</span>
+                      <select
+                        name="brand_id"
+                        defaultValue=""
+                        className="h-11 rounded-md border border-border bg-white px-3 text-sm text-primary outline-none ring-0 transition focus:border-primary"
+                      >
+                        <option value="" disabled>
+                          Select brand
+                        </option>
+                        {availableBrands.map((brand) => (
+                          <option key={brand.id} value={brand.id}>
+                            {brand.brand_name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                      >
+                        Assign brand
+                      </button>
+                      <Link href={`/companies/${id}`} className="text-sm font-medium text-muted-foreground hover:text-primary">
+                        Cancel
+                      </Link>
+                    </div>
+                  </form>
+                ) : (
+                  <EmptyText>All available brands are already assigned to this company.</EmptyText>
+                )}
+              </div>
+            ) : null}
             {brandPortfolio.length > 0 ? (
               <div className="grid grid-cols-2 gap-3">
                 {brandPortfolio.slice(0, 7).map((brand) => (
@@ -347,14 +466,6 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             ) : (
               <EmptyText>No brands.</EmptyText>
             )}
-
-            <div className="mt-5 rounded-lg border border-border bg-muted/50 p-4">
-              <h4 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase text-primary">
-                <MapIcon size={15} aria-hidden="true" />
-                Booth Allocation Map
-              </h4>
-              <BoothMap booths={allBooths} />
-            </div>
           </Panel>
 
           <Panel
@@ -428,7 +539,6 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
                   <ParticipationSummary
                     key={participation.id}
                     participation={participation}
-                    booths={boothsByParticipation.get(participation.id) ?? []}
                     logistics={logisticsByParticipation.get(participation.id)}
                   />
                 ))}
@@ -511,9 +621,10 @@ function MetaLink({ href, icon, children }: { href: string | null | undefined; i
   );
 }
 
-function ContactCard({ item }: { item: ContactRow }) {
+function ContactCard({ item, companyId }: { item: ContactRow; companyId: string }) {
   const name = formatContactName(item.contacts);
   const primary = Boolean(item.is_primary);
+  const returnTo = `/companies/${companyId}`;
 
   return (
     <div className={`flex items-center gap-4 p-4 ${primary ? "bg-primary/5" : "hover:bg-muted/50"}`}>
@@ -527,7 +638,10 @@ function ContactCard({ item }: { item: ContactRow }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           {item.contacts?.id ? (
-            <Link href={`/contacts/${item.contacts.id}`} className="truncate font-semibold text-primary hover:underline">
+            <Link
+              href={`/contacts/${item.contacts.id}?returnTo=${encodeURIComponent(returnTo)}`}
+              className="truncate font-semibold text-primary hover:underline"
+            >
               {name}
             </Link>
           ) : (
@@ -545,6 +659,18 @@ function ContactCard({ item }: { item: ContactRow }) {
         <p className="font-mono text-xs text-primary">{item.contacts?.phone ?? "No phone"}</p>
         <p className="text-muted-foreground">{item.contacts?.email ?? "No email"}</p>
       </div>
+      {item.contacts?.id ? (
+        <div className="flex items-center gap-1">
+          <Link
+            href={`/contacts/${item.contacts.id}?edit=1&returnTo=${encodeURIComponent(returnTo)}`}
+            title="Edit contact"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-primary"
+          >
+            <Pencil size={15} aria-hidden="true" />
+          </Link>
+          <DeleteContactButton contactId={item.contacts.id} returnTo={returnTo} compact />
+        </div>
+      ) : null}
       <div className="flex gap-1 md:hidden">
         {item.contacts?.phone ? <Phone size={16} className="text-muted-foreground" aria-hidden="true" /> : null}
         {item.contacts?.email ? <Mail size={16} className="text-muted-foreground" aria-hidden="true" /> : null}
@@ -568,29 +694,6 @@ function BrandTile({ brand }: { brand: BrandRow }) {
   );
 }
 
-function BoothMap({ booths }: { booths: BoothAssignmentRow[] }) {
-  return (
-    <div className="relative aspect-video overflow-hidden rounded-md border border-border bg-white">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px]" />
-      <div className="absolute inset-4 grid grid-cols-4 gap-2">
-        {booths.slice(0, 8).map((booth, index) => (
-          <div
-            key={`${booth.participation_id}-${booth.booths?.booth_number}-${index}`}
-            className={`flex items-center justify-center rounded border text-[10px] font-bold ${
-              index === 0 ? "border-primary bg-primary text-primary-foreground shadow-soft" : "border-border bg-muted text-primary"
-            }`}
-          >
-            {booth.booths?.booth_number}
-          </div>
-        ))}
-      </div>
-      {booths.length === 0 ? (
-        <div className="absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">No booth assigned</div>
-      ) : null}
-    </div>
-  );
-}
-
 function ActionIcon({ type }: { type: string | null }) {
   const className = "mt-0.5 shrink-0 text-primary";
 
@@ -607,11 +710,9 @@ function ActionIcon({ type }: { type: string | null }) {
 
 function ParticipationSummary({
   participation,
-  booths,
   logistics,
 }: {
   participation: ParticipationRow;
-  booths: BoothAssignmentRow[];
   logistics: LogisticsRow | undefined;
 }) {
   const logisticsValues = logistics
@@ -643,7 +744,6 @@ function ParticipationSummary({
         <StatusBadge value={participation.status} />
       </div>
       <div className="grid gap-3 text-sm sm:grid-cols-2">
-        <InfoBlock label="Booths" value={booths.map((item) => item.booths?.booth_number).filter(Boolean).join(", ") || "No booths"} />
         <InfoBlock label="Package" value={participation.package_name ?? "No package"} />
         <InfoBlock label="Payment" value={participation.payment_status ?? "not_started"} />
         <InfoBlock
@@ -666,6 +766,60 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
 
 function EmptyText({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-muted-foreground">{children}</p>;
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  defaultValue,
+  placeholder,
+  required = false,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  defaultValue?: string;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="grid gap-2 text-sm">
+      <span className="font-medium text-primary">{label}</span>
+      <input
+        type={type}
+        name={name}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        required={required}
+        className="h-11 rounded-md border border-border bg-white px-3 text-sm text-primary outline-none ring-0 transition focus:border-primary"
+      />
+    </label>
+  );
+}
+
+function TextAreaField({
+  label,
+  name,
+  defaultValue,
+  rows = 5,
+}: {
+  label: string;
+  name: string;
+  defaultValue?: string;
+  rows?: number;
+}) {
+  return (
+    <label className="grid gap-2 text-sm">
+      <span className="font-medium text-primary">{label}</span>
+      <textarea
+        name={name}
+        defaultValue={defaultValue}
+        rows={rows}
+        className="rounded-md border border-border bg-white px-3 py-3 text-sm text-primary outline-none ring-0 transition focus:border-primary"
+      />
+    </label>
+  );
 }
 
 function ExternalLink({ href, children }: { href: string | null | undefined; children: React.ReactNode }) {
@@ -721,22 +875,42 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function groupBy<T>(rows: T[], getKey: (row: T) => string | null | undefined) {
-  const map = new Map<string, T[]>();
-
-  for (const row of rows) {
-    const key = getKey(row);
-
-    if (!key) {
-      continue;
-    }
-
-    map.set(key, [...(map.get(key) ?? []), row]);
-  }
-
-  return map;
-}
-
 function emptyResult<T>() {
   return { data: [] as T[], error: null };
+}
+
+function getFlashMessage(notice?: string, error?: string) {
+  if (error) {
+    const message =
+      {
+        company_name_required: "Company name is required.",
+        company_update_failed: "Failed to save company details.",
+        contact_identity_required: "Add at least a contact name or email.",
+        contact_create_failed: "Failed to create contact.",
+        contact_update_failed: "Failed to update contact.",
+        contact_link_failed: "Failed to link contact to company.",
+        contact_not_found: "Contact was not found.",
+        contact_delete_failed: "Failed to delete contact.",
+        brand_required: "Select a brand first.",
+        brand_not_found: "Selected brand was not found.",
+        brand_assign_failed: "Failed to assign brand.",
+      }[error] ?? "The operation failed.";
+
+    return { type: "error" as const, message };
+  }
+
+  if (notice) {
+    const message =
+      {
+        company_saved: "Company details saved.",
+        contact_saved: "Contact saved.",
+        contact_updated: "Contact updated.",
+        contact_deleted: "Contact deleted.",
+        brand_assigned: "Brand assigned.",
+      }[notice] ?? "Saved.";
+
+    return { type: "success" as const, message };
+  }
+
+  return null;
 }
