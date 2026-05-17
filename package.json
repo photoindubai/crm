@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "import:local-data": "node scripts/import-local-data-bulk.mjs"
+    "import:local-data": "node scripts/import-local-data-bulk.mjs",
+    "migrate:legacy-files": "bash -lc 'set -a; [ -f .env ] && source .env; [ -f .env.local ] && source .env.local; set +a; node scripts/migrate-legacy-files-metadata.mjs'"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.922.0",
     "@supabase/ssr": "0.6.1",
     "@supabase/supabase-js": "2.105.4",
     "@tanstack/react-query": "5.74.4",

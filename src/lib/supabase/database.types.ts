@@ -643,6 +643,7 @@ export type Database = {
           created_at: string | null
           id: string
           organization_id: string | null
+          primary_logo_file_id: string | null
           source_appsheet_id: string | null
           updated_at: string | null
           website: string | null
@@ -655,6 +656,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           organization_id?: string | null
+          primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           updated_at?: string | null
           website?: string | null
@@ -667,6 +669,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           organization_id?: string | null
+          primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           updated_at?: string | null
           website?: string | null
@@ -677,6 +680,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brands_primary_logo_file_id_fkey"
+            columns: ["primary_logo_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
             referencedColumns: ["id"]
           },
         ]
@@ -762,6 +772,7 @@ export type Database = {
           linkedin_url: string | null
           organization_id: string | null
           other_social_url: string | null
+          primary_logo_file_id: string | null
           source_appsheet_id: string | null
           telegram_url: string | null
           updated_at: string | null
@@ -785,6 +796,7 @@ export type Database = {
           linkedin_url?: string | null
           organization_id?: string | null
           other_social_url?: string | null
+          primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           telegram_url?: string | null
           updated_at?: string | null
@@ -808,6 +820,7 @@ export type Database = {
           linkedin_url?: string | null
           organization_id?: string | null
           other_social_url?: string | null
+          primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           telegram_url?: string | null
           updated_at?: string | null
@@ -820,6 +833,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companies_primary_logo_file_id_fkey"
+            columns: ["primary_logo_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
             referencedColumns: ["id"]
           },
         ]
@@ -1184,6 +1204,151 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "smm_workspace_view"
             referencedColumns: ["participation_id"]
+          },
+        ]
+      }
+      files: {
+        Row: {
+          brand_id: string | null
+          bucket: string
+          company_id: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          event_id: string | null
+          external_url: string | null
+          file_category: string
+          file_role: string | null
+          id: string
+          is_public: boolean
+          mime_type: string | null
+          organization_id: string
+          original_filename: string | null
+          participation_id: string | null
+          provider: string
+          public_url: string | null
+          size_bytes: number | null
+          source: string | null
+          status: string
+          storage_path: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          brand_id?: string | null
+          bucket: string
+          company_id?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          event_id?: string | null
+          external_url?: string | null
+          file_category: string
+          file_role?: string | null
+          id?: string
+          is_public?: boolean
+          mime_type?: string | null
+          organization_id: string
+          original_filename?: string | null
+          participation_id?: string | null
+          provider?: string
+          public_url?: string | null
+          size_bytes?: number | null
+          source?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          brand_id?: string | null
+          bucket?: string
+          company_id?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          event_id?: string | null
+          external_url?: string | null
+          file_category?: string
+          file_role?: string | null
+          id?: string
+          is_public?: boolean
+          mime_type?: string | null
+          organization_id?: string
+          original_filename?: string | null
+          participation_id?: string | null
+          provider?: string
+          public_url?: string | null
+          size_bytes?: number | null
+          source?: string | null
+          status?: string
+          storage_path?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_list_view"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "files_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participation_list_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "files_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "files_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "smm_workspace_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1563,6 +1728,7 @@ export type Database = {
           participation_type: string | null
           payment_status: string | null
           profile_status: string | null
+          public_logo_file_id: string | null
           sales_owner_id: string | null
           smm_status: string | null
           status: string | null
@@ -1583,6 +1749,7 @@ export type Database = {
           participation_type?: string | null
           payment_status?: string | null
           profile_status?: string | null
+          public_logo_file_id?: string | null
           sales_owner_id?: string | null
           smm_status?: string | null
           status?: string | null
@@ -1603,6 +1770,7 @@ export type Database = {
           participation_type?: string | null
           payment_status?: string | null
           profile_status?: string | null
+          public_logo_file_id?: string | null
           sales_owner_id?: string | null
           smm_status?: string | null
           status?: string | null
@@ -1635,6 +1803,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participations_public_logo_file_id_fkey"
+            columns: ["public_logo_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
             referencedColumns: ["id"]
           },
           {

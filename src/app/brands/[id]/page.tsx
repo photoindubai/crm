@@ -6,9 +6,11 @@ import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { resolveBrandLogo } from "@/lib/files/resolve";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
+import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
 
 export const revalidate = 30;
 
@@ -25,12 +27,13 @@ type BoothRow = {
   participation_id: string | null;
   booths: { booth_number: string; hall: string | null; zone: string | null } | null;
 };
+type FileRow = Database["public"]["Tables"]["files"]["Row"];
 
 export default async function BrandDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { profile } = await requireActiveProfile();
 
-  const { brand, companies, participations, events, participationCompanies, booths } = await loadCached(
+  const { brand, primaryLogoFile, companies, participations, events, participationCompanies, booths } = await loadCached(
     {
       keyParts: ["brand-detail", profile.organization_id, id],
       tags: [cacheTags.brands, cacheTags.brand(id), cacheTags.companies, cacheTags.participations, cacheTags.events],
@@ -98,8 +101,15 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
       const participationCompanies = (participationCompaniesResult.data ?? []) as Company[];
       const companies = dedupeCompanies([...directCompanies, ...participationCompanies]);
 
+      let primaryLogoFile: FileRow | null = null;
+      if (brand.primary_logo_file_id) {
+        const { data: fileRow } = await supabase.from("files").select("*").eq("id", brand.primary_logo_file_id).maybeSingle();
+        primaryLogoFile = (fileRow as FileRow | null) ?? null;
+      }
+
       return {
         brand,
+        primaryLogoFile,
         companies,
         participations,
         events: (eventsResult.data ?? []) as Event[],
@@ -111,6 +121,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
   const participationCompaniesById = new Map(participationCompanies.map((company) => [company.id, company]));
   const eventsById = new Map(events.map((event) => [event.id, event]));
   const boothsByParticipation = groupBy(booths, (row) => row.participation_id);
+  const brandLogoUrl = resolveBrandLogo(brand, primaryLogoFile);
 
   return (
     <AppShell title="Brand Detail">
@@ -123,8 +134,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
         <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-5 md:flex-row md:items-center">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
-              {brand.brand_logo_url ? (
-                <img src={brand.brand_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
+              {brandLogoUrl ? (
+                <img src={brandLogoUrl} alt="" loading="lazy" className="h-full w-full object-contain" />
               ) : (
                 <Tags size={30} className="text-primary" aria-hidden="true" />
               )}
@@ -140,6 +151,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
                 ) : (
                   <span>No website</span>
                 )}
+                <LogoUploadForm endpoint="/api/files/brand-logo" entityField="brandId" entityId={brand.id} />
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {brand.brand_description ?? "No brand description."}

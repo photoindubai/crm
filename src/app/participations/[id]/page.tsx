@@ -5,8 +5,11 @@ import { ArrowLeft, Building2, CalendarDays, ClipboardList, Pencil, Plus, Tags, 
 import { AppShell } from "@/components/app-shell";
 import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
+import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
+import { ParticipationMaterialUploadForm } from "@/components/uploads/participation-material-upload-form";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { resolveParticipationLogo } from "@/lib/files/resolve";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -22,7 +25,7 @@ export const revalidate = 30;
 type Participation = Database["public"]["Tables"]["participations"]["Row"];
 type Company = Pick<
   Database["public"]["Tables"]["companies"]["Row"],
-  "id" | "company_name" | "company_logo_url" | "city" | "country" | "website"
+  "id" | "company_name" | "company_logo_url" | "city" | "country" | "website" | "primary_logo_file_id"
 >;
 type Event = Pick<
   Database["public"]["Tables"]["events"]["Row"],
@@ -90,6 +93,7 @@ type TemplateRow = Pick<
   Database["public"]["Tables"]["action_templates"]["Row"],
   "id" | "title" | "action_type" | "channel" | "is_required" | "status" | "sort_order"
 >;
+type FileRow = Database["public"]["Tables"]["files"]["Row"];
 
 export default async function ParticipationDetailPage({
   params,
@@ -109,7 +113,7 @@ export default async function ParticipationDetailPage({
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
-  const { participation, company, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates } =
+  const { participation, participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates } =
     await loadCached(
       {
         keyParts: ["participation-detail", profile.organization_id, id],
@@ -141,7 +145,7 @@ export default async function ParticipationDetailPage({
             participation.company_id
               ? supabase
                   .from("companies")
-                  .select("id,company_name,company_logo_url,city,country,website")
+                  .select("id,company_name,company_logo_url,city,country,website,primary_logo_file_id")
                   .eq("id", participation.company_id)
                   .single()
               : emptyResult<Company | null>(null),
@@ -231,9 +235,23 @@ export default async function ParticipationDetailPage({
           throw new Error(brandsResult.error.message);
         }
 
+        let participationLogoFile: FileRow | null = null;
+        if (participation.public_logo_file_id) {
+          const { data: fileRow } = await supabase.from("files").select("*").eq("id", participation.public_logo_file_id).maybeSingle();
+          participationLogoFile = (fileRow as FileRow | null) ?? null;
+        }
+
+        let companyPrimaryLogoFile: FileRow | null = null;
+        if (companyResult.data?.primary_logo_file_id) {
+          const { data: fileRow } = await supabase.from("files").select("*").eq("id", companyResult.data.primary_logo_file_id).maybeSingle();
+          companyPrimaryLogoFile = (fileRow as FileRow | null) ?? null;
+        }
+
         return {
           participation,
+          participationLogoFile,
           company: companyResult.data as Company | null,
+          companyPrimaryLogoFile,
           event: eventResult.data as Event | null,
           contacts: (contactsResult.data ?? []) as unknown as ContactLinkRow[],
           companyContactOptions: (companyContactsResult.data ?? []) as unknown as CompanyContactOptionRow[],
@@ -256,6 +274,9 @@ export default async function ParticipationDetailPage({
   const selectedBrand = selectedBrandLink?.brand_id ? brands.find((item) => item.id === selectedBrandLink.brand_id) ?? null : null;
   const selectedContactLink = contactLinkId ? contacts.find((item) => item.id === contactLinkId) ?? null : null;
   const selectedMaterial = materialId ? materials.find((item) => item.id === materialId) ?? null : null;
+  const participationLogoUrl = resolveParticipationLogo({ public_logo_file: participationLogoFile }, company, {
+    companyLogoFile: companyPrimaryLogoFile,
+  });
   const flashMessage = getFlashMessage(notice, error);
 
   return (
@@ -281,12 +302,12 @@ export default async function ParticipationDetailPage({
         <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-5 md:flex-row md:items-center">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
-              {company?.company_logo_url ? (
+              {participationLogoUrl ? (
                 <MediaThumbnailButton
                   item={{
-                    id: `${company.id}-logo`,
-                    title: `${company.company_name} logo`,
-                    url: company.company_logo_url,
+                    id: `${participation.id}-logo`,
+                    title: `${company?.company_name ?? displayName} logo`,
+                    url: participationLogoUrl,
                     subtitle: "Company logo",
                   }}
                   className="h-full w-full"
@@ -309,6 +330,7 @@ export default async function ParticipationDetailPage({
                 )}
                 <span>{event?.event_name ?? "No event"}</span>
                 <span>{booths.map((row) => row.booths?.booth_number).filter(Boolean).join(", ") || "No booth"}</span>
+                <LogoUploadForm endpoint="/api/files/participation-logo" entityField="participationId" entityId={participation.id} label="Upload logo" />
               </div>
             </div>
             <StatusBadge value={participation.status} />
@@ -518,10 +540,13 @@ export default async function ParticipationDetailPage({
           title="Materials"
           icon={<ClipboardList size={18} aria-hidden="true" />}
           action={
-            <Link href={`/participations/${id}?panel=material`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-              <Plus size={14} aria-hidden="true" />
-              Add material
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href={`/participations/${id}?panel=material`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                <Plus size={14} aria-hidden="true" />
+                Add material
+              </Link>
+              <ParticipationMaterialUploadForm participationId={participation.id} />
+            </div>
           }
         >
           {panel === "material" ? (

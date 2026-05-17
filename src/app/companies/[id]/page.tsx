@@ -25,6 +25,7 @@ import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { resolveCompanyLogo } from "@/lib/files/resolve";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -33,6 +34,7 @@ import { assignCompanyBrand, updateCompanyDetails } from "./actions";
 import { BrandPortfolio } from "./brand-portfolio";
 import { CompanyContactForm } from "./company-contact-form";
 import { DeleteContactButton } from "@/app/contacts/delete-contact-button";
+import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
 
 export const revalidate = 30;
 
@@ -108,6 +110,7 @@ type NoteRow = Pick<
   Database["public"]["Tables"]["notes"]["Row"],
   "id" | "body" | "note_type" | "created_at" | "participation_id"
 >;
+type FileRow = Database["public"]["Tables"]["files"]["Row"];
 
 export default async function CompanyDetailPage({
   params,
@@ -124,7 +127,7 @@ export default async function CompanyDetailPage({
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
-  const { company, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
+  const { company, primaryLogoFile, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
     {
       keyParts: ["company-detail", profile.organization_id, id],
       tags: [cacheTags.companies, cacheTags.company(id), cacheTags.participations, cacheTags.brands, cacheTags.actions, cacheTags.notes],
@@ -229,8 +232,19 @@ export default async function CompanyDetailPage({
         throw new Error(brandsResult.error.message);
       }
 
+      let primaryLogoFile: FileRow | null = null;
+      if (companyResult.data?.primary_logo_file_id) {
+        const { data: fileRow } = await supabase
+          .from("files")
+          .select("*")
+          .eq("id", companyResult.data.primary_logo_file_id)
+          .maybeSingle();
+        primaryLogoFile = (fileRow as FileRow | null) ?? null;
+      }
+
       return {
         company: companyResult.data as Company,
+        primaryLogoFile,
         contacts: (contactsResult.data ?? []) as unknown as ContactRow[],
         participations,
         notes: (notesResult.data ?? []) as NoteRow[],
@@ -263,6 +277,7 @@ export default async function CompanyDetailPage({
   const actionRows = actions;
   const brandPortfolio = brands;
   const location = [company.city, company.country].filter(Boolean).join(", ") || "No location";
+  const companyLogoUrl = resolveCompanyLogo(company, primaryLogoFile);
   const flashMessage = getFlashMessage(notice, error);
 
   return (
@@ -341,12 +356,12 @@ export default async function CompanyDetailPage({
         <section className="rounded-lg border border-border bg-white p-6 shadow-soft">
           <div className="flex flex-col gap-6 md:flex-row md:items-center">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
-              {company.company_logo_url ? (
+              {companyLogoUrl ? (
                 <MediaThumbnailButton
                   item={{
                     id: `${company.id}-logo`,
                     title: `${company.company_name} logo`,
-                    url: company.company_logo_url,
+                    url: companyLogoUrl,
                     subtitle: "Company logo",
                   }}
                   className="h-full w-full"
@@ -366,9 +381,9 @@ export default async function CompanyDetailPage({
                 <MetaItem icon={<MapPin size={15} aria-hidden="true" />}>{location}</MetaItem>
                 <MetaItem icon={<Phone size={15} aria-hidden="true" />}>{company.company_phone ?? "No company phone"}</MetaItem>
                 <MetaItem icon={<Mail size={15} aria-hidden="true" />}>{company.company_email ?? "No company email"}</MetaItem>
-                {company.company_logo_url ? (
+                {companyLogoUrl ? (
                   <a
-                    href={company.company_logo_url}
+                    href={companyLogoUrl}
                     target="_blank"
                     rel="noreferrer"
                     download
@@ -379,6 +394,7 @@ export default async function CompanyDetailPage({
                     <ExternalLinkIcon size={13} aria-hidden="true" />
                   </a>
                 ) : null}
+                <LogoUploadForm endpoint="/api/files/company-logo" entityField="companyId" entityId={company.id} />
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {[company.address, company.description].filter(Boolean).join("\n\n") || "No company description yet."}
