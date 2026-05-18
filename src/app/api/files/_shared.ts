@@ -1,9 +1,11 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
+import sharp from "sharp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { buildR2PublicUrl, buildStoragePath, deleteFromR2, getR2BucketName, uploadToR2 } from "@/lib/r2/server";
+import { LOGO_FILE_CATEGORY, type LogoRole } from "@/lib/files/logoRoles";
 
 const LOGO_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/svg+xml"]);
 const MATERIAL_MIME_TYPES = new Set(["application/pdf", "image/png", "image/jpeg", "image/webp", "application/zip"]);
@@ -91,7 +93,11 @@ export function getMaterialValidationOptions() {
 
 export async function uploadAndInsertFileMetadata(params: {
   fileId: string;
-  file: File;
+  file: File | null;
+  fileBuffer?: Buffer;
+  fileMimeType?: string;
+  fileSizeBytes?: number;
+  originalFilename?: string;
   storagePath: string;
   metadata: {
     organization_id: string;
@@ -111,14 +117,16 @@ export async function uploadAndInsertFileMetadata(params: {
   const bucket = getR2BucketName("public");
   const publicUrl = buildR2PublicUrl(params.storagePath);
   const fileId = params.fileId;
-  const fileBytes = Buffer.from(await params.file.arrayBuffer());
-  const originalFilename = params.file.name || "file";
+  const fileBytes = params.fileBuffer ?? Buffer.from(await params.file!.arrayBuffer());
+  const originalFilename = params.originalFilename ?? params.file?.name ?? "file";
+  const mimeType = params.fileMimeType ?? params.file?.type ?? "application/octet-stream";
+  const sizeBytes = params.fileSizeBytes ?? params.file?.size ?? fileBytes.byteLength;
 
   await uploadToR2({
     bucket,
     storagePath: params.storagePath,
     body: fileBytes,
-    contentType: params.file.type,
+    contentType: mimeType,
     cacheControl: "public, max-age=31536000",
   });
 
@@ -139,8 +147,8 @@ export async function uploadAndInsertFileMetadata(params: {
     external_url: null,
     public_url: publicUrl,
     original_filename: originalFilename,
-    mime_type: params.file.type,
-    size_bytes: params.file.size,
+    mime_type: mimeType,
+    size_bytes: sizeBytes,
     is_public: true,
     source: "r2_upload",
     status: params.metadata.status,
@@ -156,6 +164,15 @@ export async function uploadAndInsertFileMetadata(params: {
       console.error("[files-upload] cleanup failed:", cleanupError);
     }
     throw new Error(error?.message ?? "Failed to create files metadata.");
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[files-upload] metadata inserted", {
+      endpoint: process.env.R2_ENDPOINT ?? null,
+      bucket,
+      storage_path: params.storagePath,
+      public_url: publicUrl,
+    });
   }
 
   return inserted;
@@ -200,6 +217,7 @@ export function buildEntityStoragePath(params: {
   brandId?: string | null;
   eventId?: string | null;
   participationId?: string | null;
+  fileRole?: string | null;
 }) {
   const fileId = crypto.randomUUID();
   const storagePath = buildStoragePath({
@@ -208,6 +226,7 @@ export function buildEntityStoragePath(params: {
     fileCategory: params.fileCategory,
     fileId,
     filename: params.fileName,
+    fileRole: params.fileRole ?? null,
     companyId: params.companyId ?? null,
     brandId: params.brandId ?? null,
     eventId: params.eventId ?? null,
@@ -215,4 +234,58 @@ export function buildEntityStoragePath(params: {
   });
 
   return { fileId, storagePath };
+}
+
+export async function generateLogoThumbnail(params: {
+  sourceBuffer: Buffer;
+  sourceMimeType: string;
+  sourceFilename: string;
+}) {
+  if (params.sourceMimeType === "image/svg+xml") {
+    return null;
+  }
+
+  if (!["image/png", "image/jpeg", "image/webp"].includes(params.sourceMimeType)) {
+    return null;
+  }
+
+  const buffer = await sharp(params.sourceBuffer)
+    .resize({ width: 300, height: 300, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 85 })
+    .toBuffer();
+
+  const thumbFilename = replaceExtension(params.sourceFilename, "webp");
+  return {
+    buffer,
+    mimeType: "image/webp",
+    filename: thumbFilename,
+    sizeBytes: buffer.byteLength,
+  };
+}
+
+export function getLogoRolesFromFormData(formData: FormData): {
+  fullRole: Extract<LogoRole, "full" | "full_inverted">;
+  thumbRole: Extract<LogoRole, "thumb" | "thumb_inverted">;
+} | null {
+  const raw = String(formData.get("logoRole") ?? "").trim();
+  const role = raw || "full";
+
+  if (role === "full") {
+    return { fullRole: "full", thumbRole: "thumb" };
+  }
+  if (role === "full_inverted") {
+    return { fullRole: "full_inverted", thumbRole: "thumb_inverted" };
+  }
+  return null;
+}
+
+function replaceExtension(filename: string, extension: string) {
+  const clean = filename.trim() || "file";
+  const index = clean.lastIndexOf(".");
+  const base = index > 0 ? clean.slice(0, index) : clean;
+  return `${base}.${extension}`;
+}
+
+export function getLogoFileCategory() {
+  return LOGO_FILE_CATEGORY;
 }

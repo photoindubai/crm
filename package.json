@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:r2": "node scripts/test-r2-connection.mjs",
     "import:local-data": "node scripts/import-local-data-bulk.mjs",
     "migrate:legacy-files": "bash -lc 'set -a; [ -f .env ] && source .env; [ -f .env.local ] && source .env.local; set +a; node scripts/migrate-legacy-files-metadata.mjs'"
   },
@@ -23,6 +24,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "server-only": "^0.0.1",
+    "sharp": "^0.34.5",
     "tailwind-merge": "2.6.0",
     "ws": "8.20.1"
   },

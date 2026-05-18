@@ -8,11 +8,13 @@ export function LogoUploadForm({
   entityField,
   entityId,
   label = "Upload logo",
+  logoRole = "full",
 }: {
   endpoint: string;
   entityField: "companyId" | "brandId" | "participationId";
   entityId: string;
   label?: string;
+  logoRole?: "full" | "full_inverted";
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,6 +34,7 @@ export function LogoUploadForm({
     try {
       const formData = new FormData();
       formData.set(entityField, entityId);
+      formData.set("logoRole", logoRole);
       formData.set("file", file);
 
       const response = await fetch(endpoint, {

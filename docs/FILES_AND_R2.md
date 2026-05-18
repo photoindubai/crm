@@ -47,6 +47,17 @@ Main fields:
 - metadata: `original_filename`, `mime_type`, `size_bytes`
 - lifecycle: `is_public`, `source`, `status`, `uploaded_by`, timestamps
 
+Logo-specific convention:
+- `file_category='logo'`
+- `file_role` variants:
+  - `full`
+  - `thumb`
+  - `full_inverted`
+  - `thumb_inverted`
+- legacy/backward-compatible roles still supported:
+  - `primary`
+  - `legacy_external`
+
 Also added optional references:
 - `companies.primary_logo_file_id`
 - `brands.primary_logo_file_id`
@@ -79,10 +90,10 @@ Use `DEFAULT_ORGANIZATION_SLUG` for current single-tenant MVP where org slug is 
 Typical public paths:
 
 - company logos/materials:
-  - `organizations/{slug}/companies/{company_id}/logos/{file_id}-{safe_filename}`
+  - `organizations/{slug}/companies/{company_id}/logos/{file_role}/{file_id}-{safe_filename}`
   - `organizations/{slug}/companies/{company_id}/materials/{file_id}-{safe_filename}`
 - brand logos:
-  - `organizations/{slug}/brands/{brand_id}/logos/{file_id}-{safe_filename}`
+  - `organizations/{slug}/brands/{brand_id}/logos/{file_role}/{file_id}-{safe_filename}`
 - event assets:
   - `organizations/{slug}/events/{event_id}/floorplans/{file_id}-{safe_filename}`
   - `organizations/{slug}/events/{event_id}/public-documents/{file_id}-{safe_filename}`
@@ -95,6 +106,15 @@ Filename rules:
 - replace spaces with hyphens
 - remove unsafe characters
 - prefix with `file_id` for collision safety
+
+Logo thumbnail generation:
+- Upload accepts full-size logo as source (`full` or `full_inverted`).
+- For PNG/JPEG/WebP, server auto-generates 300x300 max thumbnail:
+  - `full -> thumb`
+  - `full_inverted -> thumb_inverted`
+- No automatic color inversion is performed.
+- Inverted logo must be uploaded explicitly as its own source file.
+- SVG upload is accepted, but thumbnail generation can be skipped as fallback.
 
 ## Server helper
 
@@ -235,6 +255,7 @@ Company logo:
 ```bash
 curl -X POST http://localhost:3000/api/files/company-logo \
   -F "companyId=00000000-0000-0000-0000-000000000000" \
+  -F "logoRole=full" \
   -F "file=@./test-logo.png"
 ```
 
@@ -243,7 +264,17 @@ Brand logo:
 ```bash
 curl -X POST http://localhost:3000/api/files/brand-logo \
   -F "brandId=00000000-0000-0000-0000-000000000000" \
+  -F "logoRole=full" \
   -F "file=@./test-logo.png"
+```
+
+Brand logo (inverted full):
+
+```bash
+curl -X POST http://localhost:3000/api/files/brand-logo \
+  -F "brandId=00000000-0000-0000-0000-000000000000" \
+  -F "logoRole=full_inverted" \
+  -F "file=@./test-logo-white.png"
 ```
 
 Participation logo:
@@ -286,3 +317,15 @@ Error response:
   "error": "message"
 }
 ```
+Logo Set helpers:
+- `loadCompanyLogoSet(companyId)`
+- `loadBrandLogoSet(brandId)`
+- canonical display fallback:
+  1. `thumb`
+  2. `full`
+  3. `primary` (legacy role)
+  4. legacy URL fields
+
+Download guidance:
+- download buttons should point to `full` and `full_inverted` URLs.
+- `primary_logo_file_id` remains a fallback pointer and list-display default.

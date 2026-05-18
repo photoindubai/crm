@@ -2,7 +2,8 @@
 
 /* eslint-disable @next/next/no-img-element -- CRM logos intentionally use native lazy-loaded images. */
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useMemo, useState, type ReactNode } from "react";
 import { ExternalLink, Tags, X } from "lucide-react";
 
 type Brand = {
@@ -98,8 +99,20 @@ function BrandTile({
 }
 
 function BrandDetailModal({ brand, onClose }: { brand: Brand; onClose: () => void }) {
+  const title = brand.brand_name ?? "Brand";
   return (
-    <Modal title={brand.brand_name ?? "Brand"} onClose={onClose}>
+    <Modal
+      title={
+        <Link
+          href={`/brands/${brand.id}`}
+          className="block min-w-0 truncate text-lg font-semibold text-primary hover:underline"
+          onClick={() => onClose()}
+        >
+          {title}
+        </Link>
+      }
+      onClose={onClose}
+    >
       <div className="space-y-5">
         <div className="flex items-start gap-4">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
@@ -150,16 +163,16 @@ function Modal({
   children,
   onClose,
 }: {
-  title: string;
-  children: React.ReactNode;
+  title: ReactNode;
+  children: ReactNode;
   onClose: () => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button type="button" aria-label="Close modal" onClick={onClose} className="absolute inset-0 bg-primary/35" />
       <div className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-xl border border-border bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <h4 className="truncate text-lg font-semibold text-primary">{title}</h4>
+        <div className="flex min-w-0 items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <div className="min-w-0 flex-1 text-lg font-semibold text-primary">{title}</div>
           <button
             type="button"
             onClick={onClose}

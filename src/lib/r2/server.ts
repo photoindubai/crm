@@ -48,6 +48,7 @@ type BuildStoragePathParams = {
     | "stand-design";
   fileId: string;
   filename: string;
+  fileRole?: string | null;
   companyId?: string | null;
   brandId?: string | null;
   eventId?: string | null;
@@ -91,64 +92,49 @@ export function getR2Client() {
 }
 
 export async function uploadToR2(params: UploadToR2Params) {
-  const endpoints = resolveCandidateEndpoints();
-  let lastError: unknown = null;
+  const endpoint = resolvePrimaryEndpoint();
+  const client = getR2Client();
 
   if (process.env.NODE_ENV !== "production") {
     console.info("[r2-upload] start", {
-      endpoint: resolvePrimaryEndpoint(),
+      endpoint,
       bucket: params.bucket,
       storage_path: params.storagePath,
       content_type: params.contentType ?? null,
     });
   }
 
-  for (let index = 0; index < endpoints.length; index += 1) {
-    const endpoint = endpoints[index];
-    const client = index === 0 ? getR2Client() : createR2Client(endpoint);
+  try {
+    await client.send(
+      new PutObjectCommand({
+        Bucket: params.bucket,
+        Key: params.storagePath,
+        Body: params.body,
+        ContentType: params.contentType,
+        CacheControl: params.cacheControl,
+      }),
+    );
 
-    try {
-      await client.send(
-        new PutObjectCommand({
-          Bucket: params.bucket,
-          Key: params.storagePath,
-          Body: params.body,
-          ContentType: params.contentType,
-          CacheControl: params.cacheControl,
-        }),
-      );
-
-      if (index > 0) {
-        clientSingleton = client;
-        clientEndpoint = endpoint;
-      }
-
-      if (process.env.NODE_ENV !== "production") {
-        console.info("[r2-upload] success", {
-          endpoint,
-          bucket: params.bucket,
-          storage_path: params.storagePath,
-        });
-      }
-      return;
-    } catch (error) {
-      lastError = error;
-      if (process.env.NODE_ENV !== "production") {
-        console.warn("[r2-upload] attempt failed", {
-          endpoint,
-          bucket: params.bucket,
-          storage_path: params.storagePath,
-          code: getErrorCode(error),
-          message: getErrorMessage(error),
-        });
-      }
-      if (!isRetryableTlsError(error) || index === endpoints.length - 1) {
-        throw error;
-      }
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[r2-upload] success", {
+        endpoint,
+        bucket: params.bucket,
+        storage_path: params.storagePath,
+      });
     }
+    return;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[r2-upload] failed", {
+        endpoint,
+        bucket: params.bucket,
+        storage_path: params.storagePath,
+        code: getErrorCode(error),
+        message: getErrorMessage(error),
+      });
+    }
+    throw error;
   }
-
-  throw lastError instanceof Error ? lastError : new Error("R2 upload failed.");
 }
 
 export async function deleteFromR2(params: DeleteFromR2Params) {
@@ -199,31 +185,37 @@ export function sanitizeFilename(filename: string) {
 export function buildStoragePath(params: BuildStoragePathParams) {
   const safeFilename = sanitizeFilename(params.filename);
   const leaf = `${params.fileId}-${safeFilename}`;
+  const scopedCategory =
+    (params.entityType === "company" || params.entityType === "brand") &&
+    params.fileCategory === "logos" &&
+    params.fileRole
+      ? `logos/${params.fileRole}`
+      : params.fileCategory;
 
   switch (params.entityType) {
     case "company": {
       if (!params.companyId) {
         throw new Error("companyId is required for company file path");
       }
-      return `organizations/${params.organizationSlug}/companies/${params.companyId}/${params.fileCategory}/${leaf}`;
+      return `organizations/${params.organizationSlug}/companies/${params.companyId}/${scopedCategory}/${leaf}`;
     }
     case "brand": {
       if (!params.brandId) {
         throw new Error("brandId is required for brand file path");
       }
-      return `organizations/${params.organizationSlug}/brands/${params.brandId}/${params.fileCategory}/${leaf}`;
+      return `organizations/${params.organizationSlug}/brands/${params.brandId}/${scopedCategory}/${leaf}`;
     }
     case "event": {
       if (!params.eventId) {
         throw new Error("eventId is required for event file path");
       }
-      return `organizations/${params.organizationSlug}/events/${params.eventId}/${params.fileCategory}/${leaf}`;
+      return `organizations/${params.organizationSlug}/events/${params.eventId}/${scopedCategory}/${leaf}`;
     }
     case "participation": {
       if (!params.eventId || !params.participationId) {
         throw new Error("eventId and participationId are required for participation file path");
       }
-      return `organizations/${params.organizationSlug}/events/${params.eventId}/participations/${params.participationId}/${params.fileCategory}/${leaf}`;
+      return `organizations/${params.organizationSlug}/events/${params.eventId}/participations/${params.participationId}/${scopedCategory}/${leaf}`;
     }
     default:
       throw new Error(`Unsupported entity type: ${String(params.entityType)}`);
@@ -250,41 +242,6 @@ function resolvePrimaryEndpoint() {
   const endpoint = requireEnv("R2_ENDPOINT");
   validateR2Endpoint(endpoint);
   return endpoint;
-}
-
-function resolveCandidateEndpoints() {
-  const primary = resolvePrimaryEndpoint();
-  const accountId = process.env.R2_ACCOUNT_ID?.trim();
-  const canonical = accountId ? `https://${accountId}.r2.cloudflarestorage.com` : null;
-
-  return Array.from(new Set([primary, canonical].filter(Boolean) as string[]));
-}
-
-function createR2Client(endpoint: string) {
-  const accessKeyId = requireEnv("R2_ACCESS_KEY_ID");
-  const secretAccessKey = requireEnv("R2_SECRET_ACCESS_KEY");
-
-  return new S3Client({
-    region: "auto",
-    endpoint,
-    credentials: {
-      accessKeyId,
-      secretAccessKey,
-    },
-    forcePathStyle: true,
-  });
-}
-
-function isRetryableTlsError(error: unknown) {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
-
-  const maybeError = error as { code?: string; message?: string };
-  const code = maybeError.code ?? "";
-  const message = maybeError.message ?? "";
-
-  return code === "EPROTO" || /ssl|tls|handshake/i.test(message);
 }
 
 function validateR2Endpoint(endpoint: string) {

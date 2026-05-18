@@ -6,7 +6,8 @@ import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
-import { resolveBrandLogo } from "@/lib/files/resolve";
+import { loadBrandLogoSet } from "@/lib/files/loaders";
+import { resolveBrandLogo, resolveBrandLogoForDisplay, resolveLogoSetUrls } from "@/lib/files/resolve";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
@@ -33,7 +34,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const { profile } = await requireActiveProfile();
 
-  const { brand, primaryLogoFile, companies, participations, events, participationCompanies, booths } = await loadCached(
+  const { brand, primaryLogoFile, logoSet, companies, participations, events, participationCompanies, booths } = await loadCached(
     {
       keyParts: ["brand-detail", profile.organization_id, id],
       tags: [cacheTags.brands, cacheTags.brand(id), cacheTags.companies, cacheTags.participations, cacheTags.events],
@@ -106,10 +107,12 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
         const { data: fileRow } = await supabase.from("files").select("*").eq("id", brand.primary_logo_file_id).maybeSingle();
         primaryLogoFile = (fileRow as FileRow | null) ?? null;
       }
+      const logoSet = await loadBrandLogoSet(brand.id);
 
       return {
         brand,
         primaryLogoFile,
+        logoSet,
         companies,
         participations,
         events: (eventsResult.data ?? []) as Event[],
@@ -121,7 +124,8 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
   const participationCompaniesById = new Map(participationCompanies.map((company) => [company.id, company]));
   const eventsById = new Map(events.map((event) => [event.id, event]));
   const boothsByParticipation = groupBy(booths, (row) => row.participation_id);
-  const brandLogoUrl = resolveBrandLogo(brand, primaryLogoFile);
+  const brandLogoUrl = resolveBrandLogoForDisplay(brand, logoSet, primaryLogoFile) ?? resolveBrandLogo(brand, primaryLogoFile);
+  const logoUrls = resolveLogoSetUrls(logoSet);
 
   return (
     <AppShell title="Brand Detail">
@@ -151,7 +155,6 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
                 ) : (
                   <span>No website</span>
                 )}
-                <LogoUploadForm endpoint="/api/files/brand-logo" entityField="brandId" entityId={brand.id} />
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {brand.brand_description ?? "No brand description."}
@@ -159,6 +162,69 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
             </div>
           </div>
         </section>
+
+        <Panel title="Logos" icon={<Tags size={18} aria-hidden="true" />}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border p-3">
+              <div className="mb-2 text-sm font-semibold text-primary">Full logo</div>
+              <div className="mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {logoUrls.thumb || logoUrls.full ? (
+                  <img src={logoUrls.thumb ?? logoUrls.full ?? ""} alt="" loading="lazy" className="h-full w-full object-contain" />
+                ) : (
+                  <Tags size={20} className="text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <LogoUploadForm endpoint="/api/files/brand-logo" entityField="brandId" entityId={brand.id} logoRole="full" label="Upload full" />
+                {logoUrls.full ? (
+                  <a
+                    href={logoUrls.full}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-muted"
+                  >
+                    Download full
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border p-3">
+              <div className="mb-2 text-sm font-semibold text-primary">Inverted full logo</div>
+              <div className="mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {logoUrls.thumb_inverted || logoUrls.full_inverted ? (
+                  <img
+                    src={logoUrls.thumb_inverted ?? logoUrls.full_inverted ?? ""}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <Tags size={20} className="text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <LogoUploadForm
+                  endpoint="/api/files/brand-logo"
+                  entityField="brandId"
+                  entityId={brand.id}
+                  logoRole="full_inverted"
+                  label="Upload inverted"
+                />
+                {logoUrls.full_inverted ? (
+                  <a
+                    href={logoUrls.full_inverted}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-muted"
+                  >
+                    Download inverted
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </Panel>
 
         <div className="grid gap-4 lg:grid-cols-3">
           <Metric label="Companies" value={companies.length} />

@@ -25,7 +25,8 @@ import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
-import { resolveCompanyLogo } from "@/lib/files/resolve";
+import { loadCompanyLogoSet } from "@/lib/files/loaders";
+import { resolveCompanyLogo, resolveCompanyLogoForDisplay, resolveLogoSetUrls } from "@/lib/files/resolve";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -127,7 +128,7 @@ export default async function CompanyDetailPage({
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
-  const { company, primaryLogoFile, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
+  const { company, primaryLogoFile, logoSet, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
     {
       keyParts: ["company-detail", profile.organization_id, id],
       tags: [cacheTags.companies, cacheTags.company(id), cacheTags.participations, cacheTags.brands, cacheTags.actions, cacheTags.notes],
@@ -241,10 +242,12 @@ export default async function CompanyDetailPage({
           .maybeSingle();
         primaryLogoFile = (fileRow as FileRow | null) ?? null;
       }
+      const logoSet = await loadCompanyLogoSet(id);
 
       return {
         company: companyResult.data as Company,
         primaryLogoFile,
+        logoSet,
         contacts: (contactsResult.data ?? []) as unknown as ContactRow[],
         participations,
         notes: (notesResult.data ?? []) as NoteRow[],
@@ -277,7 +280,8 @@ export default async function CompanyDetailPage({
   const actionRows = actions;
   const brandPortfolio = brands;
   const location = [company.city, company.country].filter(Boolean).join(", ") || "No location";
-  const companyLogoUrl = resolveCompanyLogo(company, primaryLogoFile);
+  const companyLogoUrl = resolveCompanyLogoForDisplay(company, logoSet, primaryLogoFile) ?? resolveCompanyLogo(company, primaryLogoFile);
+  const logoUrls = resolveLogoSetUrls(logoSet);
   const flashMessage = getFlashMessage(notice, error);
 
   return (
@@ -394,7 +398,6 @@ export default async function CompanyDetailPage({
                     <ExternalLinkIcon size={13} aria-hidden="true" />
                   </a>
                 ) : null}
-                <LogoUploadForm endpoint="/api/files/company-logo" entityField="companyId" entityId={company.id} />
               </div>
               <p className="mt-4 max-w-4xl whitespace-pre-line text-sm leading-6 text-muted-foreground">
                 {[company.address, company.description].filter(Boolean).join("\n\n") || "No company description yet."}
@@ -402,6 +405,69 @@ export default async function CompanyDetailPage({
             </div>
           </div>
         </section>
+
+        <Panel className="col-span-12" title="Logos" icon={<Building2 size={19} aria-hidden="true" />}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-lg border border-border p-3">
+              <div className="mb-2 text-sm font-semibold text-primary">Full logo</div>
+              <div className="mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {logoUrls.thumb || logoUrls.full ? (
+                  <img src={logoUrls.thumb ?? logoUrls.full ?? ""} alt="" loading="lazy" className="h-full w-full object-contain" />
+                ) : (
+                  <Building2 size={20} className="text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <LogoUploadForm endpoint="/api/files/company-logo" entityField="companyId" entityId={company.id} logoRole="full" label="Upload full" />
+                {logoUrls.full ? (
+                  <a
+                    href={logoUrls.full}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-muted"
+                  >
+                    Download full
+                  </a>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border p-3">
+              <div className="mb-2 text-sm font-semibold text-primary">Inverted full logo</div>
+              <div className="mb-3 flex h-20 w-20 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                {logoUrls.thumb_inverted || logoUrls.full_inverted ? (
+                  <img
+                    src={logoUrls.thumb_inverted ?? logoUrls.full_inverted ?? ""}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-contain"
+                  />
+                ) : (
+                  <Building2 size={20} className="text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <LogoUploadForm
+                  endpoint="/api/files/company-logo"
+                  entityField="companyId"
+                  entityId={company.id}
+                  logoRole="full_inverted"
+                  label="Upload inverted"
+                />
+                {logoUrls.full_inverted ? (
+                  <a
+                    href={logoUrls.full_inverted}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-muted"
+                  >
+                    Download inverted
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </Panel>
 
         <div className="grid grid-cols-12 gap-4">
           <Panel

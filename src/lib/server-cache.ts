@@ -8,14 +8,16 @@ type CacheKeyPart = string | number | boolean | null | undefined;
 type CachedLoaderOptions = {
   keyParts: CacheKeyPart[];
   tags: CacheTag[];
+  revalidateSeconds?: number;
 };
 
 export async function loadCached<T>(
-  { keyParts, tags }: CachedLoaderOptions,
+  { keyParts, tags, revalidateSeconds = 30 }: CachedLoaderOptions,
   loader: () => Promise<T>,
 ) {
   return unstable_cache(loader, keyParts.map((part) => String(part ?? "")), {
     tags,
+    revalidate: revalidateSeconds,
   })();
 }
 
