@@ -246,7 +246,10 @@ Server-side routes (multipart/form-data):
 Notes:
 - routes are server-only and use R2 credentials on the server
 - no presigned upload in this phase
-- no UI upload forms in this phase
+- UI upload forms are implemented and wired to these routes:
+  - company detail (`/companies/[id]`) for company logos
+  - brand detail (`/brands/[id]`) for brand logos
+  - participation detail (`/participations/[id]`) for participation logo and materials
 
 ### Curl examples
 

@@ -106,6 +106,52 @@ These should be handled in later phases.
 
 ---
 
+## 3.1 Implementation status snapshot (as of May 18, 2026)
+
+Status labels:
+- `Implemented` — available in code and wired in UI/API.
+- `Partial` — baseline exists, but key CRUD/role/reporting parts are still missing.
+- `Not implemented` — documented target only.
+
+By spec section:
+
+- `Section 1-2 (goal + core concept)`: `Implemented`
+  - Domain split `Company` vs `Participation` is enforced in schema/UI.
+  - Next.js App Router + Supabase baseline is active.
+- `Section 3 (MVP scope)`: `Partial`
+  - Implemented: auth, internal frontend, core modules (`companies`, `contacts`, `brands`, `events`, `participations`), booth assignment read model, logistics statuses, actions list, dashboards, file storage layer.
+  - Missing: full CRUD parity across all modules, complete action management flows, audit/activity UI.
+- `Section 4 (user roles)`: `Partial`
+  - Auth and active profile checks are implemented.
+  - Fine-grained module/field permissions by role are not fully implemented yet.
+- `Section 5 (main entities)`: `Implemented` (schema baseline), `Partial` (operational usage depth)
+  - Core entities and normalized `actions` model are present.
+  - `smm_tasks` and `tasks` are transitional legacy sources; unified operational flow is `actions`.
+  - `activity_log` is in schema but not yet exposed as full operational UI flow.
+- `Section 6 (auth and profiles)`: `Implemented`
+  - Magic link + Google OAuth + profile gate are active.
+- `Section 7 (frontend routes)`: `Implemented` (baseline), `Partial` (editing breadth)
+  - Main routes from spec exist (`dashboard`, `companies`, `participations`, `smm`, `tasks`, `events`, `contacts`, `brands`).
+  - Editing is available for selected domains; not yet complete across all entities.
+- `Section 8 (dashboards)`: `Partial`
+  - Dashboard exists with core counters.
+  - Advanced role-specific dashboard depth is still limited.
+- `Section 9 (main screens)`: `Partial`
+  - List/detail screens are implemented for core modules.
+  - Some creation/edit workflows are still missing (notably events/participations/actions end-to-end).
+- `Section 10 (RLS concept)`: `Partial`
+  - Organization-bound reads/writes are enforced in server flows.
+  - Full documented RLS matrix/policies per role is not finalized in this repo yet.
+- `Section 11 (AppSheet import)`: `Implemented` (initial path), `Partial` (generalized tooling)
+  - Local data import scripts were used for current dataset.
+  - Broader reusable import pipeline is still pending.
+- `Section 12 (MVP success criteria)`: `Partial`
+  - Large part of baseline is achieved, but not all operational criteria are fully closed.
+- `Section 13 (recommended order)`: `Implemented as historical plan`
+  - Repository work generally followed this sequence, with iterative normalization and R2/file layer added.
+
+---
+
 ## 4. User roles
 
 ### 4.1 Super Admin

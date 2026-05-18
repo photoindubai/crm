@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, MapPin, Search } from "lucide-react";
+import { CalendarDays, MapPin, Plus, Search } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
@@ -9,6 +9,7 @@ import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
+import { createEvent } from "./actions";
 
 export const revalidate = 30;
 
@@ -24,6 +25,9 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
   const status = getStringParam(params, "status")?.trim() ?? "";
+  const panel = getStringParam(params, "panel");
+  const notice = getStringParam(params, "notice");
+  const error = getStringParam(params, "error");
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
@@ -76,6 +80,66 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
 
   return (
     <AppShell title="Events">
+      {notice || error ? (
+        <div
+          className={`mb-4 rounded-lg border px-4 py-3 text-sm ${
+            error ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {getFlashMessage(notice, error)}
+        </div>
+      ) : null}
+
+      <div className="mb-4 flex items-center justify-end">
+        <Link
+          href={panel === "create" ? "/events" : "/events?panel=create"}
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-white px-4 text-sm font-medium text-primary hover:bg-muted"
+        >
+          <Plus size={16} aria-hidden="true" />
+          {panel === "create" ? "Close" : "New event"}
+        </Link>
+      </div>
+
+      {panel === "create" ? (
+        <section className="mb-4 rounded-lg border border-border bg-white p-5 shadow-soft">
+          <h3 className="mb-4 text-lg font-semibold text-primary">Create event</h3>
+          <form action={createEvent} className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Event name" name="event_name" required />
+              <SelectField
+                label="Status"
+                name="status"
+                defaultValue="planning"
+                options={[
+                  { value: "planning", label: "Planning" },
+                  { value: "active", label: "Active" },
+                  { value: "completed", label: "Completed" },
+                  { value: "cancelled", label: "Cancelled" },
+                ]}
+              />
+              <Field label="Venue" name="venue_name" />
+              <Field label="City" name="city" />
+              <Field label="Country" name="country" />
+              <div className="grid gap-4 sm:grid-cols-2 md:col-span-2">
+                <Field label="Start date" name="start_date" type="date" />
+                <Field label="End date" name="end_date" type="date" />
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Create event
+              </button>
+              <Link href="/events" className="text-sm font-medium text-muted-foreground hover:text-primary">
+                Cancel
+              </Link>
+            </div>
+          </form>
+        </section>
+      ) : null}
+
       <form className="mb-4 grid gap-2 md:grid-cols-[1fr_180px_auto_auto]">
         <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3 top-3 text-muted-foreground" aria-hidden="true" />
@@ -182,4 +246,74 @@ function groupBy<T>(rows: T[], getKey: (row: T) => string | null | undefined) {
 
 function emptyResult<T>(data: T = [] as T) {
   return { data, error: null };
+}
+
+function getFlashMessage(notice: string | null, error: string | null) {
+  if (error === "event_name_required") {
+    return "Event name is required.";
+  }
+  if (error === "event_create_failed") {
+    return "Could not create event. Try again.";
+  }
+  if (error === "event_not_found") {
+    return "Event not found.";
+  }
+  if (notice === "event_deleted") {
+    return "Event deleted.";
+  }
+
+  return error ? "Could not update events." : "Saved.";
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  required = false,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="grid gap-1 text-sm">
+      <span className="font-medium text-primary">{label}</span>
+      <input
+        name={name}
+        type={type}
+        required={required}
+        className="h-10 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+      />
+    </label>
+  );
+}
+
+function SelectField({
+  label,
+  name,
+  defaultValue,
+  options,
+}: {
+  label: string;
+  name: string;
+  defaultValue: string;
+  options: Array<{ value: string; label: string }>;
+}) {
+  return (
+    <label className="grid gap-1 text-sm">
+      <span className="font-medium text-primary">{label}</span>
+      <select
+        name={name}
+        defaultValue={defaultValue}
+        className="h-10 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }

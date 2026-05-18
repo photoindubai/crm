@@ -15,8 +15,10 @@ import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { saveParticipationBrand, saveParticipationContact, saveParticipationMaterial } from "./actions";
+import { addParticipationSection } from "./actions";
 import { DeleteMaterialButton } from "./delete-material-button";
 import { DeleteParticipationContactButton } from "./delete-participation-contact-button";
+import { DeleteParticipationSectionButton } from "./delete-participation-section-button";
 import { ParticipationBrandCard } from "./participation-brand-card";
 import { ParticipationLogisticsEditor, type LogisticsItem } from "./participation-logistics-editor";
 
@@ -97,6 +99,10 @@ type TemplateRow = Pick<
   "id" | "title" | "action_type" | "channel" | "is_required" | "status" | "sort_order"
 >;
 type FileRow = Database["public"]["Tables"]["files"]["Row"];
+type EventSectionRow = Pick<Database["public"]["Tables"]["event_sections"]["Row"], "id" | "name" | "slug" | "sort_order">;
+type ParticipationSectionLink = {
+  section_id: string;
+};
 
 export default async function ParticipationDetailPage({
   params,
@@ -116,7 +122,7 @@ export default async function ParticipationDetailPage({
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
-  const { participation, participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates } =
+  const { participation, participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates, eventSections, participationSectionLinks } =
     await loadCached(
       {
         keyParts: ["participation-detail", profile.organization_id, id],
@@ -143,7 +149,7 @@ export default async function ParticipationDetailPage({
         }
 
         const participation = participationResult.data as Participation;
-        const [companyResult, eventResult, contactsResult, companyContactsResult, boothsResult, logisticsResult, brandLinksResult, materialsResult, actionsResult, templatesResult, allBrandsResult] =
+        const [companyResult, eventResult, contactsResult, companyContactsResult, boothsResult, logisticsResult, brandLinksResult, materialsResult, actionsResult, templatesResult, allBrandsResult, eventSectionsResult, participationSectionsResult] =
           await Promise.all([
             participation.company_id
               ? supabase
@@ -208,6 +214,18 @@ export default async function ParticipationDetailPage({
               .select("id,brand_name,website,brand_logo_url,brand_description,country")
               .eq("organization_id", organizationId)
               .order("brand_name", { ascending: true }),
+            participation.event_id
+              ? supabase
+                  .from("event_sections")
+                  .select("id,name,slug,sort_order")
+                  .eq("event_id", participation.event_id)
+                  .order("sort_order", { ascending: true })
+              : emptyResult<EventSectionRow[]>(),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (supabase as any)
+              .from("participation_sections")
+              .select("section_id")
+              .eq("participation_id", id),
           ]);
 
         const firstError =
@@ -221,7 +239,9 @@ export default async function ParticipationDetailPage({
           materialsResult.error ??
           actionsResult.error ??
           templatesResult.error ??
-          allBrandsResult.error;
+          allBrandsResult.error ??
+          eventSectionsResult.error ??
+          participationSectionsResult.error;
 
         if (firstError) {
           throw new Error(firstError.message);
@@ -270,6 +290,8 @@ export default async function ParticipationDetailPage({
           materials: ((materialsResult.data ?? []) as MaterialRow[]).filter((item) => Boolean(item.url)),
           actions: (actionsResult.data ?? []) as ActionRow[],
           templates: (templatesResult.data ?? []) as TemplateRow[],
+          eventSections: (eventSectionsResult.data ?? []) as EventSectionRow[],
+          participationSectionLinks: (participationSectionsResult.data ?? []) as ParticipationSectionLink[],
         };
       },
     );
@@ -281,6 +303,9 @@ export default async function ParticipationDetailPage({
   const selectedBrand = selectedBrandLink?.brand_id ? brands.find((item) => item.id === selectedBrandLink.brand_id) ?? null : null;
   const selectedContactLink = contactLinkId ? contacts.find((item) => item.id === contactLinkId) ?? null : null;
   const selectedMaterial = materialId ? materials.find((item) => item.id === materialId) ?? null : null;
+  const assignedSectionIds = new Set(participationSectionLinks.map((item) => item.section_id));
+  const assignedSections = eventSections.filter((section) => assignedSectionIds.has(section.id));
+  const availableSections = eventSections.filter((section) => !assignedSectionIds.has(section.id));
   const participationLogoUrl = resolveParticipationLogo({ public_logo_file: participationLogoFile }, company, {
     companyLogoFile: companyPrimaryLogoFile,
   });
@@ -380,6 +405,63 @@ export default async function ParticipationDetailPage({
 
         <Panel title="Logistics Requests" icon={<ClipboardList size={18} aria-hidden="true" />}>
           <ParticipationLogisticsEditor participationId={participation.id} items={getLogisticsItems(logistics)} notes={logistics?.notes} />
+        </Panel>
+
+        <Panel
+          title="Sections"
+          icon={<Tags size={18} aria-hidden="true" />}
+          action={
+            availableSections.length > 0 ? (
+              <Link href={`/participations/${id}?panel=section`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                <Plus size={14} aria-hidden="true" />
+                Add section
+              </Link>
+            ) : undefined
+          }
+        >
+          {panel === "section" && availableSections.length > 0 ? (
+            <div className="mb-4 rounded-lg border border-border bg-muted/30 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h4 className="font-semibold text-primary">Assign section</h4>
+                <Link href={`/participations/${id}`} className="text-sm font-medium text-primary hover:underline">
+                  Close
+                </Link>
+              </div>
+              <form action={addParticipationSection} className="space-y-3">
+                <input type="hidden" name="participation_id" value={participation.id} />
+                <SelectField
+                  label="Section"
+                  name="section_id"
+                  defaultValue=""
+                  options={availableSections.map((section) => ({
+                    value: section.id,
+                    label: section.name,
+                  }))}
+                />
+                <button
+                  type="submit"
+                  className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                >
+                  Assign section
+                </button>
+              </form>
+            </div>
+          ) : null}
+          {assignedSections.length > 0 ? (
+            <div className="space-y-2">
+              {assignedSections.map((section) => (
+                <div key={section.id} className="flex items-center justify-between gap-2 rounded-lg border border-border p-3">
+                  <div>
+                    <div className="font-medium text-primary">{section.name}</div>
+                    <div className="text-xs text-muted-foreground">{section.slug ?? `Order ${section.sort_order ?? 0}`}</div>
+                  </div>
+                  <DeleteParticipationSectionButton participationId={participation.id} sectionId={section.id} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyText>No sections assigned.</EmptyText>
+          )}
         </Panel>
 
         <div className="grid gap-4 lg:grid-cols-2">
@@ -901,6 +983,11 @@ function getFlashMessage(notice?: string, error?: string) {
         participant_contact_save_failed: "Failed to save participant contact.",
         participant_contact_delete_failed: "Failed to delete participant contact.",
         logistics_save_failed: "Failed to save logistics requests.",
+        section_required: "Select a section first.",
+        section_event_missing: "Participation has no event to resolve sections.",
+        section_invalid: "Selected section is not valid for this event.",
+        section_save_failed: "Failed to assign section.",
+        section_delete_failed: "Failed to remove section.",
       }[error] ?? "The operation failed.";
 
     return { type: "error" as const, message };
@@ -919,6 +1006,8 @@ function getFlashMessage(notice?: string, error?: string) {
         participant_contact_updated: "Participant contact updated.",
         participant_contact_deleted: "Participant contact removed.",
         logistics_saved: "Logistics requests updated.",
+        section_added: "Section assigned to participant.",
+        section_removed: "Section removed from participant.",
       }[notice] ?? "Saved.";
 
     return { type: "success" as const, message };

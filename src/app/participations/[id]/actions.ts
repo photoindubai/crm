@@ -442,6 +442,108 @@ export async function saveParticipationLogistics(formData: FormData) {
   redirect(buildParticipationUrl(participationId, { notice: "logistics_saved" }));
 }
 
+export async function addParticipationSection(formData: FormData) {
+  const { profile } = await requireActiveProfile();
+  const supabase = createSupabaseAdminClient();
+  const organizationId = getOrganizationId(profile.organization_id);
+
+  const participationId = String(formData.get("participation_id") ?? "");
+  const sectionId = String(formData.get("section_id") ?? "").trim();
+
+  if (!participationId) {
+    redirect("/participations");
+  }
+  if (!sectionId) {
+    redirect(buildParticipationUrl(participationId, { panel: "section", error: "section_required" }));
+  }
+
+  const { data: participation, error: participationError } = await supabase
+    .from("participations")
+    .select("id,event_id")
+    .eq("id", participationId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (participationError || !participation) {
+    redirect("/participations");
+  }
+  if (!participation.event_id) {
+    redirect(buildParticipationUrl(participationId, { panel: "section", error: "section_event_missing" }));
+  }
+
+  const { data: section, error: sectionError } = await supabase
+    .from("event_sections")
+    .select("id")
+    .eq("id", sectionId)
+    .eq("event_id", participation.event_id)
+    .maybeSingle();
+
+  if (sectionError || !section) {
+    redirect(buildParticipationUrl(participationId, { panel: "section", error: "section_invalid" }));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: existing } = await (supabase as any)
+    .from("participation_sections")
+    .select("id")
+    .eq("participation_id", participationId)
+    .eq("section_id", sectionId)
+    .maybeSingle();
+
+  if (!existing?.id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).from("participation_sections").insert({
+      participation_id: participationId,
+      section_id: sectionId,
+    });
+
+    if (error) {
+      redirect(buildParticipationUrl(participationId, { panel: "section", error: "section_save_failed" }));
+    }
+  }
+
+  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.events]);
+  redirect(buildParticipationUrl(participationId, { notice: "section_added" }));
+}
+
+export async function deleteParticipationSection(formData: FormData) {
+  const { profile } = await requireActiveProfile();
+  const supabase = createSupabaseAdminClient();
+  const organizationId = getOrganizationId(profile.organization_id);
+
+  const participationId = String(formData.get("participation_id") ?? "");
+  const sectionId = String(formData.get("section_id") ?? "");
+
+  if (!participationId || !sectionId) {
+    redirect("/participations");
+  }
+
+  const { data: participation, error: participationError } = await supabase
+    .from("participations")
+    .select("id")
+    .eq("id", participationId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (participationError || !participation) {
+    redirect("/participations");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("participation_sections")
+    .delete()
+    .eq("participation_id", participationId)
+    .eq("section_id", sectionId);
+
+  if (error) {
+    redirect(buildParticipationUrl(participationId, { error: "section_delete_failed" }));
+  }
+
+  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.events]);
+  redirect(buildParticipationUrl(participationId, { notice: "section_removed" }));
+}
+
 function nullableText(value: FormDataEntryValue | null) {
   const normalized = String(value ?? "").trim();
   return normalized ? normalized : null;

@@ -50,6 +50,29 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
   - add/link company contacts;
   - assign company brands;
   - invalidate server cache after writes.
+- Added participation detail edit flows:
+  - add/edit/delete participation contacts;
+  - add/edit/delete participation brands;
+  - add/edit/delete participation materials;
+  - save participation logistics statuses.
+- Added contacts module edit/delete server actions with relationship cleanup and cache invalidation.
+- Added server-side R2 upload API routes plus UI upload controls on detail screens:
+  - company logos (`/api/files/company-logo`);
+  - brand logos (`/api/files/brand-logo`);
+  - participation logos (`/api/files/participation-logo`);
+  - participation materials (`/api/files/participation-material`).
+- Updated event detail participant counters to use real totals from `participations` while keeping the 8-row preview table.
+- Added event CRUD baseline:
+  - create event from `/events`;
+  - edit/delete event from `/events/[id]` with safe delete guard when participations exist.
+- Added event content CRUD on `/events/[id]`:
+  - create/edit/delete `event_sections`;
+  - create/edit/delete `event_program_items`.
+- Added section participation model:
+  - new `participation_sections` relation table migration;
+  - section assignment/unassignment on participation detail;
+  - participant filtering by section on event detail.
+- Added DB coverage inventory doc: `docs/DB_TABLES_STATUS.md`.
 
 ## In Progress
 
@@ -64,8 +87,8 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 
 ## Not Started
 
-- Full edit/remove flows for contacts and brands from their own modules and detail screens.
-- Create/edit flows for events, participations, booth assignments, logistics, materials, notes, and action templates.
+- Full edit/remove flows for brands from brand module/detail screens.
+- Create/edit flows for participations, booth assignments, notes, and action templates.
 - Unified create/edit flows for `actions` from company, participation, event, contact, and global action list screens.
 - Basic audit/activity log UI and write path.
 - Role-aware field visibility and module restrictions beyond the current authenticated route protection.

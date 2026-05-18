@@ -1,6 +1,7 @@
 import { getSafeNextPath } from "@/lib/auth";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import { LoginForm } from "./login-form";
+import { Orbit } from "lucide-react";
 
 export default async function LoginPage({
   searchParams,
@@ -12,14 +13,23 @@ export default async function LoginPage({
   const error = getStringParam(params, "error");
 
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-4">
-      <section className="w-full max-w-sm rounded-lg border border-border bg-white p-6 shadow-soft">
-        <div className="mb-6">
-          <p className="text-sm font-medium uppercase text-muted-foreground">Exhibition CRM</p>
-          <h1 className="mt-2 text-2xl font-semibold">Sign in</h1>
+    <main className="min-h-screen bg-[#f3f5f8] px-4 py-8 sm:px-6 sm:py-10">
+      <section className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl items-start justify-center bg-[#f5f7fa]">
+        <div className="w-full max-w-md pt-4 sm:pt-8">
+          <div className="mb-7 text-center">
+            <div className="inline-flex items-center gap-2 text-primary">
+              <Orbit size={28} strokeWidth={2.2} aria-hidden="true" />
+              <span className="text-3xl font-semibold tracking-tight sm:text-4xl">ExhibitorPro</span>
+            </div>
+            <h1 className="mt-5 text-3xl font-semibold tracking-tight text-primary sm:text-4xl">Welcome back</h1>
+            <p className="mt-2 text-base text-slate-600 sm:text-lg">Sign in to manage your exhibition logistics</p>
+          </div>
+
+          <section className="rounded-xl border border-slate-300 bg-[#f8fafc] p-5 shadow-[0_10px_24px_rgba(15,23,42,0.08)] sm:p-6">
+            {error ? <LoginError value={error} /> : null}
+            <LoginForm next={next} />
+          </section>
         </div>
-        {error ? <LoginError value={error} /> : null}
-        <LoginForm next={next} />
       </section>
     </main>
   );
