@@ -16,8 +16,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { saveParticipationBrand, saveParticipationContact, saveParticipationMaterial } from "./actions";
 import { DeleteMaterialButton } from "./delete-material-button";
-import { DeleteParticipationBrandButton } from "./delete-participation-brand-button";
 import { DeleteParticipationContactButton } from "./delete-participation-contact-button";
+import { ParticipationBrandCard } from "./participation-brand-card";
 import { ParticipationLogisticsEditor, type LogisticsItem } from "./participation-logistics-editor";
 
 export const revalidate = 30;
@@ -83,7 +83,10 @@ type BrandLinkRow = Pick<
   Database["public"]["Tables"]["participation_brands"]["Row"],
   "id" | "brand_id" | "display_on_website" | "priority"
 >;
-type BrandRow = Pick<Database["public"]["Tables"]["brands"]["Row"], "id" | "brand_name" | "website" | "brand_logo_url">;
+type BrandRow = Pick<
+  Database["public"]["Tables"]["brands"]["Row"],
+  "id" | "brand_name" | "website" | "brand_logo_url" | "brand_description" | "country"
+>;
 type MaterialRow = Pick<
   Database["public"]["Tables"]["exhibitor_materials"]["Row"],
   "id" | "title" | "material_type" | "status" | "url" | "notes"
@@ -200,7 +203,11 @@ export default async function ParticipationDetailPage({
                   .eq("event_id", participation.event_id)
                   .order("sort_order", { ascending: true })
               : emptyResult<TemplateRow[]>(),
-            supabase.from("brands").select("id,brand_name,website,brand_logo_url").eq("organization_id", organizationId).order("brand_name", { ascending: true }),
+            supabase
+              .from("brands")
+              .select("id,brand_name,website,brand_logo_url,brand_description,country")
+              .eq("organization_id", organizationId)
+              .order("brand_name", { ascending: true }),
           ]);
 
         const firstError =
@@ -226,7 +233,7 @@ export default async function ParticipationDetailPage({
           brandIds.length > 0
             ? await supabase
                 .from("brands")
-                .select("id,brand_name,website,brand_logo_url")
+                .select("id,brand_name,website,brand_logo_url,brand_description,country")
                 .in("id", brandIds)
                 .order("brand_name", { ascending: true })
             : emptyResult<BrandRow[]>();
@@ -630,51 +637,6 @@ function Panel({
       </div>
       <div className="rounded-lg border border-border bg-white p-4 shadow-soft">{children}</div>
     </section>
-  );
-}
-
-function ParticipationBrandCard({
-  participationId,
-  link,
-  brand,
-}: {
-  participationId: string;
-  link: BrandLinkRow;
-  brand: BrandRow;
-}) {
-  return (
-    <div className="rounded-lg border border-border p-3">
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <a
-          href={brand.website ?? undefined}
-          target={brand.website ? "_blank" : undefined}
-          rel={brand.website ? "noreferrer" : undefined}
-          className="flex min-w-0 flex-1 items-center gap-3 hover:text-primary"
-        >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
-            {brand.brand_logo_url ? <img src={brand.brand_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" /> : <Tags size={18} />}
-          </div>
-          <div className="min-w-0">
-            <div className="truncate font-medium text-primary">{brand.brand_name}</div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {[link.display_on_website ? "website" : "internal only", link.priority != null ? `priority ${link.priority}` : null]
-                .filter(Boolean)
-                .join(" / ") || "Brand link"}
-            </div>
-          </div>
-        </a>
-        <div className="flex items-center gap-1">
-          <Link
-            href={`/participations/${participationId}?panel=brand&brand_link_id=${link.id}`}
-            title="Edit participation brand"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-primary"
-          >
-            <Pencil size={15} aria-hidden="true" />
-          </Link>
-          <DeleteParticipationBrandButton participationId={participationId} brandLinkId={link.id} brandId={link.brand_id ?? ""} />
-        </div>
-      </div>
-    </div>
   );
 }
 
