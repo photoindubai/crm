@@ -1,0 +1,29 @@
+{
+  "startedAt": "2026-05-20T12:36:39.805Z",
+  "mode": "dry-run",
+  "options": {
+    "entity": "companies",
+    "limit": null,
+    "concurrency": 2,
+    "skipExisting": true
+  },
+  "items": [],
+  "summary": {
+    "candidatesFound": 0,
+    "copiedFull": 0,
+    "copiedThumbs": 0,
+    "skippedExisting": 0,
+    "skippedAlreadyMigrated": 0,
+    "skippedUnsupported": 0,
+    "skippedInvalidUrl": 0,
+    "failedDownload": 0,
+    "failedUpload": 0,
+    "failedDbInsert": 0,
+    "archivedExternalRows": 0,
+    "updatedPrimaryPointers": 0,
+    "repairedPartial": 0,
+    "cleanedPartial": 0,
+    "incompleteExisting": 0,
+    "errorsCount": 0
+  }
+}

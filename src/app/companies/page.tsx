@@ -14,7 +14,41 @@ export const revalidate = 30;
 
 const PAGE_SIZE = 50;
 
-type CompanyListRow = Database["public"]["Views"]["company_list_view"]["Row"];
+type Company = Pick<
+  Database["public"]["Tables"]["companies"]["Row"],
+  "id" | "company_name" | "company_logo_url" | "website"
+>;
+
+type ParticipationWithEvent = Pick<
+  Database["public"]["Tables"]["participations"]["Row"],
+  "id" | "company_id" | "status" | "event_id"
+> & {
+  events: Pick<Database["public"]["Tables"]["events"]["Row"], "id" | "event_name"> | null;
+};
+
+type ContactLink = Pick<Database["public"]["Tables"]["company_contacts"]["Row"], "company_id" | "is_primary" | "created_at"> & {
+  contacts: Pick<
+    Database["public"]["Tables"]["contacts"]["Row"],
+    "first_name" | "last_name" | "email" | "phone" | "created_at"
+  > | null;
+};
+
+type CompanyEvent = {
+  eventId: string;
+  eventName: string;
+};
+
+type CompanyListItem = {
+  company_id: string;
+  company_name: string;
+  logo_url: string | null;
+  website: string | null;
+  main_contact_name: string | null;
+  main_contact_email: string | null;
+  main_contact_phone: string | null;
+  participation_status: string | null;
+  events: CompanyEvent[];
+};
 
 export default async function CompaniesPage({
   searchParams,
@@ -32,13 +66,13 @@ export default async function CompaniesPage({
   const { companies, count } = await loadCached(
     {
       keyParts: ["companies", profile.organization_id, page, query],
-      tags: [cacheTags.companies],
+      tags: [cacheTags.companies, cacheTags.participations, cacheTags.events],
     },
     async () => {
       const supabase = createSupabaseAdminClient();
       let request = supabase
-        .from("company_list_view")
-        .select("*", { count: "exact" })
+        .from("companies")
+        .select("id,company_name,company_logo_url,website", { count: "exact" })
         .order("company_name", { ascending: true })
         .range(from, to);
 
@@ -52,8 +86,52 @@ export default async function CompaniesPage({
         throw new Error(error.message);
       }
 
+      const companies = (data ?? []) as Company[];
+      const companyIds = companies.map((company) => company.id);
+
+      const [participationsResult, contactLinksResult] =
+        companyIds.length > 0
+          ? await Promise.all([
+              supabase
+                .from("participations")
+                .select("id,company_id,status,event_id,events(id,event_name)")
+                .in("company_id", companyIds)
+                .order("created_at", { ascending: false }),
+              supabase
+                .from("company_contacts")
+                .select("company_id,is_primary,created_at,contacts(first_name,last_name,email,phone,created_at)")
+                .in("company_id", companyIds),
+            ])
+          : [emptyResult<ParticipationWithEvent[]>(), emptyResult<ContactLink[]>()];
+
+      if (participationsResult.error) {
+        throw new Error(participationsResult.error.message);
+      }
+
+      if (contactLinksResult.error) {
+        throw new Error(contactLinksResult.error.message);
+      }
+
+      const eventsByCompany = buildEventsByCompany((participationsResult.data ?? []) as ParticipationWithEvent[]);
+      const statusByCompany = buildStatusByCompany((participationsResult.data ?? []) as ParticipationWithEvent[]);
+      const primaryContactByCompany = buildPrimaryContactByCompany((contactLinksResult.data ?? []) as ContactLink[]);
+
       return {
-        companies: data ?? [],
+        companies: companies.map((company) => {
+          const primaryContact = primaryContactByCompany.get(company.id);
+
+          return {
+            company_id: company.id,
+            company_name: company.company_name,
+            logo_url: company.company_logo_url,
+            website: company.website,
+            main_contact_name: primaryContact?.name ?? null,
+            main_contact_email: primaryContact?.email ?? null,
+            main_contact_phone: primaryContact?.phone ?? null,
+            participation_status: statusByCompany.get(company.id) ?? null,
+            events: eventsByCompany.get(company.id) ?? [],
+          };
+        }),
         count: count ?? 0,
       };
     },
@@ -83,7 +161,7 @@ export default async function CompaniesPage({
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
               <th className="w-[32%] px-4 py-3 font-semibold">Company</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Location</th>
+              <th className="w-[18%] px-4 py-3 font-semibold">Events</th>
               <th className="w-[24%] px-4 py-3 font-semibold">Main contact</th>
               <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
               <th className="w-[14%] px-4 py-3 font-semibold">Website</th>
@@ -113,9 +191,7 @@ export default async function CompaniesPage({
   );
 }
 
-function CompanyRow({ company }: { company: CompanyListRow }) {
-  const location = [company.city, company.country].filter(Boolean).join(", ") || "No location";
-
+function CompanyRow({ company }: { company: CompanyListItem }) {
   return (
     <tr className="align-top">
       <td className="px-4 py-4">
@@ -138,7 +214,21 @@ function CompanyRow({ company }: { company: CompanyListRow }) {
           </div>
         </div>
       </td>
-      <td className="px-4 py-4 text-muted-foreground">{location}</td>
+      <td className="px-4 py-4">
+        {company.events.length > 0 ? (
+          <ul className="space-y-1">
+            {company.events.map((event) => (
+              <li key={event.eventId}>
+                <Link href={`/events/${event.eventId}`} className="text-primary hover:underline">
+                  {event.eventName}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span className="text-muted-foreground">No events</span>
+        )}
+      </td>
       <td className="px-4 py-4">
         <div className="truncate">{company.main_contact_name || "No contact"}</div>
         <div className="truncate text-xs text-muted-foreground">
@@ -159,4 +249,93 @@ function CompanyRow({ company }: { company: CompanyListRow }) {
       </td>
     </tr>
   );
+}
+
+function emptyResult<T>(): { data: T; error: null } {
+  return { data: [] as T, error: null };
+}
+
+function buildEventsByCompany(participations: ParticipationWithEvent[]) {
+  const eventsByCompany = new Map<string, CompanyEvent[]>();
+  const seenEventIdsByCompany = new Map<string, Set<string>>();
+
+  for (const participation of participations) {
+    const companyId = participation.company_id;
+    const event = participation.events;
+
+    if (!companyId || !event?.id || !event.event_name) {
+      continue;
+    }
+
+    const seenEventIds = seenEventIdsByCompany.get(companyId) ?? new Set<string>();
+    if (seenEventIds.has(event.id)) {
+      continue;
+    }
+
+    seenEventIds.add(event.id);
+    seenEventIdsByCompany.set(companyId, seenEventIds);
+
+    const companyEvents = eventsByCompany.get(companyId) ?? [];
+    companyEvents.push({ eventId: event.id, eventName: event.event_name });
+    eventsByCompany.set(companyId, companyEvents);
+  }
+
+  for (const events of eventsByCompany.values()) {
+    events.sort((left, right) => left.eventName.localeCompare(right.eventName));
+  }
+
+  return eventsByCompany;
+}
+
+function buildStatusByCompany(participations: ParticipationWithEvent[]) {
+  const statusByCompany = new Map<string, string | null>();
+
+  for (const participation of participations) {
+    if (!participation.company_id || statusByCompany.has(participation.company_id)) {
+      continue;
+    }
+
+    statusByCompany.set(participation.company_id, participation.status);
+  }
+
+  return statusByCompany;
+}
+
+function buildPrimaryContactByCompany(links: ContactLink[]) {
+  const rankedLinks = [...links].sort((left, right) => compareContactLinks(left, right));
+  const primaryContactByCompany = new Map<string, { name: string | null; email: string | null; phone: string | null }>();
+
+  for (const link of rankedLinks) {
+    if (!link.company_id || primaryContactByCompany.has(link.company_id) || !link.contacts) {
+      continue;
+    }
+
+    primaryContactByCompany.set(link.company_id, {
+      name: [link.contacts.first_name, link.contacts.last_name].filter(Boolean).join(" ") || null,
+      email: link.contacts.email,
+      phone: link.contacts.phone,
+    });
+  }
+
+  return primaryContactByCompany;
+}
+
+function compareContactLinks(left: ContactLink, right: ContactLink) {
+  const primaryScore = Number(Boolean(right.is_primary)) - Number(Boolean(left.is_primary));
+  if (primaryScore !== 0) {
+    return primaryScore;
+  }
+
+  const createdAtScore = compareNullableDates(left.created_at, right.created_at);
+  if (createdAtScore !== 0) {
+    return createdAtScore;
+  }
+
+  return compareNullableDates(left.contacts?.created_at, right.contacts?.created_at);
+}
+
+function compareNullableDates(left: string | null | undefined, right: string | null | undefined) {
+  const leftTime = left ? Date.parse(left) : Number.POSITIVE_INFINITY;
+  const rightTime = right ? Date.parse(right) : Number.POSITIVE_INFINITY;
+  return leftTime - rightTime;
 }

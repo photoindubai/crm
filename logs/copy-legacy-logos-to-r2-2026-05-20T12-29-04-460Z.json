@@ -1,0 +1,78 @@
+{
+  "startedAt": "2026-05-20T12:28:01.343Z",
+  "mode": "dry-run",
+  "options": {
+    "entity": "companies",
+    "limit": 3,
+    "concurrency": 2,
+    "skipExisting": true
+  },
+  "items": [
+    {
+      "entityType": "company",
+      "entityId": "73a1f0bf-81e1-497d-8c13-05df8f0e90cd",
+      "entityName": "CEDIA",
+      "legacyFileId": "9cce0c0d-d42c-4482-9088-5d6bb4849f46",
+      "externalUrl": "https://cms.chat-admin.online/uploads/CEDIA_wide_ee74677a71.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 30156,
+        "filename": "CEDIA_wide_ee74677a71.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "5bb5c7c2-3458-4ce0-841d-f7102d5775ce",
+      "entityName": "Audio Deluxe",
+      "legacyFileId": "f64747cd-4d55-4d77-95a5-ef96a3b962f9",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Audio_Deluxe_f5db35db7b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27155,
+        "filename": "Audio_Deluxe_f5db35db7b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "d2b95da8-a817-4d3c-87c5-f2f57f947ef8",
+      "entityName": "Dubai Audio",
+      "legacyFileId": "8aee30bd-524b-401f-8ee7-9e63d71b01ce",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Dubai_Audio_Black_logo_7dab0e441b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 50829,
+        "filename": "Dubai_Audio_Black_logo_7dab0e441b.png",
+        "wouldGenerateThumb": true
+      }
+    }
+  ],
+  "summary": {
+    "candidatesFound": 3,
+    "copiedFull": 0,
+    "copiedThumbs": 0,
+    "skippedExisting": 0,
+    "skippedAlreadyMigrated": 0,
+    "skippedUnsupported": 0,
+    "skippedInvalidUrl": 0,
+    "failedDownload": 0,
+    "failedUpload": 0,
+    "failedDbInsert": 0,
+    "archivedExternalRows": 0,
+    "updatedPrimaryPointers": 0,
+    "repairedPartial": 0,
+    "cleanedPartial": 0,
+    "incompleteExisting": 0,
+    "errorsCount": 0
+  }
+}

@@ -85,6 +85,10 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
   - `actions` as the single operational workflow model.
 - Role-specific module access rules, if a concrete access matrix is needed.
 
+## Future / Post-MVP (documented, not scheduled for immediate MVP)
+
+- **CSV Import Wizard with Logo URL Ingestion to R2** — SaaS onboarding for new organizers: upload CSV/XLSX, map columns, dry-run preview, apply import (companies + participations + booths/contacts/brands), optional logo URL → R2 pipeline. Not part of current MVP scope. Full plan: `docs/02_ROADMAP_NEXT_PHASES.md` §18; file/R2 notes: `docs/FILES_AND_R2.md` (Future TODO → Bulk imports).
+
 ## Not Started
 
 - Full edit/remove flows for brands from brand module/detail screens.
@@ -92,5 +96,5 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 - Unified create/edit flows for `actions` from company, participation, event, contact, and global action list screens.
 - Basic audit/activity log UI and write path.
 - Role-aware field visibility and module restrictions beyond the current authenticated route protection.
-- Broader AppSheet/form-data import tooling beyond the current HESHS2026 local-data import.
+- Broader AppSheet/form-data import tooling beyond the current HESHS2026 local-data import (see **Future / Post-MVP** — CSV Import Wizard; interactive wizard not started).
 - Dashboard drilldowns and richer operational reporting.

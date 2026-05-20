@@ -1,0 +1,101 @@
+{
+  "startedAt": "2026-05-20T11:43:00.366Z",
+  "mode": "dry-run",
+  "options": {
+    "entity": "companies",
+    "limit": 5,
+    "concurrency": 2,
+    "skipExisting": true
+  },
+  "items": [
+    {
+      "entityType": "company",
+      "entityId": "0e583b3e-3d0b-481c-972f-2818e6bf28c2",
+      "entityName": "Minara",
+      "legacyFileId": "cdb2c3a2-9981-4fac-ac29-a9b5ab0c3f68",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Minara_bcac003690.png",
+      "action": "would_copy",
+      "error": null,
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 1570,
+        "filename": "Minara_bcac003690.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "03ca1b83-72cf-42d3-ae15-1bd521255a81",
+      "entityName": "KNX",
+      "legacyFileId": "f03b03c8-8c03-414c-b1a9-986de380e5c7",
+      "externalUrl": "https://cms.chat-admin.online/uploads/KNX_Logo_736a4b011c.png",
+      "action": "would_copy",
+      "error": null,
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3458,
+        "filename": "KNX_Logo_736a4b011c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "12c69b24-215b-4eb1-a4fe-602babc3fe7d",
+      "entityName": "We Quote",
+      "legacyFileId": "ffcf2c56-5ed8-49e8-b5f9-60290b8c4110",
+      "externalUrl": "https://cms.chat-admin.online/uploads/We_Quote_logo_13bc8d7c20.png",
+      "action": "would_copy",
+      "error": null,
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 7796,
+        "filename": "We_Quote_logo_13bc8d7c20.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "1ffbe7d2-046a-434e-be57-98b1df46a5e9",
+      "entityName": "Panacor Technologies",
+      "legacyFileId": "ea15328f-d847-41f2-9bb0-26c1de954077",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Panacor_15ceabb7dd.jpg",
+      "action": "would_copy",
+      "error": null,
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 25477,
+        "filename": "Panacor_15ceabb7dd.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "24b02ccd-5c88-4e1b-8f2e-0589cd28335b",
+      "entityName": "Raw Music Store",
+      "legacyFileId": "40b529f1-acac-488d-97dc-cee0c059897f",
+      "externalUrl": "https://cms.chat-admin.online/uploads/raw_music_store_logo_adf0eedeb7.png",
+      "action": "would_copy",
+      "error": null,
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5345,
+        "filename": "raw_music_store_logo_adf0eedeb7.png",
+        "wouldGenerateThumb": true
+      }
+    }
+  ],
+  "summary": {
+    "candidatesFound": 5,
+    "copiedFull": 0,
+    "copiedThumbs": 0,
+    "skippedExisting": 0,
+    "skippedUnsupported": 0,
+    "skippedInvalidUrl": 0,
+    "failedDownload": 0,
+    "failedUpload": 0,
+    "failedDbInsert": 0,
+    "archivedExternalRows": 0,
+    "updatedPrimaryPointers": 0,
+    "errorsCount": 0
+  }
+}

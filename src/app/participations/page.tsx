@@ -2,6 +2,10 @@
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
+import {
+  ParticipationSectionBadges,
+  type ParticipationSection,
+} from "@/components/participation-section-badges";
 import { StatusBadge } from "@/components/status-badge";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
@@ -16,6 +20,19 @@ const PAGE_SIZE = 50;
 
 type ParticipationListRow = Database["public"]["Views"]["participation_list_view"]["Row"];
 type EventRow = Pick<Database["public"]["Tables"]["events"]["Row"], "id" | "event_name">;
+
+type ParticipationListItem = ParticipationListRow & {
+  sections: ParticipationSection[];
+};
+
+type ParticipationSectionLinkRow = {
+  participation_id: string;
+  event_sections: {
+    id: string;
+    name: string;
+    sort_order: number | null;
+  } | null;
+};
 
 export default async function ParticipationsPage({
   searchParams,
@@ -70,8 +87,19 @@ export default async function ParticipationsPage({
         throw new Error(eventsError.message);
       }
 
+      const participations = (data ?? []) as ParticipationListRow[];
+      const participationIds = participations
+        .map((participation) => participation.participation_id)
+        .filter((participationId): participationId is string => Boolean(participationId));
+      const sectionsByParticipation = await loadParticipationSections(supabase, participationIds);
+
       return {
-        participations: data ?? [],
+        participations: participations.map((participation) => ({
+          ...participation,
+          sections: participation.participation_id
+            ? (sectionsByParticipation.get(participation.participation_id) ?? [])
+            : [],
+        })),
         events: (eventsData ?? []) as EventRow[],
         count: count ?? 0,
       };
@@ -164,7 +192,7 @@ export default async function ParticipationsPage({
   );
 }
 
-function ParticipationRow({ participation }: { participation: ParticipationListRow }) {
+function ParticipationRow({ participation }: { participation: ParticipationListItem }) {
   return (
     <tr className="align-top">
       <td className="px-4 py-4">
@@ -183,7 +211,9 @@ function ParticipationRow({ participation }: { participation: ParticipationListR
             <Link href={`/participations/${participation.participation_id}`} className="truncate font-medium hover:text-primary">
               {participation.company_name}
             </Link>
-            <div className="truncate text-xs text-muted-foreground">{participation.package_name ?? "No package"}</div>
+            <div className="mt-1">
+              <ParticipationSectionBadges sections={participation.sections} eventId={participation.event_id} />
+            </div>
           </div>
         </div>
       </td>
@@ -201,4 +231,57 @@ function ParticipationRow({ participation }: { participation: ParticipationListR
       </td>
     </tr>
   );
+}
+
+async function loadParticipationSections(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  participationIds: string[],
+) {
+  const sectionsByParticipation = new Map<string, ParticipationSection[]>();
+
+  if (participationIds.length === 0) {
+    return sectionsByParticipation;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
+    .from("participation_sections")
+    .select("participation_id,event_sections(id,name,sort_order)")
+    .in("participation_id", participationIds);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  for (const row of (data ?? []) as ParticipationSectionLinkRow[]) {
+    const section = row.event_sections;
+    if (!section?.id || !section.name) {
+      continue;
+    }
+
+    const participationSections = sectionsByParticipation.get(row.participation_id) ?? [];
+    participationSections.push({ id: section.id, name: section.name });
+    sectionsByParticipation.set(row.participation_id, participationSections);
+  }
+
+  const sortOrderBySectionId = new Map<string, number | null>();
+  for (const row of (data ?? []) as ParticipationSectionLinkRow[]) {
+    if (row.event_sections?.id) {
+      sortOrderBySectionId.set(row.event_sections.id, row.event_sections.sort_order);
+    }
+  }
+
+  for (const sections of sectionsByParticipation.values()) {
+    sections.sort((left, right) => {
+      const leftOrder = sortOrderBySectionId.get(left.id) ?? Number.MAX_SAFE_INTEGER;
+      const rightOrder = sortOrderBySectionId.get(right.id) ?? Number.MAX_SAFE_INTEGER;
+      if (leftOrder !== rightOrder) {
+        return leftOrder - rightOrder;
+      }
+
+      return left.name.localeCompare(right.name);
+    });
+  }
+
+  return sectionsByParticipation;
 }

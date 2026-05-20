@@ -567,7 +567,7 @@ Turn the internal platform into a product for other organizers.
 - custom branding;
 - custom domains or subdomains;
 - audit logs;
-- export/import tools;
+- export/import tools (see §18 — CSV Import Wizard with Logo URL Ingestion to R2);
 - support/admin console.
 
 ### SaaS entities
@@ -706,3 +706,202 @@ Lead
 ```
 
 This creates a defensible niche product because generic CRMs do not handle exhibition-specific operations well.
+
+---
+
+## 18. Future SaaS onboarding — CSV Import Wizard with Logo URL Ingestion to R2
+
+> **Status:** Future feature — not part of the current immediate MVP.  
+> **Purpose:** Onboard a new organizer/event by bulk-importing exhibitors from CSV/XLSX, with optional logo URL ingestion into Cloudflare R2.
+
+### 18.1 Product context
+
+The Exhibition CRM already has:
+
+- organizations / events / companies / participations model;
+- `public.files` as canonical file metadata;
+- Cloudflare R2 as the physical storage backend;
+- logo roles: `file_category='logo'`, `file_role` in `full`, `thumb`, `full_inverted`, `thumb_inverted`;
+- R2 path convention: `organizations/{organization_slug}/...`;
+- legacy URL fallback logic;
+- existing AppSheet/local data import history (e.g. HESHS2026).
+
+This wizard is the **self-service SaaS onboarding path** for a new CRM user / exhibition organizer: create an event, upload a CSV, map columns, preview, apply import, and optionally copy logo URLs to R2.
+
+### 18.2 User scenario
+
+A new organizer:
+
+1. Creates or selects an event under their organization.
+2. Uploads a CSV (or XLSX) through the UI.
+3. Maps CSV columns to CRM fields.
+4. Reviews a dry-run preview.
+5. Confirms import; backend creates/updates companies and participations and ingests logos to R2.
+
+**Example CSV columns:**
+
+| CSV column | Typical CRM mapping |
+|---|---|
+| Company Name | `company_name` (required) |
+| Legal Name | `legal_name` |
+| Website | `website` |
+| Country | `country` |
+| City | `city` |
+| Description | `description` |
+| Logo URL | `logo_url` |
+| Facebook / Instagram / LinkedIn / YouTube | social links |
+| Booth Number | `booth_number` |
+| Contact Name / Email / Phone | contacts |
+| Brand Names | brands (multi-value) |
+
+### 18.3 Recommended workflow
+
+#### Step 1 — Upload CSV/XLSX
+
+- User chooses target **organization** and **event**.
+- User uploads CSV/XLSX.
+- System parses headers and sample rows for mapping UI.
+
+#### Step 2 — Field mapping UI
+
+- User maps CSV columns to CRM fields.
+- **Required mapping:** `company_name`.
+- **Optional mappings:** `website`, `country`, `city`, `description`, `logo_url`, social links, `booth_number`, contacts, brands.
+- Future: save mapping templates per organization.
+
+#### Step 3 — Dry-run preview
+
+Before any writes, show:
+
+- total row count;
+- companies to create vs update;
+- participations to create;
+- booths to create/assign;
+- logo URLs detected;
+- duplicate candidates (normalized name, website, optional external ID);
+- invalid rows;
+- downloadable error preview (CSV/JSON).
+
+#### Step 4 — Apply import
+
+Scoped to selected **organization** and **event**:
+
+- create/update **companies** under the organization (persistent entity);
+- create **participations** for the selected event (company-in-event — not the same as company);
+- create/link **contacts** if mapped;
+- create/link **brands** if mapped;
+- create **booths** and **booth_assignments** if booth column is mapped;
+- remain **idempotent** using normalized company name, website, and/or optional external ID column.
+
+**Critical data-model rule:**
+
+```text
+Company     = persistent under organization
+Participation = company-in-event (one per company per event)
+```
+
+Do not treat a CSV row as “a participation only” without resolving/creating the underlying company.
+
+#### Step 5 — Logo ingestion to R2
+
+For each row with a mapped `logo_url`:
+
+1. Download image from URL.
+2. Validate HTTP 200.
+3. Validate `Content-Type` starts with `image/`.
+4. Validate max size (align with existing copy script limits, e.g. 10 MB).
+5. Upload original to R2:
+   - `file_category='logo'`
+   - `file_role='full'`
+   - `provider='cloudflare_r2'`
+   - path: `organizations/{organization_slug}/companies/{company_id}/logos/full/...`
+6. For PNG/JPEG/WebP, generate thumbnail:
+   - `file_role='thumb'`
+7. Insert `public.files` rows (canonical metadata).
+8. Set `companies.primary_logo_file_id` to **thumb** if generated, otherwise **full**.
+9. Optionally mirror primary public URL into `companies.company_logo_url` for legacy compatibility.
+10. Log per-row logo failures **without failing the whole import**.
+
+**Do not auto-generate inverted logos.** Inverted logos (`full_inverted`, `thumb_inverted`) are uploaded separately by the user later.
+
+Reuse patterns from `scripts/copy-legacy-logos-to-r2.mjs` where applicable (download validation, thumb generation, idempotency).
+
+#### Step 6 — Import reporting
+
+After import, show:
+
+- created / updated companies;
+- created participations;
+- created booths;
+- imported logos;
+- failed logo downloads;
+- skipped duplicates;
+- row-level errors;
+- downloadable CSV/JSON error report.
+
+#### Step 7 — Retry mechanism (future version)
+
+- retry failed logo downloads only;
+- retry failed rows only;
+- re-run import with same saved mapping;
+- saved mapping templates per organization.
+
+### 18.4 Canonical files and legacy mirrors
+
+| Layer | Role |
+|---|---|
+| `public.files` | Canonical file metadata (source of truth) |
+| Cloudflare R2 | Physical object storage |
+| `companies.company_logo_url` | Compatibility mirror only |
+| `companies.primary_logo_file_id` | Preferred display pointer (thumb when available) |
+
+Legacy URL fields must not replace `public.files` for new imports.
+
+### 18.5 Recommended database tables (future)
+
+#### `import_jobs`
+
+| Field | Type / notes |
+|---|---|
+| `id` | uuid PK |
+| `organization_id` | uuid FK — tenant scope |
+| `event_id` | uuid FK — target event |
+| `created_by` | uuid — profile/user |
+| `source_filename` | text |
+| `import_type` | text — e.g. `csv_exhibitors` |
+| `status` | text — `draft`, `preview_ready`, `running`, `completed`, `failed`, `cancelled` |
+| `mapping` | jsonb — column → field map |
+| `summary` | jsonb — counts, errors aggregate |
+| `created_at` | timestamptz |
+| `started_at` | timestamptz |
+| `completed_at` | timestamptz |
+
+#### `import_job_rows`
+
+| Field | Type / notes |
+|---|---|
+| `id` | uuid PK |
+| `import_job_id` | uuid FK |
+| `row_number` | int |
+| `raw_data` | jsonb — original CSV row |
+| `normalized_data` | jsonb — parsed/normalized values |
+| `status` | text — `pending`, `preview_ok`, `preview_error`, `imported`, `failed`, `skipped` |
+| `error_message` | text |
+| `company_id` | uuid — result link |
+| `participation_id` | uuid — result link |
+| `logo_file_id` | uuid — resulting thumb/full file |
+| `created_at` | timestamptz |
+
+### 18.6 Implementation phases
+
+| Phase | Scope |
+|---|---|
+| **A** | `import_jobs` / `import_job_rows` schema; backend CSV parser; dry-run engine |
+| **B** | Mapping UI; import preview UI; saved mapping templates |
+| **C** | Apply import: companies, participations, booths, contacts, brands |
+| **D** | Logo URL ingestion to R2; thumbnail generation; import report |
+| **E** | Retry failed rows/logos; background job processing; notification on completion |
+
+### 18.7 Placement in overall roadmap
+
+This feature belongs under **Phase 12 — SaaS Commercialization** (organization onboarding, export/import tools). It should ship after core MVP operations and file upload APIs are stable. It complements — but does not replace — one-off migration scripts like `copy-legacy-logos-to-r2.mjs` for historical data.

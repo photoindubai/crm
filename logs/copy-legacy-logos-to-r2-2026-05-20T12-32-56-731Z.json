@@ -1,0 +1,350 @@
+{
+  "startedAt": "2026-05-20T12:32:43.785Z",
+  "mode": "dry-run",
+  "options": {
+    "entity": "companies",
+    "limit": null,
+    "concurrency": 2,
+    "skipExisting": true
+  },
+  "items": [
+    {
+      "entityType": "company",
+      "entityId": "73a1f0bf-81e1-497d-8c13-05df8f0e90cd",
+      "entityName": "CEDIA",
+      "legacyFileId": "9cce0c0d-d42c-4482-9088-5d6bb4849f46",
+      "externalUrl": "https://cms.chat-admin.online/uploads/CEDIA_wide_ee74677a71.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 30156,
+        "filename": "CEDIA_wide_ee74677a71.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "d2b95da8-a817-4d3c-87c5-f2f57f947ef8",
+      "entityName": "Dubai Audio",
+      "legacyFileId": "8aee30bd-524b-401f-8ee7-9e63d71b01ce",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Dubai_Audio_Black_logo_7dab0e441b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 50829,
+        "filename": "Dubai_Audio_Black_logo_7dab0e441b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "5bb5c7c2-3458-4ce0-841d-f7102d5775ce",
+      "entityName": "Audio Deluxe",
+      "legacyFileId": "f64747cd-4d55-4d77-95a5-ef96a3b962f9",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Audio_Deluxe_f5db35db7b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27155,
+        "filename": "Audio_Deluxe_f5db35db7b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "3bc24711-7a64-4c20-b97d-9c0ae61262b4",
+      "entityName": "Audio Note Dubai",
+      "legacyFileId": "cb5e8166-53e2-4521-ac3b-a05135f6244b",
+      "externalUrl": "https://cms.chat-admin.online/uploads/AN_logo_80b4c5ab3a.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 21466,
+        "filename": "AN_logo_80b4c5ab3a.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "d5fb1170-0775-44e9-8b55-db5e4a8f6805",
+      "entityName": "Audio-Technica",
+      "legacyFileId": "f300ee60-a809-4d36-a703-a7fd61263156",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Audio_Technica_92ec010b39.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 11061,
+        "filename": "Audio_Technica_92ec010b39.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "ebf47fcc-8ecb-4650-a530-07d728da6824",
+      "entityName": "BON HI-FI / Focal/Naim",
+      "legacyFileId": "46fbf3f8-e2cd-4261-b99d-765366435f7d",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Bon_Hi_Fi_20f57a4173.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 6116,
+        "filename": "Bon_Hi_Fi_20f57a4173.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "50befa0e-7baf-4380-a8ac-209ece0f44e6",
+      "entityName": "Cache",
+      "legacyFileId": "85a6b91c-963e-49e2-879e-92080816ded8",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Cache_black_no_background_2b7c33a8ef.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3797,
+        "filename": "Cache_black_no_background_2b7c33a8ef.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "db476f4d-a68a-4ef6-bcb0-090e34bb3007",
+      "entityName": "Dr.Head",
+      "legacyFileId": "faed4163-704a-40f6-a026-4af840b062ea",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Dr_Head_85cb5ea286.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 43831,
+        "filename": "Dr_Head_85cb5ea286.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "96eb4b0e-47c0-45ad-8daa-1b2b2732e57f",
+      "entityName": "Ekinex",
+      "legacyFileId": "bb50365e-733b-4216-9df1-cfd6070642ff",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Ekinex_a0fa02d168.PNG",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15620,
+        "filename": "Ekinex_a0fa02d168.PNG",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "9c3e1023-1618-4dae-86b3-c623d18eab46",
+      "entityName": "Dune Crest Core Trading",
+      "legacyFileId": "7c1d8884-e077-46f4-9c17-ef3f655eb9b8",
+      "externalUrl": "https://cms.chat-admin.online/uploads/DCC_6b3d2d3943.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 88436,
+        "filename": "DCC_6b3d2d3943.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "bd37a386-4ef9-42c4-b9e8-eca2f78b32f1",
+      "entityName": "EQUINOX",
+      "legacyFileId": "01581dff-0cc9-4df7-ae1e-caa65c0311c0",
+      "externalUrl": "https://cms.chat-admin.online/uploads/high_end_logo_w_a7ec4c6056.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8325,
+        "filename": "high_end_logo_w_a7ec4c6056.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "94ebb1af-3ba1-401c-bd59-7ffe7bb4ff64",
+      "entityName": "Equinox HI-FI",
+      "legacyFileId": "922199a3-bae7-4c8e-b741-f8018470ed0b",
+      "externalUrl": "https://cms.chat-admin.online/uploads/EQUINOX_HIFI_LOGO_NEW_d9528d6bba.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 23114,
+        "filename": "EQUINOX_HIFI_LOGO_NEW_d9528d6bba.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "b0aa5626-7ab6-464b-811d-02e084171d2a",
+      "entityName": "Galtech Trading",
+      "legacyFileId": "ef03133a-a762-45a6-9cd4-8313488b9f98",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Copy_of_Galtech_Logo_Final_01_8c138ac65a.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15627,
+        "filename": "Copy_of_Galtech_Logo_Final_01_8c138ac65a.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "ea6d6c2a-6b7d-4fa7-80b9-2a518f5a9b1d",
+      "entityName": "Hifonix",
+      "legacyFileId": "04d9c159-d26d-4e59-b4ba-4304ea6efc0f",
+      "externalUrl": "https://cms.chat-admin.online/uploads/hifonix_1ddc608f04.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 9949,
+        "filename": "hifonix_1ddc608f04.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "dc7f4a4a-3abf-45eb-a128-5f31b5036178",
+      "entityName": "Lavoro",
+      "legacyFileId": "e63ee1eb-f7e5-41c0-a63a-dbf7649bb77b",
+      "externalUrl": "https://cms.chat-admin.online/uploads/LAVORO_LOGO_GOLD_ON_BLUE_c4356bd13a.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3077,
+        "filename": "LAVORO_LOGO_GOLD_ON_BLUE_c4356bd13a.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "2b9bb57f-66f5-46cc-8f60-77f3ba0047f2",
+      "entityName": "Lexa Lifestyle",
+      "legacyFileId": "5c9609f3-5f0c-4d55-8e0f-a4f0b662d4f4",
+      "externalUrl": "https://cms.chat-admin.online/uploads/LEXXA_Lifestile_3x_85cdd690c0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10075,
+        "filename": "LEXXA_Lifestile_3x_85cdd690c0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "3a6550a8-24eb-4e27-b2b2-b71dc28e7aa2",
+      "entityName": "Lutron",
+      "legacyFileId": "09b002ff-65b9-4dd5-a0ea-8e1e3e0292d2",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Lutron_logo_9557cb2926.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 4368,
+        "filename": "Lutron_logo_9557cb2926.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "53e1f914-dfd1-4563-beca-d24637c43acf",
+      "entityName": "Mirel International",
+      "legacyFileId": "51196790-b0ac-4bba-b899-14c982be13ca",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Mirel_International_4bf4e95106.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 35415,
+        "filename": "Mirel_International_4bf4e95106.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "ebcdeb43-082c-40b7-8b25-a9194b1c9d2a",
+      "entityName": "MKB Bespoke",
+      "legacyFileId": "94ce91a8-b3a1-47aa-9071-42dea1db0538",
+      "externalUrl": "https://cms.chat-admin.online/uploads/MKB_Bespoke_051a328ce1.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10527,
+        "filename": "MKB_Bespoke_051a328ce1.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "company",
+      "entityId": "8614ef08-a910-4940-ab2d-8aa4754128b4",
+      "entityName": "Pult Electronics",
+      "legacyFileId": "92724ce9-1d08-4b80-be5b-01b5c0bcc8d3",
+      "externalUrl": "https://cms.chat-admin.online/uploads/Pult_40738d0aee.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13932,
+        "filename": "Pult_40738d0aee.png",
+        "wouldGenerateThumb": true
+      }
+    }
+  ],
+  "summary": {
+    "candidatesFound": 20,
+    "copiedFull": 0,
+    "copiedThumbs": 0,
+    "skippedExisting": 0,
+    "skippedAlreadyMigrated": 0,
+    "skippedUnsupported": 0,
+    "skippedInvalidUrl": 0,
+    "failedDownload": 0,
+    "failedUpload": 0,
+    "failedDbInsert": 0,
+    "archivedExternalRows": 0,
+    "updatedPrimaryPointers": 0,
+    "repairedPartial": 0,
+    "cleanedPartial": 0,
+    "incompleteExisting": 0,
+    "errorsCount": 0
+  }
+}

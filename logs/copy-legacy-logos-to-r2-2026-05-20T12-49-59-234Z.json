@@ -1,0 +1,2544 @@
+{
+  "startedAt": "2026-05-20T12:48:34.768Z",
+  "mode": "dry-run",
+  "options": {
+    "entity": "brands",
+    "limit": null,
+    "concurrency": 2,
+    "skipExisting": true
+  },
+  "items": [
+    {
+      "entityType": "brand",
+      "entityId": "00fa71d9-f567-4fbc-ae2c-66d86732ec96",
+      "entityName": "Autonomic",
+      "legacyFileId": "fe9aeca0-2bf6-4fa6-97a9-7643e0f7ff43",
+      "externalUrl": "https://highendshow.ae/uploads/small_Atomic_1f1c0dcc44.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8759,
+        "filename": "small_Atomic_1f1c0dcc44.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "05131922-d8b7-47d3-af4a-a0913aa0aee6",
+      "entityName": "Sony Projectors",
+      "legacyFileId": "e51857c7-3fc0-4832-a301-c8035f7a8acf",
+      "externalUrl": "https://highendshow.ae/uploads/small_sony_3fb1bf76bb.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27103,
+        "filename": "small_sony_3fb1bf76bb.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "066a6cfb-1b54-45bd-8569-2b1a88e80407",
+      "entityName": "BEHRINGER",
+      "legacyFileId": "e59fddd7-5cc8-4f23-8587-da43eb62b31a",
+      "externalUrl": "https://highendshow.ae/uploads/small_BEHRINGER_46c8f9f598.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 33886,
+        "filename": "small_BEHRINGER_46c8f9f598.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "08d45514-957c-4a41-9abe-f32ed32a51ed",
+      "entityName": "Minara",
+      "legacyFileId": "c8d576cf-05f8-4b3d-aa94-acfa05947990",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Minara_bcac003690.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3583,
+        "filename": "thumbnail_Minara_bcac003690.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "0946efe8-64b7-403b-be59-f8a4db276497",
+      "entityName": "Artesania Audio",
+      "legacyFileId": "386090b4-1a71-4f16-8442-b0e11bcbea84",
+      "externalUrl": "https://highendshow.ae/uploads/small_Artesania_Audio_3x_e1a9a3b1f8.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 14886,
+        "filename": "small_Artesania_Audio_3x_e1a9a3b1f8.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "0c1688a0-4cc0-4103-a985-fc46aa2a9984",
+      "entityName": "KEF",
+      "legacyFileId": "4b57ea21-7292-4a27-b472-2173168a52fa",
+      "externalUrl": "https://highendshow.ae/uploads/small_KEF_FINAL_LOGO_886b979a24.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 43687,
+        "filename": "small_KEF_FINAL_LOGO_886b979a24.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "0e4e32fe-05ec-41c2-bca3-d48bf4b07bc6",
+      "entityName": "PrimaLuna",
+      "legacyFileId": "5152b146-d701-4a66-aa6c-5ea3dd5b8362",
+      "externalUrl": "https://highendshow.ae/uploads/small_Prima_Luna_a24975d5e9.gif",
+      "action": "skipped_unsupported_content_type",
+      "error": "GIF logos are skipped in this script.",
+      "migrationState": "none"
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1445449f-aaa0-42fa-ab0c-573c76d3a2cc",
+      "entityName": "Hegel",
+      "legacyFileId": "1d8ddcb8-fb5a-4b3c-a45c-d878eee3f066",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Hegel_f94ab9eab8.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3797,
+        "filename": "thumbnail_Hegel_f94ab9eab8.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "0f7c7e04-f513-4794-857e-5d3fa06571c2",
+      "entityName": "Nabunga Labs",
+      "legacyFileId": "24321c55-314d-4942-b0df-10dbec18aa89",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Nabunga_Labs_cd75592563.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9717,
+        "filename": "thumbnail_Nabunga_Labs_cd75592563.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1522caa6-7b8a-413e-845d-acbce1da3224",
+      "entityName": "JVC",
+      "legacyFileId": "62898a1b-1bd0-40e3-9650-2746ea21621a",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_JVC_c2e1b9379d.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 4782,
+        "filename": "thumbnail_JVC_c2e1b9379d.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "16422106-72c0-4e50-9461-9fd1479b54b6",
+      "entityName": "Galtech Trading",
+      "legacyFileId": "de0237df-5ac1-4dca-9b54-58a9d9a8391d",
+      "externalUrl": "https://highendshow.ae/uploads/small_Copy_of_Galtech_Logo_Final_01_8c138ac65a.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 4375,
+        "filename": "small_Copy_of_Galtech_Logo_Final_01_8c138ac65a.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1765a890-5141-4403-89ea-3c50dba4a3c9",
+      "entityName": "Beyerdynamic",
+      "legacyFileId": "b30cde5e-65c2-4324-a076-5f308b9eeb51",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Beyer_a4c2fca6bc.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9329,
+        "filename": "thumbnail_Beyer_a4c2fca6bc.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "178cb0f2-f15d-4830-9d9a-7e884fe95366",
+      "entityName": "Integra",
+      "legacyFileId": "6aa31cb3-f30c-40d3-be62-e418707f8570",
+      "externalUrl": "https://highendshow.ae/uploads/small_integra_logo_7f8d5e4f45.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 6463,
+        "filename": "small_integra_logo_7f8d5e4f45.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "189b1270-719d-4296-81a3-4758d27c830a",
+      "entityName": "SAVANT",
+      "legacyFileId": "3750299f-cd85-438b-b742-4a7086e04e75",
+      "externalUrl": "https://highendshow.ae/uploads/small_Savant_76f359c2f8.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13701,
+        "filename": "small_Savant_76f359c2f8.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1aee923a-0d78-46c6-b897-ebefbadfcf98",
+      "entityName": "HIBY",
+      "legacyFileId": "54cbba9b-a410-40c1-956b-78bf9bee5975",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_HIBY_27e398b9b3.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 4141,
+        "filename": "thumbnail_HIBY_27e398b9b3.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1d6bdb0c-bf00-4108-9045-3d9a0c51a8b2",
+      "entityName": "Klatre",
+      "legacyFileId": "dda772d9-ea9f-469f-a7b5-06aa3d196f0d",
+      "externalUrl": "https://highendshow.ae/uploads/small_Klatre_e83d6605d4.png",
+      "action": "failed_download",
+      "error": "fetch failed",
+      "migrationState": "none"
+    },
+    {
+      "entityType": "brand",
+      "entityId": "1df85a80-54f1-43e3-b83f-e50b6bf4e135",
+      "entityName": "WATERFALL AUDIO",
+      "legacyFileId": "5a7abd94-1742-47b4-9426-517b2b65b38a",
+      "externalUrl": "https://highendshow.ae/uploads/small_WATERFALL_FINAL_LOGO_339d169c7b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 22895,
+        "filename": "small_WATERFALL_FINAL_LOGO_339d169c7b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "22270bcd-b5e0-47ef-87fc-7c7d33f1f015",
+      "entityName": "Panacor Technologies",
+      "legacyFileId": "50d75f3a-d535-42f7-bb62-2c22d4f42e5d",
+      "externalUrl": "https://highendshow.ae/uploads/small_Panacor_15ceabb7dd.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 12305,
+        "filename": "small_Panacor_15ceabb7dd.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "225ef9e3-e2c8-4ef1-aa0d-7a05120aa8a9",
+      "entityName": "CEntrance",
+      "legacyFileId": "513301c5-4ffd-475c-a17a-8d988cf1c34e",
+      "externalUrl": "https://highendshow.ae/uploads/small_CENTRANCE_logo_b0a4043824.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9423,
+        "filename": "small_CENTRANCE_logo_b0a4043824.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "23090c0a-e15a-498c-9bd1-f986014d44a4",
+      "entityName": "Norstone",
+      "legacyFileId": "c6bb0c36-ea8a-47fd-a57a-b10eaae2eb56",
+      "externalUrl": "https://highendshow.ae/uploads/small_Norstone_logo_f3ab9d2c58.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 7815,
+        "filename": "small_Norstone_logo_f3ab9d2c58.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "239afae8-79bd-4e2d-8165-8560b6454131",
+      "entityName": "LUTRON",
+      "legacyFileId": "d56d2fe8-b810-4990-9840-7b3945b6601c",
+      "externalUrl": "https://highendshow.ae/uploads/small_Lutron_logo_9557cb2926.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10367,
+        "filename": "small_Lutron_logo_9557cb2926.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "242659ea-2f4c-4eb2-aa83-37df91f54a85",
+      "entityName": "EVERSOLO",
+      "legacyFileId": "d16b59ec-4f66-4af4-95f4-49cf1a74abe6",
+      "externalUrl": "https://highendshow.ae/uploads/small_EVERSOLO_FINAL_LOGO_018e42cf06.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13421,
+        "filename": "small_EVERSOLO_FINAL_LOGO_018e42cf06.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "25cf181a-a885-4878-a020-d462cc33169b",
+      "entityName": "BORRESEN",
+      "legacyFileId": "b5fd97ae-bebe-4562-9c9d-0cfc0c3b3594",
+      "externalUrl": "https://highendshow.ae/uploads/small_BORRESEN_3x_78febace9b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 25431,
+        "filename": "small_BORRESEN_3x_78febace9b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "26cab3ad-7511-4a99-b652-f5aa4d24f65f",
+      "entityName": "TDG Audio",
+      "legacyFileId": "2a7b1ac5-45c8-42d7-864a-46b6b6801dc0",
+      "externalUrl": "https://highendshow.ae/uploads/small_TDG_Audio_logo_RGB_1251b2de0b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 22298,
+        "filename": "small_TDG_Audio_logo_RGB_1251b2de0b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "28973ef5-1de3-4c07-bc9e-65eae287905f",
+      "entityName": "BASSOCONTINUO",
+      "legacyFileId": "7cea08f2-ab73-4921-a7aa-6d343725c6d0",
+      "externalUrl": "https://highendshow.ae/uploads/small_BASSOCONTINUO_Logo_aad1698818.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 28162,
+        "filename": "small_BASSOCONTINUO_Logo_aad1698818.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "29aca82f-357d-441e-bff8-207fb2a6925e",
+      "entityName": "SOFABATON Remote",
+      "legacyFileId": "fb3ff57d-6758-45b2-b819-83cbeb07d97c",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_sofabaton_blue1_95b11ccf08.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 5476,
+        "filename": "thumbnail_sofabaton_blue1_95b11ccf08.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "2c512027-e3ba-4279-96e7-873b95a9302f",
+      "entityName": "Luxman",
+      "legacyFileId": "2777a181-3e91-4287-87aa-53981ae2406b",
+      "externalUrl": "https://highendshow.ae/uploads/small_Luxman_logo_svg_25a615afbe.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 16550,
+        "filename": "small_Luxman_logo_svg_25a615afbe.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "2f640e0a-c040-4527-ab17-5df2cfda79e0",
+      "entityName": "Tannoy",
+      "legacyFileId": "2efcae3e-371f-4f2b-9c42-61b66b593ebb",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Tannoy_53363dd070.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8836,
+        "filename": "thumbnail_Tannoy_53363dd070.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "2f8ba0df-6bdc-4810-a809-323126ec2fd8",
+      "entityName": "Raw Music Store",
+      "legacyFileId": "2551b44c-df45-4c83-bd91-25c61d834832",
+      "externalUrl": "https://highendshow.ae/uploads/small_raw_music_store_logo_adf0eedeb7.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15590,
+        "filename": "small_raw_music_store_logo_adf0eedeb7.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "302f88f2-338c-4a25-8afb-62a5db064ab6",
+      "entityName": "Magna",
+      "legacyFileId": "dbd85dc0-2491-4c42-b214-e66cd5cdadb5",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Magna_67976e17e7.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 7320,
+        "filename": "thumbnail_Magna_67976e17e7.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "305e7b93-e4e4-4816-82f8-2359c029911b",
+      "entityName": "Soyuz",
+      "legacyFileId": "f0239233-187f-46f6-a106-f345d82979dc",
+      "externalUrl": "https://highendshow.ae/uploads/small_Soyuz_2x_746b0356ca.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27610,
+        "filename": "small_Soyuz_2x_746b0356ca.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "30ffbed9-7e61-4517-8477-9c83322db3d1",
+      "entityName": "RUSSOUND",
+      "legacyFileId": "fe6668b1-32ba-442d-89e9-399fee83c493",
+      "externalUrl": "https://highendshow.ae/uploads/small_Russound2019_logo_square_873e0e1b43.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 35065,
+        "filename": "small_Russound2019_logo_square_873e0e1b43.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "32443c42-1d83-42e0-b5e9-9d586fb63ba7",
+      "entityName": "Zansati",
+      "legacyFileId": "07d9661d-1ea1-4c46-88e1-3d0927a2d434",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Zansati_Logo_a06243e1c2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15592,
+        "filename": "thumbnail_Zansati_Logo_a06243e1c2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "331b6844-7612-4d01-812f-932d5e9b0ebc",
+      "entityName": "Absolute",
+      "legacyFileId": "3e10033a-e935-47d9-8796-e50d4b40bc43",
+      "externalUrl": "https://highendshow.ae/uploads/small_Logo_Absolute_0d6c260184.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8016,
+        "filename": "small_Logo_Absolute_0d6c260184.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "33aa0b8b-2f33-4050-9bc5-68f42eb1a7ec",
+      "entityName": "DS Audio",
+      "legacyFileId": "b6be88d9-1142-4267-a449-697d83714bc5",
+      "externalUrl": "https://highendshow.ae/uploads/small_DS_Audio_logo_b43443ea2b.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 10402,
+        "filename": "small_DS_Audio_logo_b43443ea2b.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "360d3581-7c94-4c3f-b4dd-394ca9f56119",
+      "entityName": "MAG Theatron",
+      "legacyFileId": "da88c267-f613-43b3-a609-a1c318757c3a",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_MAG_TEATRON_LOGO_39a45150f8.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15370,
+        "filename": "thumbnail_MAG_TEATRON_LOGO_39a45150f8.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "36c5d661-e6f8-4f45-83d2-a0a2d56febd7",
+      "entityName": "STROMAUDIO",
+      "legacyFileId": "a7c5c0b3-9214-4d67-b3c9-c76491ae944b",
+      "externalUrl": "https://highendshow.ae/uploads/small_STORM_AUDIO_FINAL_LOGO_fd67fabf74.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 17614,
+        "filename": "small_STORM_AUDIO_FINAL_LOGO_fd67fabf74.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "3793a23e-11c4-4da7-8f42-f3ab7ab7789a",
+      "entityName": "Naim",
+      "legacyFileId": "8ed41def-1371-437b-931d-c9e012461b5f",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_naim_logo_2021_Black_78ac4e7cd6.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5742,
+        "filename": "thumbnail_naim_logo_2021_Black_78ac4e7cd6.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "3a503a84-dd80-4442-8099-547c6a6796e2",
+      "entityName": "Final Audio",
+      "legacyFileId": "54f6974c-0bb7-4ad0-94e8-2e4621af27d9",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Final_883bbed787.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8624,
+        "filename": "thumbnail_Final_883bbed787.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "3a70a1c9-52d6-400a-99c6-8eb0efde08af",
+      "entityName": "Fasttel",
+      "legacyFileId": "83b8c090-d772-4cd5-bcc3-9c4742400396",
+      "externalUrl": "https://highendshow.ae/uploads/unnamed_04fdc9a3de.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 1947,
+        "filename": "unnamed_04fdc9a3de.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "3d09f2fe-f5e2-492f-ae6f-de8c8e40e994",
+      "entityName": "LAKE PEOPLE",
+      "legacyFileId": "f6b7309a-2e9a-407c-9358-336f19b59cc4",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_lake_people_320_064023724d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 4393,
+        "filename": "thumbnail_lake_people_320_064023724d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "3df616f6-5f6b-405c-983d-070569397737",
+      "entityName": "Canton",
+      "legacyFileId": "fcc4f203-6502-4eee-aa69-c23a3f4af8fe",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_canton_logo_logo_png_transparent_d03c9002b2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5205,
+        "filename": "thumbnail_canton_logo_logo_png_transparent_d03c9002b2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "40e451d0-7706-4882-bd4f-c5ca02f02767",
+      "entityName": "KLH",
+      "legacyFileId": "1b0f6314-fb35-4dab-98d0-f36ce290b18d",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_KLH_faa1152309.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 6270,
+        "filename": "thumbnail_KLH_faa1152309.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "40f7ab0a-1988-4da7-adfd-3f0d843b8ade",
+      "entityName": "MARANTZ",
+      "legacyFileId": "ee39fac2-7a63-41c7-baba-b587f7a707f2",
+      "externalUrl": "https://highendshow.ae/uploads/small_MARANTZ_e92ebc7e9c.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 11028,
+        "filename": "small_MARANTZ_e92ebc7e9c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "411e1b65-19de-48cc-86e4-4753b164fe35",
+      "entityName": "FIIO",
+      "legacyFileId": "b307e11c-ab90-4d3b-9d61-2fda0ece5af2",
+      "externalUrl": "https://highendshow.ae/uploads/small_fiio_logo_b859631413.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 16660,
+        "filename": "small_fiio_logo_b859631413.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "443d1286-6cb6-410a-acac-1bca4ff91bca",
+      "entityName": "MILAN Screen",
+      "legacyFileId": "f7f90755-da00-461c-a4de-f6300dca59e4",
+      "externalUrl": "https://highendshow.ae/uploads/small_milan_screen_logo_7807c299ad.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 11052,
+        "filename": "small_milan_screen_logo_7807c299ad.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "443ee4a5-9abb-450b-8cdf-27d951a050bc",
+      "entityName": "Dubai Audio",
+      "legacyFileId": "9d9beae8-4bd6-4a4b-bfe7-3c6461228809",
+      "externalUrl": "https://highendshow.ae/uploads/small_Dubai_Audio_Black_logo_7dab0e441b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10894,
+        "filename": "small_Dubai_Audio_Black_logo_7dab0e441b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4a858d31-12f9-4010-907a-df4630f03853",
+      "entityName": "O Audio",
+      "legacyFileId": "b38c9af3-d1fe-4824-aa27-04345cb9c374",
+      "externalUrl": "https://highendshow.ae/uploads/small_O_AUDIO_efcc7b262e.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 16024,
+        "filename": "small_O_AUDIO_efcc7b262e.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4c0a3d1c-5698-4c0f-96c5-1f56395feb22",
+      "entityName": "Tula",
+      "legacyFileId": "e54fa637-94ce-4d55-b168-69a2ebdb6b87",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Tula_bd0f234db2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 25635,
+        "filename": "thumbnail_Tula_bd0f234db2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4c5ee414-1715-4986-918a-b6d9c2d80a4e",
+      "entityName": "Pult Electronics",
+      "legacyFileId": "13f6d65e-4203-448d-a20d-65a1bbf0d992",
+      "externalUrl": "https://highendshow.ae/uploads/small_Pult_40738d0aee.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9315,
+        "filename": "small_Pult_40738d0aee.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4ce334a4-5ca2-48f3-9d56-7e8f1820c214",
+      "entityName": "GVS",
+      "legacyFileId": "2c6559f1-e20f-4dfd-b19c-c46f59152eb1",
+      "externalUrl": "https://highendshow.ae/uploads/small_GVS_LOGO_page_0001_cdf5a4f488.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 9157,
+        "filename": "small_GVS_LOGO_page_0001_cdf5a4f488.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4f24faf1-0ec9-489c-9f1b-c8908e742de4",
+      "entityName": "Siltech",
+      "legacyFileId": "6f2c9caf-946f-4faf-b704-c5cef805e6d8",
+      "externalUrl": "https://highendshow.ae/uploads/small_Siltech_logo_41be59a0eb.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 30853,
+        "filename": "small_Siltech_logo_41be59a0eb.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "4f8b229d-6796-48ba-ae5c-a0e5a1e60584",
+      "entityName": "APERTURA",
+      "legacyFileId": "2f998dfb-d858-40a4-a20c-0af880361763",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_apertura_283x126_98bd894d74.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 25106,
+        "filename": "thumbnail_apertura_283x126_98bd894d74.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "55d8fbf1-ef20-4b41-a690-27643dbdf7dd",
+      "entityName": "AUDIOQUEST",
+      "legacyFileId": "c70e96b6-e582-41f7-8d1a-0ef0f68e23df",
+      "externalUrl": "https://highendshow.ae/uploads/small_Audio_Quest_2d2ebff513.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 10014,
+        "filename": "small_Audio_Quest_2d2ebff513.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "50c0a245-42aa-4509-bfef-db28c204ce75",
+      "entityName": "LUXREC",
+      "legacyFileId": "44ffb2f5-3c8c-4d8c-8487-2dc263e4b222",
+      "externalUrl": "https://highendshow.ae/uploads/small_LUXREC_FINAL_LOGO_b527f2c7e6.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 18378,
+        "filename": "small_LUXREC_FINAL_LOGO_b527f2c7e6.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "565c6378-01f9-4a9a-a340-fd1ff2ed1b8d",
+      "entityName": "Dune Crest Core Trading",
+      "legacyFileId": "e128a550-fc95-459f-adf3-bd1cb1f5812e",
+      "externalUrl": "https://highendshow.ae/uploads/small_DCC_6b3d2d3943.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 32513,
+        "filename": "small_DCC_6b3d2d3943.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "5698f164-5653-4f07-879a-405b69181b12",
+      "entityName": "Dali",
+      "legacyFileId": "7e72f4d8-ab7f-4469-9832-ebe901c7b989",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Dali_48ebad45ee.gif",
+      "action": "skipped_unsupported_content_type",
+      "error": "GIF logos are skipped in this script.",
+      "migrationState": "none"
+    },
+    {
+      "entityType": "brand",
+      "entityId": "58500506-39e4-4743-bc6a-895b5b0596b3",
+      "entityName": "DR.HEAD",
+      "legacyFileId": "7083a545-8d6a-42c7-9ad8-269323b0f9c5",
+      "externalUrl": "https://highendshow.ae/uploads/small_Dr_Head_85cb5ea286.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 42831,
+        "filename": "small_Dr_Head_85cb5ea286.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "58b4f35c-d74f-469a-a6af-d98b86f728ec",
+      "entityName": "VSSL",
+      "legacyFileId": "2d6cd1d5-2896-4166-bd60-0232fd820e3f",
+      "externalUrl": "https://highendshow.ae/uploads/small_VSSL_FINAL_LOGO_28b5f14f5c.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 41404,
+        "filename": "small_VSSL_FINAL_LOGO_28b5f14f5c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "59a97d83-c5a9-4c39-823f-27a85f9ea60f",
+      "entityName": "Netvio",
+      "legacyFileId": "43e0125c-8a00-458f-9ec0-38fd50da8a1b",
+      "externalUrl": "https://highendshow.ae/uploads/small_netvio_logo_3a7395332c.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 7592,
+        "filename": "small_netvio_logo_3a7395332c.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "5c3bba17-d91f-4dbe-b989-a6459edd8b5b",
+      "entityName": "NAKYMATONE invisible speakers",
+      "legacyFileId": "4fca67d8-ef5b-47fd-8044-df7e36f1c1a4",
+      "externalUrl": "https://highendshow.ae/uploads/small_Nakymatone_Invisible_Speakers_LOGO_ad4d16dc8f.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 44880,
+        "filename": "small_Nakymatone_Invisible_Speakers_LOGO_ad4d16dc8f.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "5f83ee3d-e4d0-49bd-bc1d-c6bb3c8da2f8",
+      "entityName": "ANSUZ",
+      "legacyFileId": "63f21431-3c86-4f25-a239-afbb5634436a",
+      "externalUrl": "https://highendshow.ae/uploads/small_ANSUZ_3x_1b3eb74dea.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27658,
+        "filename": "small_ANSUZ_3x_1b3eb74dea.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "60a72972-4660-4f55-8b15-b9894d2d3e83",
+      "entityName": "Primare",
+      "legacyFileId": "7a56a7fc-b42f-4680-b76f-29bbc2de3276",
+      "externalUrl": "https://highendshow.ae/uploads/small_Primare_logo_91f0513921.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 34732,
+        "filename": "small_Primare_logo_91f0513921.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "64c3a743-02c3-47b4-a07e-cb8bfc26ee00",
+      "entityName": "LAB.GRUPPEN",
+      "legacyFileId": "b4001742-1bc0-4ac2-b1b0-ad21c14819e9",
+      "externalUrl": "https://highendshow.ae/uploads/small_LAB_GRUPPEN_badfd24dc2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 17112,
+        "filename": "small_LAB_GRUPPEN_badfd24dc2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "66d4141a-2dc4-43fe-b919-4fdc729319d8",
+      "entityName": "RUCKUS",
+      "legacyFileId": "c91188cb-77e7-4300-8f3a-74f6e03b3974",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_RUCUS_cc4beb37fb.jpeg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 4575,
+        "filename": "thumbnail_RUCUS_cc4beb37fb.jpeg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "67c6ef10-026a-4856-a939-924d6bbdddb9",
+      "entityName": "Screen Excellence",
+      "legacyFileId": "81647f02-2bc3-44db-a870-0676b746e084",
+      "externalUrl": "https://highendshow.ae/uploads/small_Screen_Excellence_BRONZE_5433e2c1b9.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 12209,
+        "filename": "small_Screen_Excellence_BRONZE_5433e2c1b9.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "6c34b2f6-cb3c-42cf-8410-e1acc6c3ceab",
+      "entityName": "CACHE",
+      "legacyFileId": "c8360eeb-8b8a-4b40-98f8-260a0ad1a96b",
+      "externalUrl": "https://highendshow.ae/uploads/small_Cache_black_no_background_2b7c33a8ef.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8209,
+        "filename": "small_Cache_black_no_background_2b7c33a8ef.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "6d8c9f1f-36bb-4368-aa35-e5e67a1e829f",
+      "entityName": "Audio Deluxe",
+      "legacyFileId": "01f1768c-1aa9-4775-9439-ec00882dcc5e",
+      "externalUrl": "https://highendshow.ae/uploads/small_Audio_Deluxe_f5db35db7b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15347,
+        "filename": "small_Audio_Deluxe_f5db35db7b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "720384af-48ab-4c59-b80a-fc9464741449",
+      "entityName": "Cool Automation",
+      "legacyFileId": "b83a4375-73fb-4b8a-a4fe-7f513f4ed23d",
+      "externalUrl": "https://highendshow.ae/uploads/small_coolautomation_logo_bc4d67c5f0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 28428,
+        "filename": "small_coolautomation_logo_bc4d67c5f0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "6fbc3581-9aa5-43fb-9bf0-dbc13ba3d9c1",
+      "entityName": "Thorens",
+      "legacyFileId": "65b8e33a-0801-42c6-8e2d-f7ef242036b3",
+      "externalUrl": "https://highendshow.ae/uploads/small_Logo_Thorens_svg_5f71c1c870.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 14781,
+        "filename": "small_Logo_Thorens_svg_5f71c1c870.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "747fde09-8cbb-4644-9a5e-c3b66b8f8d2f",
+      "entityName": "Campfire",
+      "legacyFileId": "811dff38-1813-4991-81dd-7f1cefaf3912",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Campfire_cb3cb5bef9.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 6803,
+        "filename": "thumbnail_Campfire_cb3cb5bef9.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "733e78b9-8530-4c79-a1cf-29ac9313564d",
+      "entityName": "LINN",
+      "legacyFileId": "f6a1388a-5b07-4856-b08f-5ccd1a65e49d",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_linnlogo_e7fecfa576.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8120,
+        "filename": "thumbnail_linnlogo_e7fecfa576.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7621030d-5f80-4736-b72e-51b98feec3cc",
+      "entityName": "Inakustik",
+      "legacyFileId": "bd9149f8-a277-4848-a99c-00e64e9a7562",
+      "externalUrl": "https://highendshow.ae/uploads/small_inakustik_Logo_black_2b4e0ce36b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 24345,
+        "filename": "small_inakustik_Logo_black_2b4e0ce36b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7622438a-748b-4283-bf6d-846dcbaa36ef",
+      "entityName": "Aurian",
+      "legacyFileId": "afbea231-2db5-4c4f-81e4-164305e136ba",
+      "externalUrl": "https://highendshow.ae/uploads/small_aurian_f15667b61b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10890,
+        "filename": "small_aurian_f15667b61b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "76d18511-8be4-4497-a5e0-67c764168f95",
+      "entityName": "DEFENITIVE TECHNOLOGY",
+      "legacyFileId": "997d346c-ef83-4f3c-b6bf-e4ab42cd34ce",
+      "externalUrl": "https://highendshow.ae/uploads/small_DT_9a4620b4c2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15479,
+        "filename": "small_DT_9a4620b4c2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "787e9796-d080-4c5d-bf96-67b5ebe57d73",
+      "entityName": "Meters",
+      "legacyFileId": "85cbd756-2417-4e67-8923-454a9b389bfd",
+      "externalUrl": "https://highendshow.ae/uploads/small_Meters_25c8796250.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9181,
+        "filename": "small_Meters_25c8796250.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7abebb94-0686-4512-9c9e-1b0d2061b325",
+      "entityName": "RIVEIERA",
+      "legacyFileId": "f37ad05f-8d2c-4dc8-bd1e-219fee775d42",
+      "externalUrl": "https://highendshow.ae/uploads/small_logo_riviera_600x70_32809427cf.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9403,
+        "filename": "small_logo_riviera_600x70_32809427cf.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7cd6f6ab-c5d1-46ad-8577-8db4c65c373b",
+      "entityName": "Basalte",
+      "legacyFileId": "253b9568-19fa-46a8-a158-55cb738e4ddb",
+      "externalUrl": "https://highendshow.ae/uploads/Basalte_308121b53f.gif",
+      "action": "skipped_unsupported_content_type",
+      "error": "GIF logos are skipped in this script.",
+      "migrationState": "none"
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7d2f6c2c-5bed-46d9-b84b-6acea5206697",
+      "entityName": "Atlas",
+      "legacyFileId": "a7b0d4c7-2435-45a9-a8e5-2083ff302b39",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_atlas_2c457e03ef.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13714,
+        "filename": "thumbnail_atlas_2c457e03ef.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7eb37c87-b0dc-466f-abfd-ac4aca11b63d",
+      "entityName": "MIDAS",
+      "legacyFileId": "66b9ab5c-a405-4b5a-8443-5887e70b1c73",
+      "externalUrl": "https://highendshow.ae/uploads/small_MIDAS_96860bbc64.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 11073,
+        "filename": "small_MIDAS_96860bbc64.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "7ffab83f-b04f-4710-982e-fd9b86c5f009",
+      "entityName": "EarMen",
+      "legacyFileId": "97da5fa9-ddd2-472e-a428-9aeca2212d38",
+      "externalUrl": "https://highendshow.ae/uploads/small_Ear_Men_973a1eb223.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15650,
+        "filename": "small_Ear_Men_973a1eb223.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "80755e6d-014b-4918-8d37-836c741fcd5b",
+      "entityName": "POLK",
+      "legacyFileId": "7a74e518-cb31-4299-b789-cf76f3181fb6",
+      "externalUrl": "https://highendshow.ae/uploads/small_POLK_6ebd304be1.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8240,
+        "filename": "small_POLK_6ebd304be1.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "81eaf3cc-6ebb-489c-a229-f62cb44be563",
+      "entityName": "WeQuote",
+      "legacyFileId": "c5a689e0-117b-4bce-b7e2-7c6a680c35ab",
+      "externalUrl": "https://highendshow.ae/uploads/small_We_Quote_logo_13bc8d7c20.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 16768,
+        "filename": "small_We_Quote_logo_13bc8d7c20.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "8726074d-fece-4ef5-a29b-ed0467301211",
+      "entityName": "EQUINOX",
+      "legacyFileId": "0ef3139d-f360-4d8e-9199-190634b71998",
+      "externalUrl": "https://highendshow.ae/uploads/small_high_end_logo_w_a7ec4c6056.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 26684,
+        "filename": "small_high_end_logo_w_a7ec4c6056.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "887234e3-bd6e-43fc-94c0-de89cf53575c",
+      "entityName": "Cayin",
+      "legacyFileId": "5e5e5fda-9d11-4d62-b635-2ff4df384ae2",
+      "externalUrl": "https://highendshow.ae/uploads/small_Cayin_94ed125dc3.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 21006,
+        "filename": "small_Cayin_94ed125dc3.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "8c8cafd1-7c81-49de-a4df-07645d61109b",
+      "entityName": "Cyrus",
+      "legacyFileId": "3257ebea-95fe-4783-a065-84b75c749d03",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Cyrus_logo_040bce9d1f.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9530,
+        "filename": "thumbnail_Cyrus_logo_040bce9d1f.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "8cebb729-90ac-4b90-8b37-8cebb243039f",
+      "entityName": "diptyque audio",
+      "legacyFileId": "84998530-bfbe-4f16-bc8c-77f8edd985bb",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_diptyque_audio_logo_6c3de6ec6d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3185,
+        "filename": "thumbnail_diptyque_audio_logo_6c3de6ec6d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "8db8ce97-2d7c-4272-af63-43030a885d47",
+      "entityName": "Piega",
+      "legacyFileId": "e562a931-3ea5-46ba-bdc6-39f96a704746",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Piega_c438ea068c.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5340,
+        "filename": "thumbnail_Piega_c438ea068c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "902f264a-53d3-4d91-9746-1a4108c33f73",
+      "entityName": "TURBOSOUND",
+      "legacyFileId": "161a479b-3dd1-471b-9b22-63149f9a31d2",
+      "externalUrl": "https://highendshow.ae/uploads/small_TURBOSOUND_d7e62159b1.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 20846,
+        "filename": "small_TURBOSOUND_d7e62159b1.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "90bde296-cefa-4199-966c-8889a62bbb10",
+      "entityName": "Sonus Faber",
+      "legacyFileId": "339fa639-f9c3-431b-b503-0d6cb6ca8335",
+      "externalUrl": "https://highendshow.ae/uploads/small_Sonus_faber_Artisan_of_Sound_PNG_ee61c7c333.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 20968,
+        "filename": "small_Sonus_faber_Artisan_of_Sound_PNG_ee61c7c333.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "9399f27f-6824-41ea-9427-263962f01b3d",
+      "entityName": "Moon by Simaudio",
+      "legacyFileId": "ff9f082a-f30b-4ffe-b2b9-229ef4439c18",
+      "externalUrl": "https://highendshow.ae/uploads/small_MOON_Official_Black_2018_677fc531cd.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12591,
+        "filename": "small_MOON_Official_Black_2018_677fc531cd.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "9e7438a2-2198-41f7-8b6d-9314131e4f9b",
+      "entityName": "Entreq",
+      "legacyFileId": "d3d4a7cf-4581-4db8-a331-d0ff5e278d5e",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Entreq_logo_0178de11c0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9126,
+        "filename": "thumbnail_Entreq_logo_0178de11c0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "9ee7a3c9-f0aa-41d7-a507-2578d7a77ea6",
+      "entityName": "mbl",
+      "legacyFileId": "8bd97aad-67e3-4f21-a8c5-aaed1ee09cbd",
+      "externalUrl": "https://highendshow.ae/uploads/black_no_claim_RGB_6b3a263e4d.svg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/svg+xml",
+        "sizeBytes": 737,
+        "filename": "black_no_claim_RGB_6b3a263e4d.svg",
+        "wouldGenerateThumb": false
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "a12f5add-3897-448e-8646-4775ec48cd80",
+      "entityName": "Monster",
+      "legacyFileId": "ce89f08b-eb14-45ac-b98a-535c6f3a624a",
+      "externalUrl": "https://highendshow.ae/uploads/small_Monster_Logo_3_D_Black_v2_83994bc70d.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 5787,
+        "filename": "small_Monster_Logo_3_D_Black_v2_83994bc70d.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "a1b48d50-abf5-4d23-96c2-7555bd9aad36",
+      "entityName": "DENON",
+      "legacyFileId": "0590e563-cee5-4eb0-a120-db3073be8a06",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_DENON_18798f647d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5302,
+        "filename": "thumbnail_DENON_18798f647d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "a2fb2f3c-892e-45f6-8dac-c98dc202c668",
+      "entityName": "Ekinex",
+      "legacyFileId": "2cff36ef-7357-49ef-99d4-1bd55d667ea1",
+      "externalUrl": "https://highendshow.ae/uploads/small_Ekinex_a0fa02d168.PNG",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 23644,
+        "filename": "small_Ekinex_a0fa02d168.PNG",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "a32a8469-7937-444b-bfc4-77d5a9ee2707",
+      "entityName": "ISOTEK",
+      "legacyFileId": "aee3ec95-1a82-4339-9df5-77f074280e40",
+      "externalUrl": "https://highendshow.ae/uploads/small_ISOTEK_373e7f38c7.jpeg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 11316,
+        "filename": "small_ISOTEK_373e7f38c7.jpeg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "a70f1b16-a938-43a8-9317-d145c3757cd8",
+      "entityName": "aavara",
+      "legacyFileId": "8be49d58-589e-4eae-970a-11616a2305f8",
+      "externalUrl": "https://highendshow.ae/uploads/small_aavara_logo_01_2_577728e9bf.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 52591,
+        "filename": "small_aavara_logo_01_2_577728e9bf.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "aa5b1d04-e127-41ce-a1c5-ae5937b93837",
+      "entityName": "Kinera",
+      "legacyFileId": "4aac831e-408c-4e83-ba77-b1266dac8e20",
+      "externalUrl": "https://highendshow.ae/uploads/small_Kinera_1562e9809b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 29806,
+        "filename": "small_Kinera_1562e9809b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ace71686-eb81-463e-b94c-1e92974c72e6",
+      "entityName": "Meze Audio",
+      "legacyFileId": "ed64b48c-8c4b-44f3-ab56-1e56adfe8dbb",
+      "externalUrl": "https://highendshow.ae/uploads/small_Meze_Audio_logo_horizontal_600px_361f6f0e7b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 24489,
+        "filename": "small_Meze_Audio_logo_horizontal_600px_361f6f0e7b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ad302a65-afb2-4016-9cb3-68cba8eeaaf6",
+      "entityName": "NAD",
+      "legacyFileId": "dc86c8ef-fc81-444a-9d36-3daa6af9c777",
+      "externalUrl": "https://highendshow.ae/uploads/NAD_af716a9a32.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 2437,
+        "filename": "NAD_af716a9a32.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ad4d5363-4cf6-47cd-a10b-decc05465e1a",
+      "entityName": "AXXESS",
+      "legacyFileId": "fad078ef-c1bd-417c-b909-63b021f85b03",
+      "externalUrl": "https://highendshow.ae/uploads/small_AXXESS_3x_ee60bb513f.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 18812,
+        "filename": "small_AXXESS_3x_ee60bb513f.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b03632b0-6fed-408d-b19c-b526df67f453",
+      "entityName": "Aries Cerat",
+      "legacyFileId": "dce1ebed-1ad5-45b1-b754-51de8a2949d9",
+      "externalUrl": "https://highendshow.ae/uploads/small_Aries_Cerat_46b7116949.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 49333,
+        "filename": "small_Aries_Cerat_46b7116949.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "af3dd3c2-fade-4e2c-a9f2-e073f13ac17a",
+      "entityName": "QED",
+      "legacyFileId": "7019a7f4-b216-4b92-ae5e-e81f7a5ff89d",
+      "externalUrl": "https://highendshow.ae/uploads/small_QED_LOGO_ff07f4442a.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 18954,
+        "filename": "small_QED_LOGO_ff07f4442a.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b36fa1b3-6743-4672-a2b1-d757799bc2a8",
+      "entityName": "Aavik",
+      "legacyFileId": "e6e90bc8-c611-46c6-9ca8-6078887be248",
+      "externalUrl": "https://highendshow.ae/uploads/small_Aavik_3x_458db08071.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 34766,
+        "filename": "small_Aavik_3x_458db08071.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b3283d9e-7f27-4dbd-afe1-e4c3574a4d02",
+      "entityName": "Klipsch",
+      "legacyFileId": "d50f8ced-2af0-48d8-acbd-6bd9af46c24c",
+      "externalUrl": "https://highendshow.ae/uploads/small_Klipsch_plain_black_d4f39d917b.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8670,
+        "filename": "small_Klipsch_plain_black_d4f39d917b.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b8584e50-375a-4278-97eb-290ad1c99c05",
+      "entityName": "ddHiFi",
+      "legacyFileId": "2f19cd5f-5513-42ff-a5b0-7c9ba70c22ae",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_dd_Hi_Fi_7eb73b7bdb.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10574,
+        "filename": "thumbnail_dd_Hi_Fi_7eb73b7bdb.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b3e75d3e-88bd-4cfc-bd1f-b39c7eaa3103",
+      "entityName": "Tiglon",
+      "legacyFileId": "d8ca888b-9061-4e0d-86ce-6c549e4a899b",
+      "externalUrl": "https://highendshow.ae/uploads/Tiglon_logo_04b04b01c0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 5284,
+        "filename": "Tiglon_logo_04b04b01c0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "b95221f2-058a-456b-8e7b-dc3be50405dc",
+      "entityName": "Focal",
+      "legacyFileId": "2417c7ff-ed62-453e-b837-b011bb2f26c8",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Focal_Black_0ad8ce4387.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 4927,
+        "filename": "thumbnail_Focal_Black_0ad8ce4387.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "bc1073a1-b359-4212-b3d8-f165a1211d3e",
+      "entityName": "Transrotor",
+      "legacyFileId": "7fd7625c-0282-471f-a0db-244099e6412a",
+      "externalUrl": "https://highendshow.ae/uploads/small_Transrotor_1261dadf57.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 29130,
+        "filename": "small_Transrotor_1261dadf57.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "bc6b98bc-1643-423d-a28e-b65309b4d95a",
+      "entityName": "AirLive",
+      "legacyFileId": "feb0826b-d806-4a34-bfc3-ba2fcacfeaab",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Air_Live_2x_ba422341e5.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8092,
+        "filename": "thumbnail_Air_Live_2x_ba422341e5.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "bee67336-7fa0-4729-b55e-cfdda3d0eab5",
+      "entityName": "Revival Audio",
+      "legacyFileId": "cc329ed6-8bb0-4a29-b22d-ad9291d51472",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Revival_Audio_Logo_daa2ebc20d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 3876,
+        "filename": "thumbnail_Revival_Audio_Logo_daa2ebc20d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "bf288faf-5ffb-489b-8c93-537a2eb1b08b",
+      "entityName": "Triangel",
+      "legacyFileId": "8c419b45-c848-4b3a-8b4f-b151f1ece411",
+      "externalUrl": "https://highendshow.ae/uploads/small_Triangle_38518d7c6f.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12596,
+        "filename": "small_Triangle_38518d7c6f.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "bf47b19b-082d-44bb-b785-ea5c9974c2bc",
+      "entityName": "YG Acoustics",
+      "legacyFileId": "4e1e2a85-8a3c-4738-8858-c7326dcb101b",
+      "externalUrl": "https://highendshow.ae/uploads/small_YG_Acoustics_Logo_68ecfa1112.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 41449,
+        "filename": "small_YG_Acoustics_Logo_68ecfa1112.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "c19ba5ec-d237-4532-8bad-0b9d3621725f",
+      "entityName": "BlueSound",
+      "legacyFileId": "84995963-c41d-45ba-903b-800783303900",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Blue_Sound_02ad11865d.gif",
+      "action": "skipped_unsupported_content_type",
+      "error": "GIF logos are skipped in this script.",
+      "migrationState": "none"
+    },
+    {
+      "entityType": "brand",
+      "entityId": "c124927d-886a-4502-bf63-f0d9b525a7ed",
+      "entityName": "The Gryphon",
+      "legacyFileId": "6c93e32d-c4d4-4e3b-8676-84f1dc5b041f",
+      "externalUrl": "https://highendshow.ae/uploads/small_Gryphon_logo_red_transparent_web_069cbd49f0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 55034,
+        "filename": "small_Gryphon_logo_red_transparent_web_069cbd49f0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "c97a4d7c-a662-4946-a3f6-3816095d07c8",
+      "entityName": "hORNS",
+      "legacyFileId": "68205c24-4d92-416f-9002-b9e70d6fd362",
+      "externalUrl": "https://highendshow.ae/uploads/small_h_ORNS_105d8386cc.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 9387,
+        "filename": "small_h_ORNS_105d8386cc.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "c1b81efa-ed68-4869-8638-7d1b110826d5",
+      "entityName": "Parasound",
+      "legacyFileId": "583b87fc-601c-4a7f-8498-ba3f140b48bf",
+      "externalUrl": "https://highendshow.ae/uploads/small_Parasound_Logo_994d7dbbf5.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15310,
+        "filename": "small_Parasound_Logo_994d7dbbf5.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "cbb39c29-4e4d-4cdc-a7f5-9d63fb0c69f5",
+      "entityName": "Austere",
+      "legacyFileId": "175e82ec-acee-45c9-b116-540e4f70490b",
+      "externalUrl": "https://highendshow.ae/uploads/small_Austere_914abffd38.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 6587,
+        "filename": "small_Austere_914abffd38.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "cc1a9d53-2bb6-47b1-a4d1-9cf6497f235e",
+      "entityName": "Wilson Audio",
+      "legacyFileId": "cf9f6262-df22-4658-90b3-43ef38c5dc47",
+      "externalUrl": "https://highendshow.ae/uploads/small_wilsonaudiologo_dba3469d5d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 17061,
+        "filename": "small_wilsonaudiologo_dba3469d5d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "cd36e17e-b3aa-4a41-aa46-c8120d20169d",
+      "entityName": "Auris",
+      "legacyFileId": "ae5dcae8-f4ae-4f7c-a2d6-91018f4e610f",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_auris_f0c8228e8d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 4472,
+        "filename": "thumbnail_auris_f0c8228e8d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "cd53d61f-fc53-49c4-b966-f8647ce4a41b",
+      "entityName": "XSCACE Speakers",
+      "legacyFileId": "52d6e6f1-ddd5-4736-8e60-042120a7f42a",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_xscace_white_01310a59e6.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 6054,
+        "filename": "thumbnail_xscace_white_01310a59e6.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ceabd49d-a963-4646-884e-c17e577c054a",
+      "entityName": "Ruark Audio",
+      "legacyFileId": "1b0937ac-daf1-476f-af32-3ccbe40d0b43",
+      "externalUrl": "https://highendshow.ae/uploads/small_ruark_logotype_7aac15b626.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12276,
+        "filename": "small_ruark_logotype_7aac15b626.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "d2986015-d360-46dc-84b2-f23b6388faf8",
+      "entityName": "ELECTROCOMPANIENT",
+      "legacyFileId": "0574e6fc-60b9-4a1e-86b5-098085e80519",
+      "externalUrl": "https://highendshow.ae/uploads/small_ELECTROCOMPANIENT_532dcad89a.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10342,
+        "filename": "small_ELECTROCOMPANIENT_532dcad89a.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "d841ad4b-d68e-4b1b-b150-8933c3ce16b6",
+      "entityName": "Epson Projectors",
+      "legacyFileId": "1d5fc963-531f-4901-bf3b-948ddfb851ad",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_EPSON_714a958bca.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 7948,
+        "filename": "thumbnail_EPSON_714a958bca.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "d3d110b1-9441-4583-9368-d7616107ad94",
+      "entityName": "Noble",
+      "legacyFileId": "c21ef9c1-4c05-44b3-b639-39c3b366b739",
+      "externalUrl": "https://highendshow.ae/uploads/small_Noble_1c27943138.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 7333,
+        "filename": "small_Noble_1c27943138.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "d8a1fa6a-67ee-4da6-852c-d7ce5324a7dc",
+      "entityName": "GENELEC",
+      "legacyFileId": "4b90b905-283a-41bc-a068-45b8a458465a",
+      "externalUrl": "https://highendshow.ae/uploads/small_GENELEC_FINAL_LOGO_3ef96ee9dd.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 23461,
+        "filename": "small_GENELEC_FINAL_LOGO_3ef96ee9dd.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "db41ba89-75f4-41ce-9ef8-82b4830ae72f",
+      "entityName": "Fir Audio",
+      "legacyFileId": "6158e554-2fca-497e-8b33-5a0b3be180ce",
+      "externalUrl": "https://highendshow.ae/uploads/small_Fi_R_Audio_Logo_7ddf90e9af.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 16438,
+        "filename": "small_Fi_R_Audio_Logo_7ddf90e9af.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "db89157d-6930-4fc1-80b5-fbb45d659eba",
+      "entityName": "Amphion",
+      "legacyFileId": "43981e92-a005-44e4-9fa8-aa41aef9c670",
+      "externalUrl": "https://highendshow.ae/uploads/small_Amphion_b167cec01c.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 11306,
+        "filename": "small_Amphion_b167cec01c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "dbd7bfe4-ea48-46a6-9a9f-0ed70462b0e7",
+      "entityName": "Mutec",
+      "legacyFileId": "fcb61a25-df62-4329-9d17-f28a8ff0908a",
+      "externalUrl": "https://highendshow.ae/uploads/Mutec_logo_e3e21cfcc6.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 1161,
+        "filename": "Mutec_logo_e3e21cfcc6.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "dc5ba6d6-b8eb-4e50-bdc7-c650e04f0077",
+      "entityName": "Nice",
+      "legacyFileId": "910e82d3-a3f9-4980-b315-7ef76cb03ee7",
+      "externalUrl": "https://highendshow.ae/uploads/small_Copy_of_Nice_Wordmark_Blue_b5d940a0f7.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15397,
+        "filename": "small_Copy_of_Nice_Wordmark_Blue_b5d940a0f7.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "dc5c27c6-c0e0-496a-ba83-e502f337211e",
+      "entityName": "atc",
+      "legacyFileId": "382235a0-6ec0-4ff3-a428-fbb0ea50c23e",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_atc_logo_41d4d8cf93.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12133,
+        "filename": "thumbnail_atc_logo_41d4d8cf93.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "dd596705-5e6f-4d66-89d1-caefc989c424",
+      "entityName": "DAN DAGOSTINO",
+      "legacyFileId": "30575bdc-785b-459e-92d5-8f3d65b34638",
+      "externalUrl": "https://highendshow.ae/uploads/small_DAN_DAGOSTINO_Logo_d4b3171aa6.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 15352,
+        "filename": "small_DAN_DAGOSTINO_Logo_d4b3171aa6.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ddcc01c0-c7e7-4838-a6ac-f71baef8fcb5",
+      "entityName": "Rekkord Audio",
+      "legacyFileId": "8e968f8b-e7dc-4335-a0f3-826c86e9f175",
+      "externalUrl": "https://highendshow.ae/uploads/small_rekkord_audio_logo_2aad1f39ae.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12835,
+        "filename": "small_rekkord_audio_logo_2aad1f39ae.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "df6cc26c-127b-496e-806c-abf48180fefb",
+      "entityName": "Mirel International",
+      "legacyFileId": "53b006b5-5097-4c27-9662-687a1c615471",
+      "externalUrl": "https://highendshow.ae/uploads/small_Mirel_International_4bf4e95106.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 12483,
+        "filename": "small_Mirel_International_4bf4e95106.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e224cf6c-7633-4b28-a17a-c51517f7718e",
+      "entityName": "Hifonix",
+      "legacyFileId": "ab87780e-9791-49ce-85cf-59a3a204e6cf",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_hifonix_1ddc608f04.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 5352,
+        "filename": "thumbnail_hifonix_1ddc608f04.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e271e01f-9499-4b4b-a0a0-173de3ac5bd0",
+      "entityName": "Dekoni Audio",
+      "legacyFileId": "f0e131cc-e927-4000-a9cd-22565572a241",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Dekoni_Audio_Logo_daeab5250d.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 10595,
+        "filename": "thumbnail_Dekoni_Audio_Logo_daeab5250d.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e2c98d6e-ca20-44ec-9b38-a4e270db2dfd",
+      "entityName": "Heritage Audio",
+      "legacyFileId": "5714cbb8-826c-43af-bda4-460fd30acbab",
+      "externalUrl": "https://highendshow.ae/uploads/small_Heritage_Audio_97caf5ac59.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 12163,
+        "filename": "small_Heritage_Audio_97caf5ac59.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e32f85a8-cc33-4cdc-8271-9ed69f708d75",
+      "entityName": "TRUAUDIO",
+      "legacyFileId": "764e47d3-bd90-4e23-9652-7d3ec539cbdb",
+      "externalUrl": "https://highendshow.ae/uploads/small_TRUAUDIO_FINAL_LOGO_93b590b424.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 21106,
+        "filename": "small_TRUAUDIO_FINAL_LOGO_93b590b424.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e4577a91-e2fc-4f03-b632-f0c525291a51",
+      "entityName": "AVM",
+      "legacyFileId": "0c3b0a8e-1dbd-49e9-af57-7e54cdcd5293",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_AVM_logoby72v_Kiux_Vc6g_48b10600e8.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8317,
+        "filename": "thumbnail_AVM_logoby72v_Kiux_Vc6g_48b10600e8.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "e60a5f2a-1be1-48a1-bbbc-62a0e27406e6",
+      "entityName": "Beale Audio",
+      "legacyFileId": "313ca883-f069-46cf-bd73-11c57365d05b",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Beale_Logo_TAG_TM_932abde544.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 5363,
+        "filename": "thumbnail_Beale_Logo_TAG_TM_932abde544.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ea633ae1-471b-4fc5-9aeb-170b2e221438",
+      "entityName": "Lexa Lifestyle",
+      "legacyFileId": "5d61519b-34c0-40f5-b61e-9036a4b59e61",
+      "externalUrl": "https://highendshow.ae/uploads/small_LEXXA_Lifestile_3x_85cdd690c0.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 25767,
+        "filename": "small_LEXXA_Lifestile_3x_85cdd690c0.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "eaf0967c-b53b-4ac2-b8ce-758ad86f08fc",
+      "entityName": "SONY",
+      "legacyFileId": "b70645ea-6d89-4cfb-b5c8-17dab2cdaba7",
+      "externalUrl": "https://highendshow.ae/uploads/small_sony_413dc5fbb4.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 27103,
+        "filename": "small_sony_413dc5fbb4.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ec379bbd-a1cc-427e-8235-f59ec2973b7c",
+      "entityName": "CEDIA",
+      "legacyFileId": "e4be7aaa-0c35-4b6c-a4a5-9e754f532fb7",
+      "externalUrl": "https://highendshow.ae/uploads/small_CEDIA_wide_ee74677a71.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 47382,
+        "filename": "small_CEDIA_wide_ee74677a71.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "edc6277f-acfc-4231-9fbb-b3dd90f04eec",
+      "entityName": "MKB Bespoke",
+      "legacyFileId": "65a0efd8-e0a4-468a-bc94-68ea77d119ea",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_MKB_Bespoke_051a328ce1.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 25727,
+        "filename": "thumbnail_MKB_Bespoke_051a328ce1.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ee9d923c-8e61-49b5-9eb2-81cc98b93ebf",
+      "entityName": "PMC",
+      "legacyFileId": "df22b7c5-cd89-4dc6-81df-95b1ee179e16",
+      "externalUrl": "https://highendshow.ae/uploads/small_pmc_logo_no_dots_67d21a906f.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 7670,
+        "filename": "small_pmc_logo_no_dots_67d21a906f.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "eeeb4cb8-7788-4094-acb9-a541f6fa05a1",
+      "entityName": "Audio-Technica",
+      "legacyFileId": "58cf8863-dbc1-4226-a5ea-e4f99c72e961",
+      "externalUrl": "https://highendshow.ae/uploads/small_Audio_Technica_92ec010b39.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 26766,
+        "filename": "small_Audio_Technica_92ec010b39.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "eed540c4-4f1a-4e8e-afbc-388bc9dbc64d",
+      "entityName": "VPI",
+      "legacyFileId": "82cbfcda-8d4f-4c49-85d6-23c75cefe70d",
+      "externalUrl": "https://highendshow.ae/uploads/small_VPI_37cfa191b8.jpg",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/jpeg",
+        "sizeBytes": 7846,
+        "filename": "small_VPI_37cfa191b8.jpg",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f05f4622-d595-475c-b73a-ed8f5b7b281a",
+      "entityName": "AV Pro Edge",
+      "legacyFileId": "4d94df1a-491f-4158-8823-5a5e4ecaf014",
+      "externalUrl": "https://highendshow.ae/uploads/unnamed_1_7de9068653.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 1595,
+        "filename": "unnamed_1_7de9068653.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "efaf21e6-0e8d-41b9-820f-13165e1aeba1",
+      "entityName": "Zuma",
+      "legacyFileId": "4eba3dea-53e2-4c66-8dcf-b278e7aee182",
+      "externalUrl": "https://highendshow.ae/uploads/small_Zuma_50dfa54e7e.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 17495,
+        "filename": "small_Zuma_50dfa54e7e.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f1117a05-f965-4505-8947-09ee8c3fb5af",
+      "entityName": "music hall",
+      "legacyFileId": "5cc6c826-6b68-4f17-a347-619b0d0bb191",
+      "externalUrl": "https://highendshow.ae/uploads/small_music_hall_logo_b6b5c3da65.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 12263,
+        "filename": "small_music_hall_logo_b6b5c3da65.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f06a5c41-21a5-4be2-8119-c147a8666e37",
+      "entityName": "Rockna",
+      "legacyFileId": "5bf560a4-dc23-4381-b641-494688ec6532",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Rockna_fdf1a805ec.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 9629,
+        "filename": "thumbnail_Rockna_fdf1a805ec.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f2213c89-c772-47b1-ac37-ff0c37e70f01",
+      "entityName": "Bon HI-FI",
+      "legacyFileId": "b0f2d395-aea4-410b-84a4-de2f4627f233",
+      "externalUrl": "https://highendshow.ae/uploads/small_Bon_Hi_Fi_20f57a4173.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13329,
+        "filename": "small_Bon_Hi_Fi_20f57a4173.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f1ee8110-7aa9-4bc6-8561-880b082faf72",
+      "entityName": "Phaze Audio",
+      "legacyFileId": "3d77a773-9fe7-4a41-ac53-60f5ae682571",
+      "externalUrl": "https://highendshow.ae/uploads/small_PHAZE_AUDIO_d32e699e4c.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 14991,
+        "filename": "small_PHAZE_AUDIO_d32e699e4c.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f3f617d3-8df6-451b-aa41-eea810dc8c52",
+      "entityName": "Q-ACOUSTICS",
+      "legacyFileId": "f24e0657-470f-43e0-9a96-a51fe820657b",
+      "externalUrl": "https://highendshow.ae/uploads/small_Q_ACOUSTICS_3b6c3d1950.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 19757,
+        "filename": "small_Q_ACOUSTICS_3b6c3d1950.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "f6c384ad-80c3-4e2d-a000-7b582269d415",
+      "entityName": "DISPLINE iPad premium dock",
+      "legacyFileId": "91fbaf38-b2b6-4de4-926a-6fc7cfa895ab",
+      "externalUrl": "https://highendshow.ae/uploads/thumbnail_Displine_logo_bb8ada2011.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 8600,
+        "filename": "thumbnail_Displine_logo_bb8ada2011.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "fe5f53c1-3fc3-469b-9627-18c6dc2ee4db",
+      "entityName": "McIntosh",
+      "legacyFileId": "d4afaf99-acc4-4f1c-b41f-8a81764e897e",
+      "externalUrl": "https://highendshow.ae/uploads/small_Mc_Intosh_635b65ccc2.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 13733,
+        "filename": "small_Mc_Intosh_635b65ccc2.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ff0448c1-e5c3-450e-be18-bda874c104fc",
+      "entityName": "TONEWINNER",
+      "legacyFileId": "cf03e42a-3e94-4781-9fec-ac1480e9abaa",
+      "externalUrl": "https://highendshow.ae/uploads/small_TONEWINNER_FINAL_LOGO_2a2c638784.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 31220,
+        "filename": "small_TONEWINNER_FINAL_LOGO_2a2c638784.png",
+        "wouldGenerateThumb": true
+      }
+    },
+    {
+      "entityType": "brand",
+      "entityId": "ff63edc8-c38f-4bff-9e2c-24d7bf7ce977",
+      "entityName": "EQUINOX HIFI",
+      "legacyFileId": "82eece68-186b-4cbf-9aaf-369f62f99f69",
+      "externalUrl": "https://highendshow.ae/uploads/small_EQUINOX_HIFI_LOGO_NEW_d9528d6bba.png",
+      "action": "would_copy",
+      "error": null,
+      "migrationState": "none",
+      "probe": {
+        "mimeType": "image/png",
+        "sizeBytes": 18291,
+        "filename": "small_EQUINOX_HIFI_LOGO_NEW_d9528d6bba.png",
+        "wouldGenerateThumb": true
+      }
+    }
+  ],
+  "summary": {
+    "candidatesFound": 159,
+    "copiedFull": 0,
+    "copiedThumbs": 0,
+    "skippedExisting": 0,
+    "skippedAlreadyMigrated": 0,
+    "skippedUnsupported": 4,
+    "skippedInvalidUrl": 0,
+    "failedDownload": 1,
+    "failedUpload": 0,
+    "failedDbInsert": 0,
+    "archivedExternalRows": 0,
+    "updatedPrimaryPointers": 0,
+    "repairedPartial": 0,
+    "cleanedPartial": 0,
+    "incompleteExisting": 0,
+    "errorsCount": 1
+  }
+}

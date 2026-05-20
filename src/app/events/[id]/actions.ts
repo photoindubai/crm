@@ -316,6 +316,101 @@ export async function deleteEventProgramItem(formData: FormData) {
   redirect(buildEventUrl(eventId, { notice: "program_deleted" }));
 }
 
+export async function saveSectionParticipations(input: {
+  eventId: string;
+  sectionId: string;
+  assignedParticipationIds: string[];
+}): Promise<{ error?: string }> {
+  const { profile } = await requireActiveProfile();
+  const supabase = createSupabaseAdminClient();
+  const organizationId = getOrganizationId(profile.organization_id);
+  const { eventId, sectionId, assignedParticipationIds } = input;
+  const targetIds = [...new Set(assignedParticipationIds.filter(Boolean))];
+
+  if (!eventId || !sectionId) {
+    return { error: "Invalid section request." };
+  }
+
+  const [eventResult, sectionResult] = await Promise.all([
+    supabase.from("events").select("id").eq("id", eventId).eq("organization_id", organizationId).maybeSingle(),
+    supabase.from("event_sections").select("id,event_id").eq("id", sectionId).maybeSingle(),
+  ]);
+
+  if (!eventResult.data || !sectionResult.data || sectionResult.data.event_id !== eventId) {
+    return { error: "Section and event could not be verified." };
+  }
+
+  if (targetIds.length > 0) {
+    const { data: participations, error: participationsError } = await supabase
+      .from("participations")
+      .select("id")
+      .eq("organization_id", organizationId)
+      .eq("event_id", eventId)
+      .in("id", targetIds);
+
+    if (participationsError) {
+      return { error: participationsError.message };
+    }
+
+    if ((participations ?? []).length !== targetIds.length) {
+      return { error: "One or more participants do not belong to this event." };
+    }
+  }
+
+  const untypedSupabase = supabase as unknown as {
+    from: (table: "participation_sections") => {
+      select: (columns: "participation_id") => {
+        eq: (column: "section_id", value: string) => Promise<{ data: Array<{ participation_id: string }> | null; error: { message: string } | null }>;
+      };
+      delete: () => {
+        eq: (column: "section_id", value: string) => {
+          in: (column: "participation_id", values: string[]) => Promise<{ error: { message: string } | null }>;
+        };
+      };
+      insert: (payload: Array<{ participation_id: string; section_id: string }>) => Promise<{ error: { message: string } | null }>;
+    };
+  };
+
+  const currentResult = await untypedSupabase.from("participation_sections").select("participation_id").eq("section_id", sectionId);
+
+  if (currentResult.error) {
+    return { error: currentResult.error.message };
+  }
+
+  const currentIds = new Set((currentResult.data ?? []).map((row) => row.participation_id));
+  const targetIdSet = new Set(targetIds);
+  const toRemove = [...currentIds].filter((participationId) => !targetIdSet.has(participationId));
+  const toAdd = targetIds.filter((participationId) => !currentIds.has(participationId));
+
+  if (toRemove.length > 0) {
+    const deleteResult = await untypedSupabase
+      .from("participation_sections")
+      .delete()
+      .eq("section_id", sectionId)
+      .in("participation_id", toRemove);
+
+    if (deleteResult.error) {
+      return { error: "Could not remove participants from section." };
+    }
+  }
+
+  if (toAdd.length > 0) {
+    const insertResult = await untypedSupabase.from("participation_sections").insert(
+      toAdd.map((participationId) => ({
+        participation_id: participationId,
+        section_id: sectionId,
+      })),
+    );
+
+    if (insertResult.error) {
+      return { error: "Could not add participants to section." };
+    }
+  }
+
+  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId), cacheTags.participations]);
+  return {};
+}
+
 export async function addSectionParticipation(formData: FormData) {
   const { profile } = await requireActiveProfile();
   const supabase = createSupabaseAdminClient();

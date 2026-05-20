@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:r2": "node scripts/test-r2-connection.mjs",
     "import:local-data": "node scripts/import-local-data-bulk.mjs",
-    "migrate:legacy-files": "bash -lc 'set -a; [ -f .env ] && source .env; [ -f .env.local ] && source .env.local; set +a; node scripts/migrate-legacy-files-metadata.mjs'"
+    "migrate:legacy-files": "bash -lc 'set -a; [ -f .env ] && source .env; [ -f .env.local ] && source .env.local; set +a; node scripts/migrate-legacy-files-metadata.mjs'",
+    "copy:legacy-logos-to-r2": "node scripts/copy-legacy-logos-to-r2.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.922.0",

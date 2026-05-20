@@ -140,7 +140,86 @@ Expected read fallback order for UI and APIs:
 1. `public.files` record (`provider + bucket + storage_path`, optionally `public_url`)
 2. legacy direct URL fields (`company_logo_url`, `brand_logo_url`, `exhibitor_materials.url`)
 
-No automatic download/copy of old external assets into R2 is performed in this phase.
+No automatic download/copy of old external assets into R2 is performed in Phase 2.
+
+## Phase 5C legacy logo copy to R2
+
+Script:
+
+- `scripts/copy-legacy-logos-to-r2.mjs`
+
+NPM command:
+
+- `npm run copy:legacy-logos-to-r2`
+
+The copy script loads env from `.env`, then overrides from `.env.local` if present.
+
+Safety:
+
+- apply mode requires explicit confirmation: `--yes`
+- without `--yes` and without `--dry-run`, the script exits with:
+  - `Refusing to run destructive/apply mode without --yes. Use --dry-run first.`
+
+Recommended workflow (company-first):
+
+```bash
+npm run copy:legacy-logos-to-r2 -- --entity=companies --dry-run --limit=5
+npm run copy:legacy-logos-to-r2 -- --entity=companies --limit=5 --yes
+npm run copy:legacy-logos-to-r2 -- --entity=brands --dry-run
+npm run copy:legacy-logos-to-r2 -- --entity=brands --yes
+```
+
+CLI options:
+
+- `--dry-run`
+- `--yes` (required for apply mode)
+- `--entity=companies|brands|all` (default: `all`)
+- `--limit=number`
+- `--concurrency=number` (default: `2`)
+- `--skip-existing=true|false` (default: `true`)
+
+What the script does:
+
+- reads legacy logo candidates from `public.files` (`provider='external'`, not direct table columns)
+  - companies: `source='legacy_company_logo_url'`
+  - brands: `source='legacy_brand_logo_url'`
+- downloads each `external_url` (20s timeout, max 10 MB, image content-types only)
+- uploads full logo to R2 and inserts `public.files` row:
+  - `provider='cloudflare_r2'`
+  - `file_category='logo'`
+  - `file_role='full'`
+  - `source='legacy_copy_to_r2'`
+  - `status='approved'`
+- generates thumb for PNG/JPEG/WebP (`file_role='thumb'`, WebP output, max 300x300)
+- skips thumb generation for SVG (primary pointer falls back to full file)
+- updates canonical pointers:
+  - `companies.primary_logo_file_id` / `brands.primary_logo_file_id`
+  - compatibility mirrors: `companies.company_logo_url` / `brands.brand_logo_url`
+- archives old external `public.files` row (`status='archived'`) only after full success
+- does not delete old external rows
+- does not overwrite or auto-generate inverted logo roles (`full_inverted`, `thumb_inverted`)
+- does not use `exhibitor_materials`
+
+Idempotency:
+
+- with default `--skip-existing=true`, an entity is skipped only when migration is fully complete:
+  - at least one approved R2 `full` logo exists (`source='legacy_copy_to_r2'`)
+  - `primary_logo_file_id` points to a `cloudflare_r2` logo file for that entity
+  - all legacy external logo rows for the entity are `archived`
+- partial prior runs (R2 uploaded but pointer/archive incomplete) are not skipped; the script repairs or safely re-copies
+- on apply failure after partial progress in the current run, newly uploaded R2 objects and newly inserted `files` rows from that run are cleaned up; legacy external rows and primary pointers are not updated until success
+
+Dry-run behavior:
+
+- no R2 upload
+- no DB insert/update/archive
+- probes external URLs (HEAD first, GET headers fallback when HEAD is unsupported)
+- logs planned actions: `would_copy`, `skipped_existing`, `skipped_invalid_url`, `skipped_unsupported_content_type`
+
+Report:
+
+- console summary counters at the end
+- JSON report written to `logs/copy-legacy-logos-to-r2-{timestamp}.json` (no secrets)
 
 ## Phase 2 legacy metadata migration
 
@@ -233,6 +312,39 @@ Because `storage_path` is canonical, public URL generation can switch domains wi
 - direct browser upload via presigned URLs
 - signed private download URLs
 - full tenant-aware org slug resolution in UI/API flows (instead of default-only fallback)
+
+### Bulk imports — CSV Import Wizard with Logo URL Ingestion to R2
+
+> **Status:** Future SaaS onboarding feature — not implemented in current MVP. See `docs/02_ROADMAP_NEXT_PHASES.md` §18 for the full product plan.
+
+**Goal:** Allow a new organizer to upload a CSV/XLSX, map columns to CRM fields, preview a dry-run, then import companies/participations and copy mapped logo URLs into R2.
+
+**Scope (when built):**
+
+- Organization- and event-scoped import jobs (`import_jobs`, `import_job_rows`).
+- Required CSV mapping: `company_name`; optional: website, location, description, `logo_url`, social links, booth, contacts, brands.
+- Dry-run preview: create/update counts, duplicates, invalid rows, logo URL detection, downloadable error report.
+- Apply import: idempotent company upsert under organization; participation per event; booths, contacts, brands as mapped.
+- Logo pipeline per `logo_url`:
+  - download + validate (HTTP 200, `image/*`, size limit);
+  - upload `file_role='full'` to R2 under `organizations/{organization_slug}/companies/{company_id}/logos/...`;
+  - generate `file_role='thumb'` for PNG/JPEG/WebP;
+  - insert `public.files` with `provider='cloudflare_r2'`;
+  - set `companies.primary_logo_file_id` (thumb preferred);
+  - optionally mirror URL to `companies.company_logo_url`;
+  - log failures without aborting the whole import.
+- **Do not** auto-generate `full_inverted` / `thumb_inverted` during import.
+
+**Canonical vs legacy:**
+
+- `public.files` remains the source of truth for file metadata.
+- R2 is the physical store.
+- Legacy URL columns are compatibility mirrors only.
+
+**Relation to existing tooling:**
+
+- Reuse validation/thumbnail patterns from `scripts/copy-legacy-logos-to-r2.mjs`.
+- Distinct from Phase 5C one-off legacy copy; this is interactive, per-import, user-driven onboarding.
 
 ## Phase 3 upload API routes
 

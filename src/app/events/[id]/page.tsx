@@ -10,10 +10,11 @@ import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/li
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
-import { addSectionParticipation, removeSectionParticipation, saveEventProgramItem, saveEventSection, updateEventDetails } from "./actions";
+import { saveEventProgramItem, saveEventSection, updateEventDetails } from "./actions";
 import { DeleteEventButton } from "./delete-event-button";
 import { DeleteProgramItemButton } from "./delete-program-item-button";
 import { DeleteSectionButton } from "./delete-section-button";
+import { SectionMembersModal } from "./section-members-modal";
 import { SlugGenerateField } from "./slug-generate-field";
 
 export const revalidate = 30;
@@ -40,7 +41,6 @@ export default async function EventDetailPage({
   const sectionFilterId = getStringParam(resolvedSearchParams, "section");
   const sectionId = getStringParam(resolvedSearchParams, "section_id");
   const itemId = getStringParam(resolvedSearchParams, "item_id");
-  const sectionQuery = getStringParam(resolvedSearchParams, "q")?.trim() ?? "";
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
@@ -182,15 +182,20 @@ export default async function EventDetailPage({
   );
   const selectedSection = sectionId ? sections.find((section) => section.id === sectionId) ?? null : null;
   const selectedProgramItem = itemId ? program.find((item) => item.id === itemId) ?? null : null;
-  const sectionParticipationIds = selectedSection
-    ? new Set(participationSections.filter((link) => link.section_id === selectedSection.id).map((link) => link.participation_id))
-    : new Set<string>();
-  const sectionSearchResults =
-    selectedSection && sectionQuery
-      ? allEventParticipations.filter((participation) =>
-          participation.company_name.toLowerCase().includes(sectionQuery.toLowerCase()),
-        )
-      : allEventParticipations;
+  const sectionMemberParticipants = allEventParticipations
+    .filter((participation): participation is ParticipationRow & { participation_id: string; company_name: string } =>
+      Boolean(participation.participation_id && participation.company_name),
+    )
+    .map((participation) => ({
+      participationId: participation.participation_id,
+      companyName: participation.company_name,
+      boothNumbers: participation.booth_numbers,
+    }));
+  const initialSectionAssignedIds = selectedSection
+    ? participationSections
+        .filter((link) => link.section_id === selectedSection.id)
+        .map((link) => link.participation_id)
+    : [];
 
   return (
     <AppShell title="Event Detail">
@@ -399,66 +404,13 @@ export default async function EventDetailPage({
                 ))}
               </div>
               {panel === "section_members" && selectedSection ? (
-                <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4">
-                  <div className="w-full max-w-2xl rounded-lg border border-border bg-white p-4 shadow-soft">
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div>
-                        <h4 className="text-base font-semibold text-primary">{selectedSection.name}</h4>
-                        <p className="text-xs text-muted-foreground">Assign participants by first letters / name search</p>
-                      </div>
-                      <Link href={`/events/${event.id}`} className="text-sm font-medium text-primary hover:underline">
-                        Close
-                      </Link>
-                    </div>
-                    <form className="mb-3 flex gap-2">
-                      <input type="hidden" name="panel" value="section_members" />
-                      <input type="hidden" name="section_id" value={selectedSection.id} />
-                      <input
-                        name="q"
-                        defaultValue={sectionQuery}
-                        placeholder="Search participants..."
-                        className="h-10 flex-1 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-                      />
-                      <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Search</button>
-                    </form>
-                    <div className="max-h-[50vh] overflow-auto rounded-lg border border-border">
-                      {sectionSearchResults.length > 0 ? (
-                        <div className="divide-y divide-border">
-                          {sectionSearchResults.map((participation) => {
-                            const assigned = sectionParticipationIds.has(participation.participation_id);
-                            return (
-                              <div key={participation.participation_id} className="flex items-center justify-between gap-2 px-3 py-2">
-                                <div className="min-w-0">
-                                  <div className="truncate text-sm font-medium text-primary">{participation.company_name}</div>
-                                  <div className="truncate text-xs text-muted-foreground">{participation.booth_numbers || "No booth"}</div>
-                                </div>
-                                {assigned ? (
-                                  <form action={removeSectionParticipation}>
-                                    <input type="hidden" name="event_id" value={event.id} />
-                                    <input type="hidden" name="section_id" value={selectedSection.id} />
-                                    <input type="hidden" name="participation_id" value={participation.participation_id} />
-                                    <input type="hidden" name="q" value={sectionQuery} />
-                                    <button className="h-8 rounded-md border border-border px-3 text-xs font-semibold text-primary hover:bg-muted">Remove</button>
-                                  </form>
-                                ) : (
-                                  <form action={addSectionParticipation}>
-                                    <input type="hidden" name="event_id" value={event.id} />
-                                    <input type="hidden" name="section_id" value={selectedSection.id} />
-                                    <input type="hidden" name="participation_id" value={participation.participation_id} />
-                                    <input type="hidden" name="q" value={sectionQuery} />
-                                    <button className="h-8 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:opacity-90">Add</button>
-                                  </form>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="p-4 text-sm text-muted-foreground">No matching participants.</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                <SectionMembersModal
+                  eventId={event.id}
+                  sectionId={selectedSection.id}
+                  sectionName={selectedSection.name}
+                  participants={sectionMemberParticipants}
+                  initialAssignedIds={initialSectionAssignedIds}
+                />
               ) : null}
               {panel === "section" ? (
                 <div className="mb-3 rounded-lg border border-border bg-muted/30 p-3">
@@ -735,6 +687,9 @@ function getFlashMessage(notice: string | null, error: string | null) {
   }
   if (notice === "section_participation_removed") {
     return "Participant removed from section.";
+  }
+  if (notice === "section_participations_saved") {
+    return "Section participants updated.";
   }
 
   return error ? "Could not update event." : "Saved.";
