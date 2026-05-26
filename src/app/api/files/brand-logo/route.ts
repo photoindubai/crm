@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
 import {
   badRequest,
   buildEntityStoragePath,
@@ -16,7 +15,7 @@ import {
   validateFile,
 } from "@/app/api/files/_shared";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { cacheTags } from "@/lib/cache-tags";
+import { invalidateBrandLogo } from "@/lib/cache/invalidate";
 
 export const runtime = "nodejs";
 
@@ -150,8 +149,7 @@ export async function POST(request: Request) {
       return serverError("Uploaded file, but failed to set brands.primary_logo_file_id.");
     }
 
-    revalidateTag(cacheTags.brands);
-    revalidateTag(cacheTags.brand(brand.id));
+    invalidateBrandLogo(organizationId, brand.id);
 
     return NextResponse.json(toUploadResponse(fullInserted));
   } catch (error) {

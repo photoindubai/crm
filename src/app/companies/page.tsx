@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -10,7 +11,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -57,6 +58,7 @@ export default async function CompaniesPage({
 }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -65,8 +67,9 @@ export default async function CompaniesPage({
 
   const { companies, count } = await loadCached(
     {
-      keyParts: ["companies", profile.organization_id, page, query],
-      tags: [cacheTags.companies, cacheTags.participations, cacheTags.events],
+      keyParts: ["companies", orgId, page, query],
+      tags: [cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
+      revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

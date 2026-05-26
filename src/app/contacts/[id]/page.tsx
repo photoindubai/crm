@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Building2, ClipboardList, Mail, Pencil, Phone, UserRound } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { getSafeNextPath, requireActiveProfile } from "@/lib/auth";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -12,7 +13,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { DeleteContactButton } from "../delete-contact-button";
 import { updateContactDetails } from "../actions";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 type Contact = Database["public"]["Tables"]["contacts"]["Row"];
 type CompanyContactRow = {
@@ -49,6 +50,7 @@ export default async function ContactDetailPage({
   const { id } = await params;
   const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
   const returnTo = getSafeNextPath(getStringParam(resolvedSearchParams, "returnTo") ?? "/contacts");
   const isEditing = getStringParam(resolvedSearchParams, "edit") === "1";
   const notice = getStringParam(resolvedSearchParams, "notice");
@@ -56,8 +58,15 @@ export default async function ContactDetailPage({
 
   const { contact, companies, participations, actions } = await loadCached(
     {
-      keyParts: ["contact-detail", profile.organization_id, id],
-      tags: [cacheTags.contacts, cacheTags.contact(id), cacheTags.companies, cacheTags.participations, cacheTags.actions],
+      keyParts: ["contact-detail", orgId, id],
+      tags: [
+        cacheTags.orgContacts(orgId),
+        cacheTags.contactDetail(id),
+        cacheTags.orgCompanies(orgId),
+        cacheTags.orgParticipations(orgId),
+        cacheTags.orgActions(orgId),
+      ],
+      revalidateSeconds: CACHE_TTL.DETAIL_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

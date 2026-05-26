@@ -3,6 +3,7 @@ import { CalendarDays, MapPin, Plus, Search } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -11,7 +12,7 @@ import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParam
 import type { Database } from "@/lib/supabase/database.types";
 import { createEvent } from "./actions";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -21,6 +22,7 @@ type Participation = Pick<Database["public"]["Tables"]["participations"]["Row"],
 export default async function EventsPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -33,8 +35,9 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
 
   const { events, participations, count } = await loadCached(
     {
-      keyParts: ["events", profile.organization_id, page, query, status],
-      tags: [cacheTags.events, cacheTags.participations],
+      keyParts: ["events", orgId, page, query, status],
+      tags: [cacheTags.orgEvents(orgId), cacheTags.orgParticipations(orgId)],
+      revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();
@@ -86,7 +89,7 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
             error ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
           }`}
         >
-          {getFlashMessage(notice, error)}
+          {getFlashMessage(notice ?? null, error ?? null)}
         </div>
       ) : null}
 

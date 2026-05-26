@@ -1,18 +1,27 @@
 import { AppShell } from "@/components/app-shell";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 export default async function DashboardPage() {
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const { companiesCount, participationsCount, openTasksCount, smmPendingCount } = await loadCached(
     {
-      keyParts: ["dashboard", profile.organization_id],
-      tags: [cacheTags.dashboard, cacheTags.companies, cacheTags.participations, cacheTags.actions, cacheTags.smm],
+      keyParts: ["dashboard", orgId],
+      tags: [
+        cacheTags.orgDashboard(orgId),
+        cacheTags.orgCompanies(orgId),
+        cacheTags.orgParticipations(orgId),
+        cacheTags.orgActions(orgId),
+        cacheTags.orgSmm(orgId),
+      ],
+      revalidateSeconds: CACHE_TTL.DASHBOARD_MEDIUM,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

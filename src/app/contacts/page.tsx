@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -10,7 +11,7 @@ import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParam
 import type { Database } from "@/lib/supabase/database.types";
 import { DeleteContactButton } from "./delete-contact-button";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -21,6 +22,7 @@ type Company = Pick<Database["public"]["Tables"]["companies"]["Row"], "id" | "co
 export default async function ContactsPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -32,8 +34,9 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
 
   const { contacts, companies, links, count } = await loadCached(
     {
-      keyParts: ["contacts", profile.organization_id, page, query],
-      tags: [cacheTags.contacts, cacheTags.companies],
+      keyParts: ["contacts", orgId, page, query],
+      tags: [cacheTags.orgContacts(orgId), cacheTags.orgCompanies(orgId)],
+      revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

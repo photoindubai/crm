@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus, Search, Tags } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -10,7 +11,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -25,6 +26,7 @@ type BoothRow = {
 export default async function BrandsPage({ searchParams }: { searchParams?: Promise<PageSearchParams> }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -33,8 +35,9 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
 
   const { brands, companyLinks, participationLinks, booths, count, companyLinkCount, participationLinkCount } = await loadCached(
     {
-      keyParts: ["brands", profile.organization_id, page, query],
-      tags: [cacheTags.brands, cacheTags.companies, cacheTags.participations],
+      keyParts: ["brands", orgId, page, query],
+      tags: [cacheTags.orgBrands(orgId), cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId)],
+      revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

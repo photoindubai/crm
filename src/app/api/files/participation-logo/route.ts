@@ -11,6 +11,7 @@ import {
   uploadAndInsertFileMetadata,
   validateFile,
 } from "@/app/api/files/_shared";
+import { invalidateParticipationLogo } from "@/lib/cache/invalidate";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -93,6 +94,8 @@ export async function POST(request: Request) {
     if (updateError) {
       return serverError("Uploaded file, but failed to set participations.public_logo_file_id.");
     }
+
+    invalidateParticipationLogo(organizationId, participation.event_id, participation.id, participation.company_id);
 
     return NextResponse.json(toUploadResponse(inserted));
   } catch (error) {

@@ -11,6 +11,7 @@ import {
   uploadAndInsertFileMetadata,
   validateFile,
 } from "@/app/api/files/_shared";
+import { invalidateParticipationMaterial } from "@/lib/cache/invalidate";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -121,6 +122,8 @@ export async function POST(request: Request) {
         return serverError("Uploaded file, but failed to create exhibitor_materials row.");
       }
     }
+
+    invalidateParticipationMaterial(organizationId, participation.event_id, participation.id, participation.company_id);
 
     return NextResponse.json(toUploadResponse(inserted));
   } catch (error) {

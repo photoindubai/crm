@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Building2, CalendarDays, Tags } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadBrandLogoSet } from "@/lib/files/loaders";
@@ -13,7 +14,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 type Brand = Database["public"]["Tables"]["brands"]["Row"];
 type CompanyBrand = Pick<Database["public"]["Tables"]["company_brands"]["Row"], "company_id">;
@@ -33,11 +34,19 @@ type FileRow = Database["public"]["Tables"]["files"]["Row"];
 export default async function BrandDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const { brand, primaryLogoFile, logoSet, companies, participations, events, participationCompanies, booths } = await loadCached(
     {
-      keyParts: ["brand-detail", profile.organization_id, id],
-      tags: [cacheTags.brands, cacheTags.brand(id), cacheTags.companies, cacheTags.participations, cacheTags.events],
+      keyParts: ["brand-detail", orgId, id],
+      tags: [
+        cacheTags.orgBrands(orgId),
+        cacheTags.brandDetail(id),
+        cacheTags.orgCompanies(orgId),
+        cacheTags.orgParticipations(orgId),
+        cacheTags.orgEvents(orgId),
+      ],
+      revalidateSeconds: CACHE_TTL.DETAIL_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

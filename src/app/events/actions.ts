@@ -1,9 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cacheTags } from "@/lib/cache-tags";
+import { invalidateEvent } from "@/lib/cache/invalidate";
 import { requireActiveProfile } from "@/lib/auth";
-import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function buildEventsUrl(params?: Record<string, string | undefined>) {
@@ -42,7 +41,16 @@ export async function createEvent(formData: FormData) {
 
   const { data, error } = await supabase
     .from("events")
-    .insert(payload)
+    .insert({
+      organization_id: organizationId,
+      event_name: payload.event_name,
+      venue_name: payload.venue_name,
+      city: payload.city,
+      country: payload.country,
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      status: payload.status,
+    })
     .select("id")
     .single();
 
@@ -50,7 +58,7 @@ export async function createEvent(formData: FormData) {
     redirect(buildEventsUrl({ panel: "create", error: "event_create_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.participations]);
+  invalidateEvent(organizationId, data.id);
   redirect(`/events/${data.id}?notice=event_created`);
 }
 

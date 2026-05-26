@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -9,7 +10,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -32,6 +33,7 @@ export default async function SmmPage({
 }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const filter = getStringParam(params, "filter")?.trim() ?? "";
@@ -41,8 +43,9 @@ export default async function SmmPage({
 
   const { rows, count } = await loadCached(
     {
-      keyParts: ["smm", profile.organization_id, page, filter, query],
-      tags: [cacheTags.smm, cacheTags.participations, cacheTags.companies],
+      keyParts: ["smm", orgId, page, filter, query],
+      tags: [cacheTags.orgSmm(orgId), cacheTags.orgParticipations(orgId), cacheTags.orgCompanies(orgId)],
+      revalidateSeconds: CACHE_TTL.SMM_MEDIUM,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

@@ -7,6 +7,7 @@ import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
 import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
 import { ParticipationMaterialUploadForm } from "@/components/uploads/participation-material-upload-form";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { resolveParticipationLogo } from "@/lib/files/resolve";
@@ -22,7 +23,7 @@ import { DeleteParticipationSectionButton } from "./delete-participation-section
 import { ParticipationBrandCard } from "./participation-brand-card";
 import { ParticipationLogisticsEditor, type LogisticsItem } from "./participation-logistics-editor";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 type Participation = Database["public"]["Tables"]["participations"]["Row"];
 type Company = Pick<
@@ -115,6 +116,7 @@ export default async function ParticipationDetailPage({
   const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
   const organizationId = profile.organization_id ?? notFound();
+  const orgId = organizationId;
   const panel = getStringParam(resolvedSearchParams, "panel");
   const brandLinkId = getStringParam(resolvedSearchParams, "brand_link_id");
   const contactLinkId = getStringParam(resolvedSearchParams, "contact_link_id");
@@ -125,16 +127,17 @@ export default async function ParticipationDetailPage({
   const { participation, participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates, eventSections, participationSectionLinks } =
     await loadCached(
       {
-        keyParts: ["participation-detail", profile.organization_id, id],
+        keyParts: ["participation-detail", orgId, id],
         tags: [
-          cacheTags.participations,
-          cacheTags.participation(id),
-          cacheTags.companies,
-          cacheTags.events,
-          cacheTags.brands,
-          cacheTags.actions,
-          cacheTags.actionTemplates,
+          cacheTags.orgParticipations(orgId),
+          cacheTags.participationDetail(id),
+          cacheTags.orgCompanies(orgId),
+          cacheTags.orgEvents(orgId),
+          cacheTags.orgBrands(orgId),
+          cacheTags.orgActions(orgId),
+          cacheTags.orgActionTemplates(orgId),
         ],
+        revalidateSeconds: CACHE_TTL.DETAIL_LONG,
       },
       async () => {
         const supabase = createSupabaseAdminClient();

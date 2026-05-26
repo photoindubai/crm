@@ -23,6 +23,7 @@ import {
 import { AppShell } from "@/components/app-shell";
 import { MediaThumbnailButton } from "@/components/media-preview";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCompanyLogoSet } from "@/lib/files/loaders";
@@ -37,7 +38,7 @@ import { CompanyContactForm } from "./company-contact-form";
 import { DeleteContactButton } from "@/app/contacts/delete-contact-button";
 import { LogoUploadForm } from "@/components/uploads/logo-upload-form";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 type Company = Database["public"]["Tables"]["companies"]["Row"];
 
@@ -130,8 +131,16 @@ export default async function CompanyDetailPage({
 
   const { company, primaryLogoFile, logoSet, contacts, participations, notes, actions, logistics, brands, companyBrandLinks } = await loadCached(
     {
-      keyParts: ["company-detail", profile.organization_id, id],
-      tags: [cacheTags.companies, cacheTags.company(id), cacheTags.participations, cacheTags.brands, cacheTags.actions, cacheTags.notes],
+      keyParts: ["company-detail", organizationId, id],
+      tags: [
+        cacheTags.orgCompanies(organizationId),
+        cacheTags.companyDetail(id),
+        cacheTags.orgParticipations(organizationId),
+        cacheTags.orgBrands(organizationId),
+        cacheTags.orgActions(organizationId),
+        cacheTags.orgNotes(organizationId),
+      ],
+      revalidateSeconds: CACHE_TTL.DETAIL_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

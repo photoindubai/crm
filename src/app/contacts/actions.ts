@@ -1,9 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cacheTags } from "@/lib/cache-tags";
+import { invalidateActions, invalidateContact, invalidateNotes } from "@/lib/cache/invalidate";
 import { getSafeNextPath, requireActiveProfile } from "@/lib/auth";
-import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function buildContactUrl(contactId: string, params?: Record<string, string | undefined>) {
@@ -65,7 +64,7 @@ export async function updateContactDetails(formData: FormData) {
     redirect(buildContactUrl(contactId, { edit: "1", returnTo, error: "contact_update_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.contacts, cacheTags.contact(contactId), cacheTags.companies, cacheTags.participations]);
+  invalidateContact(organizationId, contactId);
   redirect(appendParams(returnTo === "/dashboard" ? `/contacts/${contactId}` : returnTo, { notice: "contact_updated" }));
 }
 
@@ -133,16 +132,11 @@ export async function deleteContact(formData: FormData) {
     redirect(appendParams(returnTo, { error: "contact_delete_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.contacts,
-    cacheTags.contact(contactId),
-    cacheTags.companies,
-    cacheTags.participations,
-    cacheTags.actions,
-    cacheTags.notes,
-    ...companyIds.map((id) => cacheTags.company(id)),
-    ...participationIds.map((id) => cacheTags.participation(id)),
-  ]);
+  invalidateContact(organizationId, contactId, { companyIds, participationIds });
+  invalidateActions(organizationId, { companyIds, participationIds, contactIds: [contactId] });
+  for (const companyId of companyIds) {
+    invalidateNotes(organizationId, companyId);
+  }
 
   redirect(appendParams(returnTo, { notice: "contact_deleted" }));
 }

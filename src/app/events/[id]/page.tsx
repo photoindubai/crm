@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ClipboardList, Map, Pencil, Plus, Settings } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -17,7 +18,7 @@ import { DeleteSectionButton } from "./delete-section-button";
 import { SectionMembersModal } from "./section-members-modal";
 import { SlugGenerateField } from "./slug-generate-field";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 type Event = Database["public"]["Tables"]["events"]["Row"];
 type ParticipationRow = Database["public"]["Views"]["participation_list_view"]["Row"];
@@ -36,6 +37,10 @@ export default async function EventDetailPage({
   const { id } = await params;
   const resolvedSearchParams = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id;
+  if (!orgId) {
+    notFound();
+  }
   const isEditing = getStringParam(resolvedSearchParams, "edit") === "1";
   const panel = getStringParam(resolvedSearchParams, "panel");
   const sectionFilterId = getStringParam(resolvedSearchParams, "section");
@@ -46,8 +51,14 @@ export default async function EventDetailPage({
 
   const { event, participations, allEventParticipations, actions, sections, program, totalParticipations, totalConfirmedParticipations, participationSections } = await loadCached(
     {
-      keyParts: ["event-detail", profile.organization_id, id],
-      tags: [cacheTags.events, cacheTags.event(id), cacheTags.participations, cacheTags.actions],
+      keyParts: ["event-detail", orgId, id],
+      tags: [
+        cacheTags.orgEvents(orgId),
+        cacheTags.eventDetail(id),
+        cacheTags.orgParticipations(orgId),
+        cacheTags.orgActions(orgId),
+      ],
+      revalidateSeconds: CACHE_TTL.DETAIL_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();
@@ -105,21 +116,21 @@ export default async function EventDetailPage({
             ? supabase
                 .from("participations")
                 .select("id", { count: "exact", head: true })
-                .eq("organization_id", profile.organization_id)
+                .eq("organization_id", orgId)
                 .eq("event_id", id)
                 .in("id", scopedParticipationIds)
             : emptyCountResult()
           : supabase
               .from("participations")
               .select("id", { count: "exact", head: true })
-              .eq("organization_id", profile.organization_id)
+              .eq("organization_id", orgId)
               .eq("event_id", id),
         scopedParticipationIds
           ? scopedParticipationIds.length > 0
             ? supabase
                 .from("participations")
                 .select("id", { count: "exact", head: true })
-                .eq("organization_id", profile.organization_id)
+                .eq("organization_id", orgId)
                 .eq("event_id", id)
                 .eq("status", "confirmed")
                 .in("id", scopedParticipationIds)
@@ -127,7 +138,7 @@ export default async function EventDetailPage({
           : supabase
               .from("participations")
               .select("id", { count: "exact", head: true })
-              .eq("organization_id", profile.organization_id)
+              .eq("organization_id", orgId)
               .eq("event_id", id)
               .eq("status", "confirmed"),
         ]);
@@ -211,7 +222,7 @@ export default async function EventDetailPage({
               error ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"
             }`}
           >
-            {getFlashMessage(notice, error)}
+            {getFlashMessage(notice ?? null, error ?? null)}
           </div>
         ) : null}
 
@@ -695,7 +706,7 @@ function getFlashMessage(notice: string | null, error: string | null) {
   return error ? "Could not update event." : "Saved.";
 }
 
-function toLocalDateTime(value: string | null) {
+function toLocalDateTime(value: string | null | undefined) {
   if (!value) {
     return "";
   }

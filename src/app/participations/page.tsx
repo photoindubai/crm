@@ -7,6 +7,7 @@ import {
   type ParticipationSection,
 } from "@/components/participation-section-badges";
 import { StatusBadge } from "@/components/status-badge";
+import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
 import { loadCached } from "@/lib/server-cache";
@@ -14,7 +15,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
 
-export const revalidate = 30;
+export const revalidate = 3600;
 
 const PAGE_SIZE = 50;
 
@@ -41,6 +42,7 @@ export default async function ParticipationsPage({
 }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
@@ -51,8 +53,9 @@ export default async function ParticipationsPage({
 
   const { participations, events, count } = await loadCached(
     {
-      keyParts: ["participations", profile.organization_id, page, query, status, eventId],
-      tags: [cacheTags.participations, cacheTags.events],
+      keyParts: ["participations", orgId, page, query, status, eventId],
+      tags: [cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
+      revalidateSeconds: CACHE_TTL.PARTICIPATIONS_MEDIUM,
     },
     async () => {
       const supabase = createSupabaseAdminClient();

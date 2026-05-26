@@ -41,6 +41,7 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 - Added `/events/[id]` event detail view with administrative actions, participating exhibitors, sections, program items, and a simple exhibition map panel.
 - Added `/brands/[id]` brand detail view with linked companies, participations, booths, and event context.
 - Added Next.js server-side query caching for CRM reads with cache tags and manual invalidation helper for future save/update flows.
+- Formalized CRM read caching: org/event/entity scoped tags, `invalidate*` helpers, tiered TTL (30s actions / 5m operational / 15m reference data), upload invalidation, and [`docs/CACHING_STRATEGY.md`](./CACHING_STRATEGY.md).
 - Added `/contacts`, `/events`, and `/brands` list pages with pagination and simple search/filter behavior.
 - Switched the visual theme closer to the selected Stitch design direction.
 - Replaced placeholder/fake brand content on detail pages with real brand relations from Supabase.

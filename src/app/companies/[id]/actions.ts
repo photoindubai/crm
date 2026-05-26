@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cacheTags } from "@/lib/cache-tags";
+import { fetchCompanyEventIds } from "@/lib/cache/company-events";
+import { invalidateBrand, invalidateCompany, invalidateContact } from "@/lib/cache/invalidate";
 import { requireActiveProfile } from "@/lib/auth";
-import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function buildCompanyUrl(companyId: string, params?: Record<string, string | undefined>) {
@@ -66,7 +66,8 @@ export async function updateCompanyDetails(formData: FormData) {
     redirect(buildCompanyUrl(companyId, { panel: "edit", error: "company_update_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.companies, cacheTags.company(companyId)]);
+  const eventIds = await fetchCompanyEventIds(supabase, companyId);
+  invalidateCompany(organizationId, companyId, { eventIds });
   redirect(buildCompanyUrl(companyId, { notice: "company_saved" }));
 }
 
@@ -169,26 +170,20 @@ export async function createCompanyContact(
       return { status: "error", message: "Failed to link contact to company." };
     }
   } else {
-    const { error: createLinkError } = await supabase
-      .from("company_contacts")
-      .insert({
-        company_id: companyId,
-        contact_id: contactId,
-        role,
-        is_primary: isPrimary,
-      });
+    const { error: createLinkError } = await supabase.from("company_contacts").insert({
+      company_id: companyId,
+      contact_id: contactId,
+      role,
+      is_primary: isPrimary,
+    });
 
     if (createLinkError) {
       return { status: "error", message: "Failed to link contact to company." };
     }
   }
 
-  invalidateCacheTags([
-    cacheTags.companies,
-    cacheTags.company(companyId),
-    cacheTags.contacts,
-    cacheTags.contact(contactId),
-  ]);
+  invalidateContact(organizationId, contactId, { companyIds: [companyId] });
+  invalidateCompany(organizationId, companyId, { eventIds: await fetchCompanyEventIds(supabase, companyId) });
 
   return {
     status: "success",
@@ -242,12 +237,10 @@ export async function assignCompanyBrand(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([
-    cacheTags.companies,
-    cacheTags.company(companyId),
-    cacheTags.brands,
-    cacheTags.brand(brandId),
-  ]);
+  const eventIds = await fetchCompanyEventIds(supabase, companyId);
+  invalidateCompany(organizationId, companyId, { eventIds });
+  invalidateBrand(organizationId, brandId, { companyIds: [companyId], eventIds });
+
   redirect(buildCompanyUrl(companyId, { notice: "brand_assigned" }));
 }
 
@@ -257,9 +250,7 @@ function nullableText(value: FormDataEntryValue | null) {
 }
 
 function nullableEmail(value: FormDataEntryValue | null) {
-  const normalized = String(value ?? "")
-    .trim()
-    .toLowerCase();
+  const normalized = String(value ?? "").trim();
   return normalized ? normalized : null;
 }
 

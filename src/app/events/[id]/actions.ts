@@ -1,9 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cacheTags } from "@/lib/cache-tags";
+import { invalidateEvent } from "@/lib/cache/invalidate";
 import { requireActiveProfile } from "@/lib/auth";
-import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 function buildEventUrl(eventId: string, params?: Record<string, string | undefined>) {
@@ -56,7 +55,15 @@ export async function updateEventDetails(formData: FormData) {
 
   const { error: updateError } = await supabase
     .from("events")
-    .update(payload)
+    .update({
+      event_name: payload.event_name,
+      venue_name: payload.venue_name,
+      city: payload.city,
+      country: payload.country,
+      start_date: payload.start_date,
+      end_date: payload.end_date,
+      status: payload.status,
+    })
     .eq("id", eventId)
     .eq("organization_id", organizationId);
 
@@ -64,12 +71,7 @@ export async function updateEventDetails(formData: FormData) {
     redirect(buildEventUrl(eventId, { edit: "1", error: "event_update_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.events,
-    cacheTags.event(eventId),
-    cacheTags.participations,
-    cacheTags.actions,
-  ]);
+  invalidateEvent(organizationId, eventId);
 
   redirect(buildEventUrl(eventId, { notice: "event_saved" }));
 }
@@ -119,12 +121,7 @@ export async function deleteEvent(formData: FormData) {
     redirect(buildEventUrl(eventId, { error: "event_delete_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.events,
-    cacheTags.event(eventId),
-    cacheTags.participations,
-    cacheTags.actions,
-  ]);
+  invalidateEvent(organizationId, eventId);
   redirect("/events?notice=event_deleted");
 }
 
@@ -177,7 +174,7 @@ export async function saveEventSection(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId)]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { notice: sectionId ? "section_updated" : "section_created" }));
 }
 
@@ -221,7 +218,7 @@ export async function deleteEventSection(formData: FormData) {
     redirect(buildEventUrl(eventId, { error: "section_delete_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId)]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { notice: "section_deleted" }));
 }
 
@@ -282,7 +279,7 @@ export async function saveEventProgramItem(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId)]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { notice: itemId ? "program_updated" : "program_created" }));
 }
 
@@ -312,7 +309,7 @@ export async function deleteEventProgramItem(formData: FormData) {
     redirect(buildEventUrl(eventId, { error: "program_delete_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId)]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { notice: "program_deleted" }));
 }
 
@@ -407,7 +404,7 @@ export async function saveSectionParticipations(input: {
     }
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId), cacheTags.participations]);
+  invalidateEvent(organizationId, eventId);
   return {};
 }
 
@@ -472,7 +469,7 @@ export async function addSectionParticipation(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId), cacheTags.participations]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { panel: "section_members", section_id: sectionId, notice: "section_participation_added", q: query }));
 }
 
@@ -529,7 +526,7 @@ export async function removeSectionParticipation(formData: FormData) {
     redirect(buildEventUrl(eventId, { panel: "section_members", section_id: sectionId, error: "section_participation_delete_failed", q: query }));
   }
 
-  invalidateCacheTags([cacheTags.events, cacheTags.event(eventId), cacheTags.participations]);
+  invalidateEvent(organizationId, eventId);
   redirect(buildEventUrl(eventId, { panel: "section_members", section_id: sectionId, notice: "section_participation_removed", q: query }));
 }
 

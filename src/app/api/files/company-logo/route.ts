@@ -14,6 +14,8 @@ import {
   uploadAndInsertFileMetadata,
   validateFile,
 } from "@/app/api/files/_shared";
+import { fetchCompanyEventIds } from "@/lib/cache/company-events";
+import { invalidateCompanyLogo } from "@/lib/cache/invalidate";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -144,6 +146,9 @@ export async function POST(request: Request) {
     if (updateError) {
       return serverError("Uploaded file, but failed to set companies.primary_logo_file_id.");
     }
+
+    const eventIds = await fetchCompanyEventIds(supabase, company.id);
+    invalidateCompanyLogo(organizationId, company.id, { eventIds });
 
     return NextResponse.json(toUploadResponse(fullInserted));
   } catch (error) {

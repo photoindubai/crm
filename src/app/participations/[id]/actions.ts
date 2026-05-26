@@ -1,10 +1,40 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cacheTags } from "@/lib/cache-tags";
+import { invalidateBrand, invalidateContact, invalidateParticipation } from "@/lib/cache/invalidate";
 import { requireActiveProfile } from "@/lib/auth";
-import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
+
+type ParticipationScope = {
+  id: string;
+  event_id: string | null;
+  company_id: string | null;
+};
+
+async function loadParticipationScope(
+  supabase: SupabaseClient<Database>,
+  participationId: string,
+  organizationId: string,
+) {
+  const { data, error } = await supabase
+    .from("participations")
+    .select("id,event_id,company_id")
+    .eq("id", participationId)
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as ParticipationScope;
+}
+
+function revalidateParticipation(orgId: string, participation: ParticipationScope) {
+  invalidateParticipation(orgId, participation.event_id, participation.id, participation.company_id);
+}
 
 function buildParticipationUrl(participationId: string, params?: Record<string, string | undefined>) {
   const searchParams = new URLSearchParams();
@@ -41,14 +71,9 @@ export async function saveParticipationMaterial(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { panel: "material", material_id: materialId || undefined, error: "material_url_required" }));
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -75,11 +100,7 @@ export async function saveParticipationMaterial(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.smm,
-  ]);
+  revalidateParticipation(organizationId, participation);
   redirect(buildParticipationUrl(participationId, { notice: materialId ? "material_updated" : "material_created" }));
 }
 
@@ -99,14 +120,9 @@ export async function deleteParticipationMaterial(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { error: "material_delete_failed" }));
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -116,11 +132,7 @@ export async function deleteParticipationMaterial(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { error: "material_delete_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.smm,
-  ]);
+  revalidateParticipation(organizationId, participation);
   redirect(buildParticipationUrl(participationId, { notice: "material_deleted" }));
 }
 
@@ -145,14 +157,9 @@ export async function saveParticipationBrand(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { panel: "brand", brand_link_id: brandLinkId || undefined, error: "brand_required" }));
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id,company_id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -204,14 +211,17 @@ export async function saveParticipationBrand(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.brands,
-    cacheTags.brand(brandId),
-    ...(oldBrandId && oldBrandId !== brandId ? [cacheTags.brand(oldBrandId)] : []),
-    ...(participation.company_id ? [cacheTags.companies, cacheTags.company(participation.company_id)] : [cacheTags.companies]),
-  ]);
+  revalidateParticipation(organizationId, participation);
+  invalidateBrand(organizationId, brandId, {
+    companyIds: participation.company_id ? [participation.company_id] : [],
+    eventIds: participation.event_id ? [participation.event_id] : [],
+  });
+  if (oldBrandId && oldBrandId !== brandId) {
+    invalidateBrand(organizationId, oldBrandId, {
+      companyIds: participation.company_id ? [participation.company_id] : [],
+      eventIds: participation.event_id ? [participation.event_id] : [],
+    });
+  }
 
   redirect(buildParticipationUrl(participationId, { notice: brandLinkId ? "brand_updated" : "brand_added" }));
 }
@@ -229,14 +239,9 @@ export async function deleteParticipationBrand(formData: FormData) {
     redirect("/participations");
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id,company_id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -246,13 +251,13 @@ export async function deleteParticipationBrand(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { error: "brand_delete_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.brands,
-    ...(brandId ? [cacheTags.brand(brandId)] : []),
-    ...(participation.company_id ? [cacheTags.companies, cacheTags.company(participation.company_id)] : [cacheTags.companies]),
-  ]);
+  revalidateParticipation(organizationId, participation);
+  if (brandId) {
+    invalidateBrand(organizationId, brandId, {
+      companyIds: participation.company_id ? [participation.company_id] : [],
+      eventIds: participation.event_id ? [participation.event_id] : [],
+    });
+  }
 
   redirect(buildParticipationUrl(participationId, { notice: "brand_deleted" }));
 }
@@ -272,14 +277,9 @@ export async function saveParticipationContact(formData: FormData) {
     redirect("/participations");
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id,company_id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -327,13 +327,8 @@ export async function saveParticipationContact(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.contacts,
-    cacheTags.contact(contactId),
-    ...(participation.company_id ? [cacheTags.companies, cacheTags.company(participation.company_id)] : [cacheTags.companies]),
-  ]);
+  revalidateParticipation(organizationId, participation);
+  invalidateContact(organizationId, contactId, { companyIds: [participation.company_id], participationIds: [participationId] });
 
   redirect(buildParticipationUrl(participationId, { notice: contactLinkId ? "participant_contact_updated" : "participant_contact_added" }));
 }
@@ -351,14 +346,9 @@ export async function deleteParticipationContact(formData: FormData) {
     redirect("/participations");
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id,company_id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -368,13 +358,13 @@ export async function deleteParticipationContact(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { error: "participant_contact_delete_failed" }));
   }
 
-  invalidateCacheTags([
-    cacheTags.participations,
-    cacheTags.participation(participationId),
-    cacheTags.contacts,
-    ...(contactId ? [cacheTags.contact(contactId)] : []),
-    ...(participation.company_id ? [cacheTags.companies, cacheTags.company(participation.company_id)] : [cacheTags.companies]),
-  ]);
+  revalidateParticipation(organizationId, participation);
+  if (contactId) {
+    invalidateContact(organizationId, contactId, {
+      companyIds: participation.company_id ? [participation.company_id] : [],
+      participationIds: [participationId],
+    });
+  }
 
   redirect(buildParticipationUrl(participationId, { notice: "participant_contact_deleted" }));
 }
@@ -390,14 +380,9 @@ export async function saveParticipationLogistics(formData: FormData) {
     redirect("/participations");
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -438,7 +423,7 @@ export async function saveParticipationLogistics(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.smm]);
+  revalidateParticipation(organizationId, participation);
   redirect(buildParticipationUrl(participationId, { notice: "logistics_saved" }));
 }
 
@@ -457,14 +442,9 @@ export async function addParticipationSection(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { panel: "section", error: "section_required" }));
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id,event_id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
   if (!participation.event_id) {
@@ -502,7 +482,7 @@ export async function addParticipationSection(formData: FormData) {
     }
   }
 
-  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.events]);
+  revalidateParticipation(organizationId, participation);
   redirect(buildParticipationUrl(participationId, { notice: "section_added" }));
 }
 
@@ -518,14 +498,9 @@ export async function deleteParticipationSection(formData: FormData) {
     redirect("/participations");
   }
 
-  const { data: participation, error: participationError } = await supabase
-    .from("participations")
-    .select("id")
-    .eq("id", participationId)
-    .eq("organization_id", organizationId)
-    .maybeSingle();
+  const participation = await loadParticipationScope(supabase, participationId, organizationId);
 
-  if (participationError || !participation) {
+  if (!participation) {
     redirect("/participations");
   }
 
@@ -540,7 +515,7 @@ export async function deleteParticipationSection(formData: FormData) {
     redirect(buildParticipationUrl(participationId, { error: "section_delete_failed" }));
   }
 
-  invalidateCacheTags([cacheTags.participations, cacheTags.participation(participationId), cacheTags.events]);
+  revalidateParticipation(organizationId, participation);
   redirect(buildParticipationUrl(participationId, { notice: "section_removed" }));
 }
 
