@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getCurrentProfileRole, SUPER_ADMIN_ROLE } from "@/lib/auth";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -11,13 +12,19 @@ const navItems = [
   { href: "/tasks", label: "Actions" },
 ];
 
-export function AppShell({
+export async function AppShell({
   title,
   children,
 }: {
   title: string;
   children: React.ReactNode;
 }) {
+  const role = await getCurrentProfileRole();
+  const items =
+    role === SUPER_ADMIN_ROLE
+      ? [...navItems, { href: "/settings/users", label: "Settings" }]
+      : navItems;
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 md:grid-cols-[220px_1fr]">
@@ -26,7 +33,7 @@ export function AppShell({
             Exhibition CRM
           </Link>
           <nav className="mt-6 flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
-            {navItems.map((item) => (
+            {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

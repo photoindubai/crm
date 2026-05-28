@@ -74,6 +74,10 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
   - section assignment/unassignment on participation detail;
   - participant filtering by section on event detail.
 - Added DB coverage inventory doc: `docs/DB_TABLES_STATUS.md`.
+- Hardened CRM OAuth/magic-link redirects to always return to the CRM (`NEXT_PUBLIC_APP_URL` preferred over the request origin), preventing fallback to the shared exhibition-website Auth Site URL. See `docs/AUTH_REDIRECTS.md`.
+- Added user management UI at `/settings/users` (super_admin only): invite CRM users via Supabase Auth Admin (`inviteUserByEmail`), edit role/status, resend invite, and disable users (application-level). Guards protect the last active super_admin and self-disable. See `docs/USER_MANAGEMENT.md`.
+- Standardized profile status lifecycle (`active`/`invited`/`disabled`) with a DB CHECK constraint; invited users are upgraded to active at auth entry points while protected pages stay strict (`active` only).
+- Added an `activity_log` write path (`src/lib/activity-log.ts`) plus an in-org insert policy; user-management actions are now audited.
 
 ## In Progress
 
@@ -95,7 +99,7 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 - Full edit/remove flows for brands from brand module/detail screens.
 - Create/edit flows for participations, booth assignments, notes, and action templates.
 - Unified create/edit flows for `actions` from company, participation, event, contact, and global action list screens.
-- Basic audit/activity log UI and write path.
+- Basic audit/activity log UI (a write path now exists for user-management actions via `src/lib/activity-log.ts`; broader write coverage and a viewer are still pending).
 - Role-aware field visibility and module restrictions beyond the current authenticated route protection.
 - Broader AppSheet/form-data import tooling beyond the current HESHS2026 local-data import (see **Future / Post-MVP** — CSV Import Wizard; interactive wizard not started).
 - Dashboard drilldowns and richer operational reporting.

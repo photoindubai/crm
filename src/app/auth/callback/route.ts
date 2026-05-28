@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getSafeNextPath } from "@/lib/auth";
+import { getSafeNextPath, resolveEntryProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -37,14 +37,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // Entry point: accept active and invited (invited is upgraded to active here); reject the rest.
   const admin = createSupabaseAdminClient();
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("id,status")
-    .eq("id", user.id)
-    .single();
+  const resolution = await resolveEntryProfile(admin, user.id);
 
-  if (profileError || !profile || profile.status !== "active") {
+  if (!resolution.ok) {
     await supabase.auth.signOut();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", next);

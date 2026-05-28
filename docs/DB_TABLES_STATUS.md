@@ -13,7 +13,7 @@ Legend:
 | Table | Purpose | UI status | Main screens / notes |
 |---|---|---|---|
 | `organizations` | tenant root | `Partial` | Used in auth/ownership checks, no management UI |
-| `profiles` | CRM users/roles | `Partial` | Used by auth gates, no user-admin UI |
+| `profiles` | CRM users/roles | `Partial` | Used by auth gates; user-admin UI at `/settings/users` (super_admin): invite/edit role+status/disable. Status constrained to active/invited/disabled |
 | `events` | exhibitions | `Connected` | `/events`, `/events/[id]` list/detail/create/edit/delete |
 | `event_sections` | event content sections | `Connected` | `/events/[id]` create/edit/delete |
 | `event_program_items` | conference/program items | `Connected` | `/events/[id]` create/edit/delete |
@@ -36,7 +36,7 @@ Legend:
 | `action_subjects` | action scope links | `Partial` | used by views/backend model; no direct editor |
 | `action_recipients` | action recipients | `Partial` | used by model/views; no direct editor |
 | `action_templates` | event action templates | `Partial` | read on participation detail; no template CRUD UI |
-| `activity_log` | audit/event stream | `Not connected` | no UI yet |
+| `activity_log` | audit/event stream | `Partial` | write path via `src/lib/activity-log.ts` (user-management actions audited); in-org insert policy added; no viewer UI yet |
 
 ## Legacy / transitional operational tables
 

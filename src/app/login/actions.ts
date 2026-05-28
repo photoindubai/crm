@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getSafeNextPath } from "@/lib/auth";
+import { getSafeNextPath, resolveEntryProfile } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -32,14 +32,11 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
     return { error: "Invalid email or password." };
   }
 
+  // Entry point: accept active and invited (invited is upgraded to active here); reject the rest.
   const admin = createSupabaseAdminClient();
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("id,status")
-    .eq("id", data.user.id)
-    .single();
+  const resolution = await resolveEntryProfile(admin, data.user.id);
 
-  if (profileError || !profile || profile.status !== "active") {
+  if (!resolution.ok) {
     await supabase.auth.signOut();
     return { error: "No active CRM profile is linked to this login." };
   }
@@ -92,9 +89,11 @@ export async function signInWithGoogle(formData: FormData) {
 }
 
 async function getAuthCallbackUrl(next: string) {
+  // Always prefer the CRM's own URL so Supabase Auth returns here and never falls back to the
+  // shared Auth Site URL (the exhibition website). The request origin is only a local-dev fallback.
   const headerStore = await headers();
-  const origin = headerStore.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const callbackUrl = new URL("/auth/callback", origin);
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? headerStore.get("origin") ?? "http://localhost:3000";
+  const callbackUrl = new URL("/auth/callback", base);
   callbackUrl.searchParams.set("next", next);
   return callbackUrl.toString();
 }
