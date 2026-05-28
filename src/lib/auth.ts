@@ -69,12 +69,20 @@ export async function requireSuperAdmin() {
   return auth;
 }
 
+export type ProfileSummary = {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  role: string;
+};
+
 /**
- * Best-effort read of the current user's role for UI purposes (e.g. conditional nav). Never
- * redirects or signs out; returns null when there is no active session/profile. Authorization is
- * always enforced server-side via `requireActiveProfile` / `requireSuperAdmin`.
+ * Best-effort read of the current user's profile for UI purposes (e.g. conditional nav, the
+ * signed-in account indicator). Never redirects or signs out; returns null when there is no active
+ * session/profile. Authorization is always enforced server-side via
+ * `requireActiveProfile` / `requireSuperAdmin`.
  */
-export async function getCurrentProfileRole(): Promise<string | null> {
+export async function getCurrentProfileSummary(): Promise<ProfileSummary | null> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -87,7 +95,7 @@ export async function getCurrentProfileRole(): Promise<string | null> {
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from("profiles")
-    .select("role,status")
+    .select("id,full_name,email,role,status")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -95,7 +103,12 @@ export async function getCurrentProfileRole(): Promise<string | null> {
     return null;
   }
 
-  return data.role;
+  return {
+    id: data.id,
+    fullName: data.full_name,
+    email: data.email ?? user.email ?? null,
+    role: data.role,
+  };
 }
 
 type EntryResolution =

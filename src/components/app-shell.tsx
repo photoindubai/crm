@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getCurrentProfileRole, SUPER_ADMIN_ROLE } from "@/lib/auth";
+import { getCurrentProfileSummary, SUPER_ADMIN_ROLE } from "@/lib/auth";
+import { ProfileBadge } from "@/components/profile-badge";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -19,9 +20,9 @@ export async function AppShell({
   title: string;
   children: React.ReactNode;
 }) {
-  const role = await getCurrentProfileRole();
+  const summary = await getCurrentProfileSummary();
   const items =
-    role === SUPER_ADMIN_ROLE
+    summary?.role === SUPER_ADMIN_ROLE
       ? [...navItems, { href: "/settings/users", label: "Settings" }]
       : navItems;
 
@@ -50,8 +51,11 @@ export async function AppShell({
           </form>
         </aside>
         <section className="px-6 py-6">
-          <header className="mb-6 border-b border-border pb-4">
+          <header className="mb-6 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-2xl font-semibold">{title}</h1>
+            {summary ? (
+              <ProfileBadge fullName={summary.fullName} email={summary.email} role={summary.role} />
+            ) : null}
           </header>
           {children}
         </section>

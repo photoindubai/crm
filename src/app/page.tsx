@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarDays, ClipboardList, Megaphone, Tags, Users } from "lucide-react";
 import { requireActiveProfile } from "@/lib/auth";
+import { ProfileBadge } from "@/components/profile-badge";
 
 const modules = [
   {
@@ -48,11 +49,16 @@ const modules = [
 ];
 
 export default async function Home() {
-  await requireActiveProfile();
+  const { user, profile } = await requireActiveProfile();
+  const firstName = (profile.full_name?.trim().split(/\s+/)[0]) || null;
+  const greetingName = firstName ?? profile.full_name ?? user.email ?? "there";
 
   return (
     <main className="min-h-screen">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8">
+        <div className="flex justify-end">
+          <ProfileBadge fullName={profile.full_name} email={user.email ?? null} role={profile.role} />
+        </div>
         <header className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
@@ -61,6 +67,9 @@ export default async function Home() {
             <h1 className="mt-2 text-3xl font-semibold tracking-normal text-foreground">
               Exhibition CRM
             </h1>
+            <p className="mt-2 text-base text-muted-foreground">
+              Welcome back, <span className="font-medium text-foreground">{greetingName}</span>.
+            </p>
           </div>
           <Link
             href="/dashboard"
