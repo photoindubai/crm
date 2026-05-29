@@ -76,7 +76,7 @@ async function countActiveSuperAdmins(admin: AdminClient, orgId: string): Promis
 
 type TargetProfile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "email" | "full_name" | "role" | "status" | "organization_id"
+  "id" | "email" | "first_name" | "last_name" | "full_name" | "role" | "status" | "organization_id"
 >;
 
 async function loadTargetInOrg(
@@ -86,7 +86,7 @@ async function loadTargetInOrg(
 ): Promise<TargetProfile | null> {
   const { data } = await admin
     .from("profiles")
-    .select("id,email,full_name,role,status,organization_id")
+    .select("id,email,first_name,last_name,full_name,role,status,organization_id")
     .eq("id", userId)
     .maybeSingle();
 
@@ -105,7 +105,8 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
     return { error: "No organization is configured for your account." };
   }
 
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const firstName = String(formData.get("first_name") ?? "").trim();
+  const lastName = String(formData.get("last_name") ?? "").trim();
   const email = normalizeEmail(formData.get("email"));
   const role = String(formData.get("role") ?? "");
 
@@ -133,7 +134,13 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
 
   const { data: inviteData, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     redirectTo: inviteRedirectUrl(),
-    data: { full_name: fullName || null, organization_id: orgId, role },
+    data: {
+      first_name: firstName || null,
+      last_name: lastName || null,
+      full_name: [firstName, lastName].filter(Boolean).join(" ") || null,
+      organization_id: orgId,
+      role,
+    },
   });
 
   // Happy path: a brand-new auth user was created and emailed an invite.
@@ -142,7 +149,8 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
       {
         id: inviteData.user.id,
         organization_id: orgId,
-        full_name: fullName || null,
+        first_name: firstName || null,
+        last_name: lastName || null,
         email,
         role,
         status: PROFILE_STATUS.invited,
@@ -182,7 +190,8 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
       {
         id: existingAuthUserId,
         organization_id: orgId,
-        full_name: fullName || null,
+        first_name: firstName || null,
+        last_name: lastName || null,
         email,
         role,
         status: PROFILE_STATUS.invited,
@@ -222,10 +231,18 @@ export async function updateUser(formData: FormData): Promise<void> {
   }
 
   const userId = String(formData.get("user_id") ?? "");
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const firstName = String(formData.get("first_name") ?? "").trim();
+  const lastName = String(formData.get("last_name") ?? "").trim();
+  const email = normalizeEmail(formData.get("email"));
+  const phone = String(formData.get("phone") ?? "").trim();
+  const position = String(formData.get("position") ?? "").trim();
   const role = String(formData.get("role") ?? "");
   const status = String(formData.get("status") ?? "");
   const confirmed = String(formData.get("confirm") ?? "") === "1";
+
+  if (!email || !isValidEmail(email)) {
+    redirect(`${USERS_PATH}?error=invalid_email`);
+  }
 
   if (!isAssignableRole(role)) {
     redirect(`${USERS_PATH}?error=invalid_role`);
@@ -256,7 +273,15 @@ export async function updateUser(formData: FormData): Promise<void> {
 
   const { error } = await admin
     .from("profiles")
-    .update({ full_name: fullName || null, role, status })
+    .update({
+      first_name: firstName || null,
+      last_name: lastName || null,
+      email,
+      phone: phone || null,
+      position: position || null,
+      role,
+      status,
+    })
     .eq("id", userId);
 
   if (error) {
@@ -352,7 +377,13 @@ export async function resendInvite(formData: FormData): Promise<void> {
 
   const { error } = await admin.auth.admin.inviteUserByEmail(target.email, {
     redirectTo: inviteRedirectUrl(),
-    data: { full_name: target.full_name, organization_id: orgId, role: target.role },
+    data: {
+      first_name: target.first_name,
+      last_name: target.last_name,
+      full_name: target.full_name,
+      organization_id: orgId,
+      role: target.role,
+    },
   });
 
   // Already-registered means the account exists; the user can simply sign in, so treat as success.

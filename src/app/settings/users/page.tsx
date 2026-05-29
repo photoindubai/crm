@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/app-shell";
 import { requireSuperAdmin } from "@/lib/auth";
+import { profileDisplayName } from "@/lib/profile-display";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 import type { Database } from "@/lib/supabase/database.types";
@@ -11,7 +12,18 @@ export const dynamic = "force-dynamic";
 
 type ProfileRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "email" | "role" | "status" | "created_at" | "updated_at" | "organization_id"
+  | "id"
+  | "first_name"
+  | "last_name"
+  | "full_name"
+  | "email"
+  | "phone"
+  | "position"
+  | "role"
+  | "status"
+  | "created_at"
+  | "updated_at"
+  | "organization_id"
 >;
 
 function formatDate(value: string | null): string {
@@ -43,7 +55,7 @@ export default async function SettingsUsersPage({
     admin.from("organizations").select("id,name").eq("id", orgId).maybeSingle(),
     admin
       .from("profiles")
-      .select("id,full_name,email,role,status,created_at,updated_at,organization_id")
+      .select("id,first_name,last_name,full_name,email,phone,position,role,status,created_at,updated_at,organization_id")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false }),
   ]);
@@ -98,8 +110,12 @@ export default async function SettingsUsersPage({
                   user={
                     {
                       id: row.id,
-                      fullName: row.full_name ?? "",
+                      firstName: row.first_name ?? "",
+                      lastName: row.last_name ?? "",
+                      displayName: profileDisplayName(row),
                       email: row.email ?? "",
+                      phone: row.phone ?? "",
+                      position: row.position ?? "",
                       role: row.role,
                       status: row.status ?? "",
                       organizationName: orgName,
@@ -129,6 +145,7 @@ function getFlashMessage(notice?: string, error?: string) {
       {
         no_org: "No organization is configured for your account.",
         invalid_role: "The selected role is not valid.",
+        invalid_email: "Enter a valid email address.",
         invalid_status: "The selected status is not valid.",
         user_not_found: "That user was not found in your organization.",
         last_super_admin: "You cannot demote or disable the last active super admin.",

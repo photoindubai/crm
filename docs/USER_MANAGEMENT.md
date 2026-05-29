@@ -13,6 +13,16 @@ table **`public.profiles`**:
 | Identity / credentials / sessions | `auth.users` (Supabase Auth) |
 | CRM access, role, status, org, name | `public.profiles` |
 
+Profile contact fields on `public.profiles`: `first_name`, `last_name`, `email`, `phone`, `position`.
+`full_name` is kept in sync automatically from first + last name (DB trigger) for legacy reads.
+
+Users edit their own profile at **`/settings/profile`** (click the badge in the header). Role, status,
+and organization are read-only there. Super admins manage all users (including role/status) at
+`/settings/users`.
+
+On login, empty profile fields are backfilled from `auth.users` metadata (Google OAuth `name`, etc.)
+without overwriting CRM values already set.
+
 A profile is **1:1** with an auth user (`profiles.id = auth.users.id`). A valid Supabase session is
 **not** sufficient to enter the CRM — the user must also have a `profiles` row with `status = 'active'`
 (see `requireActiveProfile` in [`src/lib/auth.ts`](../src/lib/auth.ts)).
@@ -56,7 +66,7 @@ lets them through everywhere.
 
 ## Invite flow
 
-1. A `super_admin` opens `/settings/users` and submits the invite form (full name, email, role).
+1. A `super_admin` opens `/settings/users` and submits the invite form (first name, last name, email, role).
 2. The server action `inviteUser` ([`src/app/settings/users/actions.ts`](../src/app/settings/users/actions.ts)):
    - verifies the caller is `super_admin` (`requireSuperAdmin`);
    - validates email + role;
@@ -81,7 +91,7 @@ It never silently grants access to unrelated users, and never surfaces raw auth 
 
 ## Edit / disable
 
-- `updateUser` — change full name, role, and status within the caller's org.
+- `updateUser` — change first/last name, email, phone, position, role, and status within the caller's org.
 - `disableUser` — set `status = 'disabled'` (application-level only; no `auth.users` deletion).
 - `resendInvite` — best-effort re-invite for `invited` users.
 

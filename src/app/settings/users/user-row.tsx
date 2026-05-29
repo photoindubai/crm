@@ -7,8 +7,12 @@ import { disableUser, resendInvite, updateUser } from "./actions";
 
 export type UserRowData = {
   id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   email: string;
+  phone: string;
+  position: string;
   role: string;
   status: string;
   organizationName: string;
@@ -40,7 +44,7 @@ export function UserRow({ user, isSelf }: { user: UserRowData; isSelf: boolean }
     <>
       <tr className="align-top">
         <td className="px-4 py-4 font-medium">
-          {user.fullName || <span className="text-muted-foreground">No name</span>}
+          {user.displayName !== "No name" ? user.displayName : <span className="text-muted-foreground">No name</span>}
           {isSelf ? <span className="ml-2 text-xs text-muted-foreground">(you)</span> : null}
         </td>
         <td className="truncate px-4 py-4 text-muted-foreground">{user.email || "—"}</td>
@@ -124,12 +128,48 @@ export function UserRow({ user, isSelf }: { user: UserRowData; isSelf: boolean }
             >
               <input type="hidden" name="user_id" value={user.id} />
               {isSelf ? <input type="hidden" name="confirm" value="1" /> : null}
-              <div className="sm:col-span-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Full name</label>
+              <div className="sm:col-span-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">First name</label>
                 <input
-                  name="full_name"
+                  name="first_name"
                   type="text"
-                  defaultValue={user.fullName}
+                  defaultValue={user.firstName}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last name</label>
+                <input
+                  name="last_name"
+                  type="text"
+                  defaultValue={user.lastName}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  defaultValue={user.email}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="sm:col-span-1">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Phone</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  defaultValue={user.phone}
+                  className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Position</label>
+                <input
+                  name="position"
+                  type="text"
+                  defaultValue={user.position}
                   className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
                 />
               </div>

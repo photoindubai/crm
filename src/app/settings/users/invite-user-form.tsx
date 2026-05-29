@@ -13,14 +13,26 @@ export function InviteUserForm() {
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-2">
       <div className="sm:col-span-1">
-        <label htmlFor="invite-full-name" className="text-sm font-semibold text-primary">
-          Full name
+        <label htmlFor="invite-first-name" className="text-sm font-semibold text-primary">
+          First name
         </label>
         <input
-          id="invite-full-name"
-          name="full_name"
+          id="invite-first-name"
+          name="first_name"
           type="text"
-          placeholder="Jane Doe"
+          placeholder="Jane"
+          className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+        />
+      </div>
+      <div className="sm:col-span-1">
+        <label htmlFor="invite-last-name" className="text-sm font-semibold text-primary">
+          Last name
+        </label>
+        <input
+          id="invite-last-name"
+          name="last_name"
+          type="text"
+          placeholder="Doe"
           className="mt-1 h-10 w-full rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
         />
       </div>

@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { PROFILE_STATUS, SUPER_ADMIN_ROLE } from "@/lib/roles";
 import type { ProfileStatus } from "@/lib/roles";
+import { profileDisplayName } from "@/lib/profile-display";
 
 export {
   PROFILE_STATUS,
@@ -19,12 +20,30 @@ export type { ProfileStatus, ProfileRole } from "@/lib/roles";
 
 export type ActiveProfile = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "role" | "status" | "organization_id"
+  | "id"
+  | "full_name"
+  | "first_name"
+  | "last_name"
+  | "email"
+  | "phone"
+  | "position"
+  | "role"
+  | "status"
+  | "organization_id"
 >;
 
 type CurrentProfileRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
-  "id" | "full_name" | "email" | "role" | "status" | "organization_id"
+  | "id"
+  | "full_name"
+  | "first_name"
+  | "last_name"
+  | "email"
+  | "phone"
+  | "position"
+  | "role"
+  | "status"
+  | "organization_id"
 >;
 
 type CurrentUserContext = {
@@ -53,7 +72,7 @@ const loadCurrentUserContext = cache(async (): Promise<CurrentUserContext> => {
   const admin = createSupabaseAdminClient();
   const { data } = await admin
     .from("profiles")
-    .select("id,full_name,email,role,status,organization_id")
+    .select("id,full_name,first_name,last_name,email,phone,position,role,status,organization_id")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -100,7 +119,10 @@ export async function requireSuperAdmin() {
 
 export type ProfileSummary = {
   id: string;
+  firstName: string | null;
+  lastName: string | null;
   fullName: string | null;
+  displayName: string;
   email: string | null;
   role: string;
 };
@@ -120,7 +142,10 @@ export async function getCurrentProfileSummary(): Promise<ProfileSummary | null>
 
   return {
     id: profile.id,
+    firstName: profile.first_name,
+    lastName: profile.last_name,
     fullName: profile.full_name,
+    displayName: profileDisplayName(profile),
     email: profile.email ?? user.email ?? null,
     role: profile.role,
   };

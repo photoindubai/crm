@@ -13,7 +13,7 @@ Legend:
 | Table | Purpose | UI status | Main screens / notes |
 |---|---|---|---|
 | `organizations` | tenant root | `Partial` | Used in auth/ownership checks, no management UI |
-| `profiles` | CRM users/roles | `Partial` | Used by auth gates; user-admin UI at `/settings/users` (super_admin): invite/edit role+status/disable. Status constrained to active/invited/disabled |
+| `profiles` | CRM users/roles | `Partial` | Auth gates + self-service edit at `/settings/profile` (first/last name, email, phone, position); super_admin user admin at `/settings/users`. `full_name` kept in sync from first+last |
 | `events` | exhibitions | `Connected` | `/events`, `/events/[id]` list/detail/create/edit/delete |
 | `event_sections` | event content sections | `Connected` | `/events/[id]` create/edit/delete |
 | `event_program_items` | conference/program items | `Connected` | `/events/[id]` create/edit/delete |

@@ -79,6 +79,7 @@ This document tracks implementation status against `exhibition-saas-spec/01_MVP_
 - Standardized profile status lifecycle (`active`/`invited`/`disabled`) with a DB CHECK constraint; invited users are upgraded to active at auth entry points while protected pages stay strict (`active` only).
 - Added an `activity_log` write path (`src/lib/activity-log.ts`) plus an in-org insert policy; user-management actions are now audited.
 - Added record ownership/attribution: auto-stamped `created_by` plus a manually assignable owner (`owner_id` on companies/contacts/brands, reused `sales_owner_id` on participations, `assigned_to` on actions). List pages gained an inline Owner picker and an "All | Mine" filter (companies, contacts, brands, participations, tasks). Owner changes are audited. See `docs/OWNERSHIP.md`.
+- Extended `public.profiles` with `first_name`, `last_name`, `position`, `phone`; backfilled from `auth.users` metadata; self-service profile edit at `/settings/profile` (role remains super_admin-only).
 
 ## In Progress
 

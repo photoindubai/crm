@@ -54,7 +54,13 @@ export async function AppShell({
           <header className="mb-6 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-2xl font-semibold">{title}</h1>
             {summary ? (
-              <ProfileBadge fullName={summary.fullName} email={summary.email} role={summary.role} />
+              <ProfileBadge
+                first_name={summary.firstName}
+                last_name={summary.lastName}
+                full_name={summary.fullName}
+                email={summary.email}
+                role={summary.role}
+              />
             ) : null}
           </header>
           {children}

@@ -11,6 +11,7 @@ import {
 import { cacheTags } from "@/lib/cache-tags";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { loadCached } from "@/lib/server-cache";
+import { profileDisplayName } from "@/lib/profile-display";
 import type { OrgUser, OwnerEntity } from "@/lib/ownership";
 
 export type OwnershipTable = "companies" | "contacts" | "brands" | "participations" | "actions";
@@ -73,13 +74,14 @@ export async function getOrgUsers(orgId: string): Promise<OrgUser[]> {
       const admin = createSupabaseAdminClient();
       const { data } = await admin
         .from("profiles")
-        .select("id,full_name,email,status")
+        .select("id,first_name,last_name,full_name,email,status")
         .eq("organization_id", orgId)
-        .order("full_name", { ascending: true, nullsFirst: false });
+        .order("first_name", { ascending: true, nullsFirst: false })
+        .order("last_name", { ascending: true, nullsFirst: false });
 
       return (data ?? []).map((row) => ({
         id: row.id,
-        name: row.full_name ?? "",
+        name: profileDisplayName(row),
         email: row.email,
         disabled: row.status === "disabled",
       }));

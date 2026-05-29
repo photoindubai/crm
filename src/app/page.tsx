@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Building2, CalendarDays, ClipboardList, Megaphone, Tags, Users } from "lucide-react";
 import { requireActiveProfile } from "@/lib/auth";
 import { ProfileBadge } from "@/components/profile-badge";
+import { profileDisplayName } from "@/lib/profile-display";
 
 const modules = [
   {
@@ -50,14 +51,19 @@ const modules = [
 
 export default async function Home() {
   const { user, profile } = await requireActiveProfile();
-  const firstName = (profile.full_name?.trim().split(/\s+/)[0]) || null;
-  const greetingName = firstName ?? profile.full_name ?? user.email ?? "there";
+  const greetingName = profile.first_name?.trim() || profileDisplayName(profile) || user.email || "there";
 
   return (
     <main className="min-h-screen">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8">
         <div className="flex justify-end">
-          <ProfileBadge fullName={profile.full_name} email={user.email ?? null} role={profile.role} />
+          <ProfileBadge
+            first_name={profile.first_name}
+            last_name={profile.last_name}
+            full_name={profile.full_name}
+            email={profile.email ?? user.email}
+            role={profile.role}
+          />
         </div>
         <header className="flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
           <div>

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSafeNextPath, resolveEntryProfile } from "@/lib/auth";
+import { syncProfileFromAuth } from "@/lib/profile-sync.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -48,6 +49,8 @@ export async function GET(request: NextRequest) {
     redirectUrl.searchParams.set("error", "profile");
     return NextResponse.redirect(redirectUrl);
   }
+
+  await syncProfileFromAuth(admin, user.id);
 
   redirectUrl.pathname = next;
   redirectUrl.search = "";

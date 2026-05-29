@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSafeNextPath, resolveEntryProfile } from "@/lib/auth";
+import { syncProfileFromAuth } from "@/lib/profile-sync.server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -40,6 +41,8 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
     await supabase.auth.signOut();
     return { error: "No active CRM profile is linked to this login." };
   }
+
+  await syncProfileFromAuth(admin, data.user.id);
 
   redirect(next);
 }
