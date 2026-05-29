@@ -124,10 +124,29 @@ export default async function ParticipationDetailPage({
   const notice = getStringParam(resolvedSearchParams, "notice");
   const error = getStringParam(resolvedSearchParams, "error");
 
-  const { participation, participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates, eventSections, participationSectionLinks } =
+  // Load the participation outside unstable_cache: notFound() must not run inside the cache
+  // loader (Next.js can persist a cached 404). Also enforce org scope before loading related data.
+  const supabase = createSupabaseAdminClient();
+  const participationResult = await supabase.from("participations").select("*").eq("id", id).single();
+
+  if (participationResult.error) {
+    if (participationResult.error.code === "PGRST116") {
+      notFound();
+    }
+
+    throw new Error(participationResult.error.message);
+  }
+
+  const participation = participationResult.data as Participation;
+
+  if (participation.organization_id !== organizationId) {
+    notFound();
+  }
+
+  const { participationLogoFile, company, companyPrimaryLogoFile, event, contacts, companyContactOptions, booths, logistics, brandLinks, brands, allBrands, materials, actions, templates, eventSections, participationSectionLinks } =
     await loadCached(
       {
-        keyParts: ["participation-detail", orgId, id],
+        keyParts: ["participation-detail", "v2", orgId, id],
         tags: [
           cacheTags.orgParticipations(orgId),
           cacheTags.participationDetail(id),
@@ -141,17 +160,6 @@ export default async function ParticipationDetailPage({
       },
       async () => {
         const supabase = createSupabaseAdminClient();
-        const participationResult = await supabase.from("participations").select("*").eq("id", id).single();
-
-        if (participationResult.error) {
-          if (participationResult.error.code === "PGRST116") {
-            notFound();
-          }
-
-          throw new Error(participationResult.error.message);
-        }
-
-        const participation = participationResult.data as Participation;
         const [companyResult, eventResult, contactsResult, companyContactsResult, boothsResult, logisticsResult, brandLinksResult, materialsResult, actionsResult, templatesResult, allBrandsResult, eventSectionsResult, participationSectionsResult] =
           await Promise.all([
             participation.company_id
@@ -278,7 +286,6 @@ export default async function ParticipationDetailPage({
         }
 
         return {
-          participation,
           participationLogoFile,
           company: companyResult.data as Company | null,
           companyPrimaryLogoFile,

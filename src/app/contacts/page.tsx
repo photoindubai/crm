@@ -2,9 +2,12 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
+import { MineToggle } from "@/components/mine-toggle";
+import { OwnerCell } from "@/components/owner-cell";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getOrgUsers } from "@/lib/ownership.server";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -26,15 +29,18 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
+  const mine = getStringParam(params, "mine") === "1";
   const notice = getStringParam(params, "notice");
   const error = getStringParam(params, "error");
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
   const returnTo = buildContactsReturnTo(page, query);
 
+  const orgUsers = await getOrgUsers(orgId);
+
   const { contacts, companies, links, count } = await loadCached(
     {
-      keyParts: ["contacts", orgId, page, query],
+      keyParts: ["contacts", orgId, page, query, mine ? `mine:${profile.id}` : "all"],
       tags: [cacheTags.orgContacts(orgId), cacheTags.orgCompanies(orgId)],
       revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
@@ -49,6 +55,10 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
 
       if (query) {
         request = request.or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%,phone.ilike.%${query}%`);
+      }
+
+      if (mine) {
+        request = request.eq("owner_id", profile.id);
       }
 
       const { data, error, count } = await request;
@@ -103,30 +113,35 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
           {getFlashMessage(notice, error)?.message}
         </div>
       ) : null}
-      <form className="mb-4 flex max-w-xl gap-2">
-        <input
-          name="q"
-          defaultValue={query}
-          placeholder="Search contacts"
-          className="h-10 flex-1 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-        />
-        <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Search</button>
-        {query ? (
-          <Link href="/contacts" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
-            Reset
-          </Link>
-        ) : null}
-      </form>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <form className="flex max-w-xl flex-1 gap-2">
+          {mine ? <input type="hidden" name="mine" value="1" /> : null}
+          <input
+            name="q"
+            defaultValue={query}
+            placeholder="Search contacts"
+            className="h-10 flex-1 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+          />
+          <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Search</button>
+          {query ? (
+            <Link href="/contacts" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
+              Reset
+            </Link>
+          ) : null}
+        </form>
+        <MineToggle basePath="/contacts" params={{ q: query || undefined }} active={mine} />
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-border bg-white shadow-soft">
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="w-[26%] px-4 py-3 font-semibold">Contact</th>
-              <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Phone</th>
+              <th className="w-[22%] px-4 py-3 font-semibold">Contact</th>
+              <th className="w-[18%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Role</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Phone</th>
               <th className="w-[14%] px-4 py-3 font-semibold">Email</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Owner</th>
               <th className="w-[8%] px-4 py-3 text-right font-semibold">Actions</th>
             </tr>
           </thead>
@@ -158,6 +173,15 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
                     <td className="px-4 py-4 text-muted-foreground">{contact.phone ?? "No phone"}</td>
                     <td className="truncate px-4 py-4 text-muted-foreground">{contact.email ?? "No email"}</td>
                     <td className="px-4 py-4">
+                      <OwnerCell
+                        entity="contact"
+                        recordId={contact.id}
+                        ownerId={contact.owner_id}
+                        users={orgUsers}
+                        currentUserId={profile.id}
+                      />
+                    </td>
+                    <td className="px-4 py-4">
                       <div className="flex items-center justify-end gap-1">
                         <Link
                           href={`/contacts/${contact.id}?edit=1&returnTo=${encodeURIComponent(returnTo)}`}
@@ -174,14 +198,20 @@ export default async function ContactsPage({ searchParams }: { searchParams?: Pr
               })
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   No contacts found.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-        <Pagination page={page} pageSize={PAGE_SIZE} total={count} basePath="/contacts" params={{ q: query || undefined }} />
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={count}
+          basePath="/contacts"
+          params={{ q: query || undefined, mine: mine ? "1" : undefined }}
+        />
       </div>
     </AppShell>
   );

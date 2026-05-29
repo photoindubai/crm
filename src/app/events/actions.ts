@@ -50,6 +50,7 @@ export async function createEvent(formData: FormData) {
       start_date: payload.start_date,
       end_date: payload.end_date,
       status: payload.status,
+      created_by: profile.id,
     })
     .select("id")
     .single();

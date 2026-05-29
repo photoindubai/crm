@@ -3,9 +3,12 @@ import Link from "next/link";
 import { Plus, Search, Tags } from "lucide-react";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
+import { MineToggle } from "@/components/mine-toggle";
+import { OwnerCell } from "@/components/owner-cell";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getOrgUsers } from "@/lib/ownership.server";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -30,12 +33,15 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
+  const mine = getStringParam(params, "mine") === "1";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  const orgUsers = await getOrgUsers(orgId);
+
   const { brands, companyLinks, participationLinks, booths, count, companyLinkCount, participationLinkCount } = await loadCached(
     {
-      keyParts: ["brands", orgId, page, query],
+      keyParts: ["brands", orgId, page, query, mine ? `mine:${profile.id}` : "all"],
       tags: [cacheTags.orgBrands(orgId), cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId)],
       revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
@@ -49,6 +55,10 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
 
       if (query) {
         request = request.or(`brand_name.ilike.%${query}%,country.ilike.%${query}%,brand_description.ilike.%${query}%`);
+      }
+
+      if (mine) {
+        request = request.eq("owner_id", profile.id);
       }
 
       const [{ data, error, count }, companyCountResult, participationCountResult] = await Promise.all([
@@ -129,6 +139,7 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
               className="h-10 w-full rounded-md border border-border bg-white pl-9 pr-3 text-sm outline-none focus:border-primary"
             />
           </div>
+          {mine ? <input type="hidden" name="mine" value="1" /> : null}
           <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">Search</button>
           {query ? (
             <Link href="/brands" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
@@ -136,13 +147,16 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
             </Link>
           ) : null}
         </form>
-        <button
-          disabled
-          className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground opacity-50"
-        >
-          <Plus size={16} aria-hidden="true" />
-          Create Brand
-        </button>
+        <div className="flex items-center gap-2">
+          <MineToggle basePath="/brands" params={{ q: query || undefined }} active={mine} />
+          <button
+            disabled
+            className="inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground opacity-50"
+          >
+            <Plus size={16} aria-hidden="true" />
+            Create Brand
+          </button>
+        </div>
       </div>
 
       <div className="mb-5 grid gap-3 md:grid-cols-3">
@@ -162,28 +176,40 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
             );
 
             return (
-              <Link key={brand.id} href={`/brands/${brand.id}`} className="rounded-lg border border-border bg-white p-4 shadow-soft hover:border-primary">
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-                    {brand.brand_logo_url ? (
-                      <img src={brand.brand_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
-                    ) : (
-                      <Tags size={22} className="text-primary" aria-hidden="true" />
-                    )}
+              <div key={brand.id} className="flex flex-col rounded-lg border border-border bg-white p-4 shadow-soft hover:border-primary">
+                <Link href={`/brands/${brand.id}`} className="block">
+                  <div className="mb-4 flex items-start justify-between gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
+                      {brand.brand_logo_url ? (
+                        <img src={brand.brand_logo_url} alt="" loading="lazy" className="h-full w-full object-contain" />
+                      ) : (
+                        <Tags size={22} className="text-primary" aria-hidden="true" />
+                      )}
+                    </div>
+                    <span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] font-bold uppercase text-secondary">
+                      {brandParticipationLinks.length > 0 ? "Active" : "Unassigned"}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] font-bold uppercase text-secondary">
-                    {brandParticipationLinks.length > 0 ? "Active" : "Unassigned"}
-                  </span>
+                  <h2 className="truncate text-lg font-semibold text-primary">{brand.brand_name}</h2>
+                  <p className="mt-2 line-clamp-2 min-h-10 text-sm text-muted-foreground">
+                    {brand.brand_description ?? brand.country ?? "No brand description."}
+                  </p>
+                  <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase text-muted-foreground">
+                    <span>{boothNumbers.length > 0 ? `Booth ${boothNumbers.slice(0, 2).join(", ")}` : "No booth"}</span>
+                    <span>{companyLinksByBrand.get(brand.id)?.length ?? 0} companies</span>
+                  </div>
+                </Link>
+                <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
+                  <span className="text-xs font-semibold uppercase text-muted-foreground">Owner</span>
+                  <OwnerCell
+                    entity="brand"
+                    recordId={brand.id}
+                    ownerId={brand.owner_id}
+                    users={orgUsers}
+                    currentUserId={profile.id}
+                  />
                 </div>
-                <h2 className="truncate text-lg font-semibold text-primary">{brand.brand_name}</h2>
-                <p className="mt-2 line-clamp-2 min-h-10 text-sm text-muted-foreground">
-                  {brand.brand_description ?? brand.country ?? "No brand description."}
-                </p>
-                <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs font-semibold uppercase text-muted-foreground">
-                  <span>{boothNumbers.length > 0 ? `Booth ${boothNumbers.slice(0, 2).join(", ")}` : "No booth"}</span>
-                  <span>{companyLinksByBrand.get(brand.id)?.length ?? 0} companies</span>
-                </div>
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -194,7 +220,13 @@ export default async function BrandsPage({ searchParams }: { searchParams?: Prom
       )}
 
       <div className="mt-5 overflow-hidden rounded-lg border border-border bg-white shadow-soft">
-        <Pagination page={page} pageSize={PAGE_SIZE} total={count} basePath="/brands" params={{ q: query || undefined }} />
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={count}
+          basePath="/brands"
+          params={{ q: query || undefined, mine: mine ? "1" : undefined }}
+        />
       </div>
     </AppShell>
   );

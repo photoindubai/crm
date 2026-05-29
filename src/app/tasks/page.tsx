@@ -2,9 +2,13 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { MineToggle } from "@/components/mine-toggle";
+import { OwnerCell } from "@/components/owner-cell";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getOrgUsers } from "@/lib/ownership.server";
+import { userDisplayName, type OrgUser } from "@/lib/ownership";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -28,13 +32,17 @@ export default async function TasksPage({
   const page = getPageParam(params);
   const status = getStringParam(params, "status")?.trim() ?? "";
   const assignedTo = getStringParam(params, "assigned_to")?.trim() ?? "";
+  const mine = getStringParam(params, "mine") === "1";
   const sort = getStringParam(params, "sort") === "due_desc" ? "due_desc" : "due_asc";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  const orgUsers = await getOrgUsers(orgId);
+  const effectiveAssignedTo = mine ? profile.id : assignedTo;
+
   const { actions, count } = await loadCached(
     {
-      keyParts: ["actions", orgId, page, status, assignedTo, sort],
+      keyParts: ["actions", orgId, page, status, effectiveAssignedTo, sort, mine ? "mine" : "all"],
       tags: [cacheTags.orgActions(orgId)],
       revalidateSeconds: CACHE_TTL.ACTIONS_SHORT,
     },
@@ -50,8 +58,8 @@ export default async function TasksPage({
         request = request.eq("status", status);
       }
 
-      if (assignedTo) {
-        request = request.eq("assigned_to", assignedTo);
+      if (effectiveAssignedTo) {
+        request = request.eq("assigned_to", effectiveAssignedTo);
       }
 
       const { data, error, count } = await request;
@@ -69,7 +77,19 @@ export default async function TasksPage({
 
   return (
     <AppShell title="Actions">
+      <div className="mb-4 flex justify-end">
+        <MineToggle
+          basePath="/tasks"
+          params={{
+            status: status || undefined,
+            assigned_to: assignedTo || undefined,
+            sort: sort === "due_desc" ? sort : undefined,
+          }}
+          active={mine}
+        />
+      </div>
       <form className="mb-4 grid gap-2 md:grid-cols-[180px_1fr_180px_auto_auto]">
+        {mine ? <input type="hidden" name="mine" value="1" /> : null}
         <select
           name="status"
           defaultValue={status}
@@ -83,12 +103,19 @@ export default async function TasksPage({
           <option value="published">Published</option>
           <option value="cancelled">Cancelled</option>
         </select>
-        <input
+        <select
           name="assigned_to"
           defaultValue={assignedTo}
-          placeholder="Assigned user id"
-          className="h-10 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-        />
+          disabled={mine}
+          className="h-10 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary disabled:opacity-60"
+        >
+          <option value="">All assignees</option>
+          {orgUsers.map((user) => (
+            <option key={user.id} value={user.id}>
+              {userDisplayName(user.name, user.email)}
+            </option>
+          ))}
+        </select>
         <select
           name="sort"
           defaultValue={sort}
@@ -121,7 +148,14 @@ export default async function TasksPage({
           </thead>
           <tbody className="divide-y divide-border">
             {actions.length > 0 ? (
-              actions.map((action) => <ActionRow key={action.action_id} action={action} />)
+              actions.map((action) => (
+                <ActionRow
+                  key={action.action_id}
+                  action={action}
+                  users={orgUsers}
+                  currentUserId={profile.id}
+                />
+              ))
             ) : (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
@@ -140,6 +174,7 @@ export default async function TasksPage({
             status: status || undefined,
             assigned_to: assignedTo || undefined,
             sort: sort === "due_desc" ? sort : undefined,
+            mine: mine ? "1" : undefined,
           }}
         />
       </div>
@@ -147,7 +182,15 @@ export default async function TasksPage({
   );
 }
 
-function ActionRow({ action }: { action: ActionListRow }) {
+function ActionRow({
+  action,
+  users,
+  currentUserId,
+}: {
+  action: ActionListRow;
+  users: OrgUser[];
+  currentUserId: string;
+}) {
   const subjectHref = action.participation_id
     ? `/participations/${action.participation_id}`
     : action.company_id
@@ -182,7 +225,19 @@ function ActionRow({ action }: { action: ActionListRow }) {
         <StatusBadge value={action.action_type ?? action.priority} />
       </td>
       <td className="px-4 py-4 text-muted-foreground">{action.due_date ?? "No due date"}</td>
-      <td className="px-4 py-4 text-muted-foreground">{action.assigned_to ?? "Unassigned"}</td>
+      <td className="px-4 py-4">
+        {action.action_id ? (
+          <OwnerCell
+            entity="action"
+            recordId={action.action_id}
+            ownerId={action.assigned_to}
+            users={users}
+            currentUserId={currentUserId}
+          />
+        ) : (
+          <span className="text-muted-foreground">Unassigned</span>
+        )}
+      </td>
     </tr>
   );
 }

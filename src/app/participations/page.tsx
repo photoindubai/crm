@@ -7,9 +7,13 @@ import {
   type ParticipationSection,
 } from "@/components/participation-section-badges";
 import { StatusBadge } from "@/components/status-badge";
+import { MineToggle } from "@/components/mine-toggle";
+import { OwnerCell } from "@/components/owner-cell";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getOrgUsers } from "@/lib/ownership.server";
+import type { OrgUser } from "@/lib/ownership";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -48,12 +52,15 @@ export default async function ParticipationsPage({
   const query = getStringParam(params, "q")?.trim() ?? "";
   const status = getStringParam(params, "status")?.trim() ?? "";
   const eventId = getStringParam(params, "event_id")?.trim() ?? "";
+  const mine = getStringParam(params, "mine") === "1";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  const orgUsers = await getOrgUsers(orgId);
+
   const { participations, events, count } = await loadCached(
     {
-      keyParts: ["participations", orgId, page, query, status, eventId],
+      keyParts: ["participations", orgId, page, query, status, eventId, mine ? `mine:${profile.id}` : "all"],
       tags: [cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
       revalidateSeconds: CACHE_TTL.PARTICIPATIONS_MEDIUM,
     },
@@ -75,6 +82,10 @@ export default async function ParticipationsPage({
 
       if (eventId) {
         request = request.eq("event_id", eventId);
+      }
+
+      if (mine) {
+        request = request.eq("sales_owner_id", profile.id);
       }
 
       const [{ data, error, count }, { data: eventsData, error: eventsError }] = await Promise.all([
@@ -111,7 +122,15 @@ export default async function ParticipationsPage({
 
   return (
     <AppShell title="Participations">
+      <div className="mb-4 flex justify-end">
+        <MineToggle
+          basePath="/participations"
+          params={{ q: query || undefined, status: status || undefined, event_id: eventId || undefined }}
+          active={mine}
+        />
+      </div>
       <form className="mb-4 grid gap-2 md:grid-cols-[1fr_180px_220px_auto_auto]">
+        {mine ? <input type="hidden" name="mine" value="1" /> : null}
         <input
           name="q"
           defaultValue={query}
@@ -157,22 +176,28 @@ export default async function ParticipationsPage({
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="w-[30%] px-4 py-3 font-semibold">Company</th>
-              <th className="w-[13%] px-4 py-3 font-semibold">Booth</th>
-              <th className="w-[13%] px-4 py-3 font-semibold">Type</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Payment</th>
-              <th className="w-[20%] px-4 py-3 font-semibold">Main contact</th>
+              <th className="w-[26%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[11%] px-4 py-3 font-semibold">Booth</th>
+              <th className="w-[11%] px-4 py-3 font-semibold">Type</th>
+              <th className="w-[11%] px-4 py-3 font-semibold">Status</th>
+              <th className="w-[11%] px-4 py-3 font-semibold">Payment</th>
+              <th className="w-[16%] px-4 py-3 font-semibold">Main contact</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Owner</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {participations.length > 0 ? (
               participations.map((participation) => (
-                <ParticipationRow key={participation.participation_id} participation={participation} />
+                <ParticipationRow
+                  key={participation.participation_id}
+                  participation={participation}
+                  users={orgUsers}
+                  currentUserId={profile.id}
+                />
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                   No participations found.
                 </td>
               </tr>
@@ -188,6 +213,7 @@ export default async function ParticipationsPage({
             q: query || undefined,
             status: status || undefined,
             event_id: eventId || undefined,
+            mine: mine ? "1" : undefined,
           }}
         />
       </div>
@@ -195,7 +221,15 @@ export default async function ParticipationsPage({
   );
 }
 
-function ParticipationRow({ participation }: { participation: ParticipationListItem }) {
+function ParticipationRow({
+  participation,
+  users,
+  currentUserId,
+}: {
+  participation: ParticipationListItem;
+  users: OrgUser[];
+  currentUserId: string;
+}) {
   return (
     <tr className="align-top">
       <td className="px-4 py-4">
@@ -231,6 +265,19 @@ function ParticipationRow({ participation }: { participation: ParticipationListI
       <td className="px-4 py-4">
         <div className="truncate">{participation.main_contact_name || "No contact"}</div>
         <div className="truncate text-xs text-muted-foreground">{participation.main_contact_email ?? ""}</div>
+      </td>
+      <td className="px-4 py-4">
+        {participation.participation_id ? (
+          <OwnerCell
+            entity="participation"
+            recordId={participation.participation_id}
+            ownerId={participation.sales_owner_id}
+            users={users}
+            currentUserId={currentUserId}
+          />
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
       </td>
     </tr>
   );

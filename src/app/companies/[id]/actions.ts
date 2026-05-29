@@ -119,6 +119,8 @@ export async function createCompanyContact(
         email,
         phone,
         position,
+        created_by: profile.id,
+        owner_id: profile.id,
       })
       .select("id")
       .single();

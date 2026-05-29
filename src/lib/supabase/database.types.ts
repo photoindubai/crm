@@ -641,8 +641,10 @@ export type Database = {
           brand_name: string
           country: string | null
           created_at: string | null
+          created_by: string | null
           id: string
           organization_id: string | null
+          owner_id: string | null
           primary_logo_file_id: string | null
           source_appsheet_id: string | null
           updated_at: string | null
@@ -654,8 +656,10 @@ export type Database = {
           brand_name: string
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           id?: string
           organization_id?: string | null
+          owner_id?: string | null
           primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           updated_at?: string | null
@@ -667,8 +671,10 @@ export type Database = {
           brand_name?: string
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           id?: string
           organization_id?: string | null
+          owner_id?: string | null
           primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           updated_at?: string | null
@@ -676,10 +682,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "brands_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "brands_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brands_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -764,6 +784,7 @@ export type Database = {
           company_phone: string | null
           country: string | null
           created_at: string | null
+          created_by: string | null
           description: string | null
           facebook_url: string | null
           id: string
@@ -772,6 +793,7 @@ export type Database = {
           linkedin_url: string | null
           organization_id: string | null
           other_social_url: string | null
+          owner_id: string | null
           primary_logo_file_id: string | null
           source_appsheet_id: string | null
           telegram_url: string | null
@@ -788,6 +810,7 @@ export type Database = {
           company_phone?: string | null
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           facebook_url?: string | null
           id?: string
@@ -796,6 +819,7 @@ export type Database = {
           linkedin_url?: string | null
           organization_id?: string | null
           other_social_url?: string | null
+          owner_id?: string | null
           primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           telegram_url?: string | null
@@ -812,6 +836,7 @@ export type Database = {
           company_phone?: string | null
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           description?: string | null
           facebook_url?: string | null
           id?: string
@@ -820,6 +845,7 @@ export type Database = {
           linkedin_url?: string | null
           organization_id?: string | null
           other_social_url?: string | null
+          owner_id?: string | null
           primary_logo_file_id?: string | null
           source_appsheet_id?: string | null
           telegram_url?: string | null
@@ -829,10 +855,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "companies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "companies_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companies_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -942,11 +982,13 @@ export type Database = {
       contacts: {
         Row: {
           created_at: string | null
+          created_by: string | null
           email: string | null
           first_name: string | null
           id: string
           last_name: string | null
           organization_id: string | null
+          owner_id: string | null
           phone: string | null
           position: string | null
           source_appsheet_id: string | null
@@ -954,11 +996,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           organization_id?: string | null
+          owner_id?: string | null
           phone?: string | null
           position?: string | null
           source_appsheet_id?: string | null
@@ -966,11 +1010,13 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
           last_name?: string | null
           organization_id?: string | null
+          owner_id?: string | null
           phone?: string | null
           position?: string | null
           source_appsheet_id?: string | null
@@ -978,10 +1024,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "contacts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contacts_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1091,6 +1151,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string | null
+          created_by: string | null
           dismantling_end: string | null
           dismantling_start: string | null
           end_date: string | null
@@ -1109,6 +1170,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           dismantling_end?: string | null
           dismantling_start?: string | null
           end_date?: string | null
@@ -1127,6 +1189,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          created_by?: string | null
           dismantling_end?: string | null
           dismantling_start?: string | null
           end_date?: string | null
@@ -1140,6 +1203,13 @@ export type Database = {
           venue_name?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_organization_id_fkey"
             columns: ["organization_id"]
@@ -1712,11 +1782,62 @@ export type Database = {
           },
         ]
       }
+      participation_sections: {
+        Row: {
+          created_at: string
+          id: string
+          participation_id: string
+          section_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participation_id: string
+          section_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participation_id?: string
+          section_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participation_sections_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participation_list_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "participation_sections_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "participations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participation_sections_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "smm_workspace_view"
+            referencedColumns: ["participation_id"]
+          },
+          {
+            foreignKeyName: "participation_sections_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "event_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       participations: {
         Row: {
           booking_status: string | null
           company_id: string | null
           created_at: string | null
+          created_by: string | null
           display_name: string | null
           event_id: string | null
           id: string
@@ -1738,6 +1859,7 @@ export type Database = {
           booking_status?: string | null
           company_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           display_name?: string | null
           event_id?: string | null
           id?: string
@@ -1759,6 +1881,7 @@ export type Database = {
           booking_status?: string | null
           company_id?: string | null
           created_at?: string | null
+          created_by?: string | null
           display_name?: string | null
           event_id?: string | null
           id?: string
@@ -1790,6 +1913,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "company_list_view"
             referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "participations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "participations_event_id_fkey"
@@ -2653,6 +2783,7 @@ export type Database = {
           booth_numbers: string | null
           company_id: string | null
           company_name: string | null
+          created_by: string | null
           event_id: string | null
           logistics_status: string | null
           logo_url: string | null
@@ -2663,6 +2794,7 @@ export type Database = {
           participation_type: string | null
           payment_status: string | null
           profile_status: string | null
+          sales_owner_id: string | null
           status: string | null
         }
         Relationships: [
@@ -2681,10 +2813,24 @@ export type Database = {
             referencedColumns: ["company_id"]
           },
           {
+            foreignKeyName: "participations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "participations_event_id_fkey"
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participations_sales_owner_id_fkey"
+            columns: ["sales_owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

@@ -1,6 +1,6 @@
 # DB Tables Status
 
-Snapshot date: May 18, 2026.
+Snapshot date: May 29, 2026.
 
 Legend:
 - `Connected` — table is used in current UI flows.
@@ -17,12 +17,12 @@ Legend:
 | `events` | exhibitions | `Connected` | `/events`, `/events/[id]` list/detail/create/edit/delete |
 | `event_sections` | event content sections | `Connected` | `/events/[id]` create/edit/delete |
 | `event_program_items` | conference/program items | `Connected` | `/events/[id]` create/edit/delete |
-| `companies` | company master records | `Connected` | `/companies`, `/companies/[id]` |
-| `contacts` | contact master records | `Connected` | `/contacts`, `/contacts/[id]` |
+| `companies` | company master records | `Connected` | `/companies`, `/companies/[id]`; `owner_id`/`created_by` attribution + "Mine"/Owner filters |
+| `contacts` | contact master records | `Connected` | `/contacts`, `/contacts/[id]`; `owner_id`/`created_by` attribution + "Mine"/Owner filters |
 | `company_contacts` | company-contact links | `Connected` | company detail + contact relations |
-| `brands` | brand master records | `Partial` | list/detail + logo upload; no full brand CRUD yet |
+| `brands` | brand master records | `Partial` | list/detail + logo upload; `owner_id`/`created_by` attribution + "Mine"/Owner filters; no full brand CRUD yet |
 | `company_brands` | company-brand links | `Connected` | company detail assign/link |
-| `participations` | company-in-event records | `Partial` | list/detail read + related edits; no full participation CRUD yet |
+| `participations` | company-in-event records | `Partial` | list/detail read + related edits; `sales_owner_id`/`created_by` attribution + "Mine"/Owner filters; no full participation CRUD yet |
 | `participation_contacts` | participation-contact links | `Connected` | participation detail add/edit/delete |
 | `participation_brands` | participation-brand links | `Connected` | participation detail add/edit/delete |
 | `participation_sections` | participation-to-section links | `Connected` | participation detail assign/unassign + event detail participant filtering by section |
@@ -32,7 +32,7 @@ Legend:
 | `exhibitor_materials` | participation materials | `Connected` | participation detail add/edit/delete + upload bridge |
 | `notes` | scoped internal notes | `Partial` | read on company detail; no complete notes CRUD module |
 | `files` | canonical file metadata | `Connected` | upload APIs + logo/material resolvers |
-| `actions` | unified operational tasks | `Partial` | global/actions views are read-oriented; full action CRUD pending |
+| `actions` | unified operational tasks | `Partial` | global/actions views read-oriented; `assigned_to` editable inline + "Mine"/assignee filters on `/tasks`; full action CRUD pending |
 | `action_subjects` | action scope links | `Partial` | used by views/backend model; no direct editor |
 | `action_recipients` | action recipients | `Partial` | used by model/views; no direct editor |
 | `action_templates` | event action templates | `Partial` | read on participation detail; no template CRUD UI |

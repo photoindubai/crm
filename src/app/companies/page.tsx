@@ -3,9 +3,13 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Pagination } from "@/components/pagination";
 import { StatusBadge } from "@/components/status-badge";
+import { MineToggle } from "@/components/mine-toggle";
+import { OwnerCell } from "@/components/owner-cell";
 import { CACHE_TTL } from "@/lib/cache/ttl";
 import { cacheTags } from "@/lib/cache-tags";
 import { requireActiveProfile } from "@/lib/auth";
+import { getOrgUsers } from "@/lib/ownership.server";
+import type { OrgUser } from "@/lib/ownership";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
@@ -17,7 +21,7 @@ const PAGE_SIZE = 50;
 
 type Company = Pick<
   Database["public"]["Tables"]["companies"]["Row"],
-  "id" | "company_name" | "company_logo_url" | "website"
+  "id" | "company_name" | "company_logo_url" | "website" | "owner_id"
 >;
 
 type ParticipationWithEvent = Pick<
@@ -44,6 +48,7 @@ type CompanyListItem = {
   company_name: string;
   logo_url: string | null;
   website: string | null;
+  owner_id: string | null;
   main_contact_name: string | null;
   main_contact_email: string | null;
   main_contact_phone: string | null;
@@ -62,12 +67,15 @@ export default async function CompaniesPage({
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
+  const mine = getStringParam(params, "mine") === "1";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  const orgUsers = await getOrgUsers(orgId);
+
   const { companies, count } = await loadCached(
     {
-      keyParts: ["companies", orgId, page, query],
+      keyParts: ["companies", orgId, page, query, mine ? `mine:${profile.id}` : "all"],
       tags: [cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
       revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
@@ -75,12 +83,16 @@ export default async function CompaniesPage({
       const supabase = createSupabaseAdminClient();
       let request = supabase
         .from("companies")
-        .select("id,company_name,company_logo_url,website", { count: "exact" })
+        .select("id,company_name,company_logo_url,website,owner_id", { count: "exact" })
         .order("company_name", { ascending: true })
         .range(from, to);
 
       if (query) {
         request = request.ilike("company_name", `%${query}%`);
+      }
+
+      if (mine) {
+        request = request.eq("owner_id", profile.id);
       }
 
       const { data, error, count } = await request;
@@ -128,6 +140,7 @@ export default async function CompaniesPage({
             company_name: company.company_name,
             logo_url: company.company_logo_url,
             website: company.website,
+            owner_id: company.owner_id,
             main_contact_name: primaryContact?.name ?? null,
             main_contact_email: primaryContact?.email ?? null,
             main_contact_phone: primaryContact?.phone ?? null,
@@ -142,40 +155,52 @@ export default async function CompaniesPage({
 
   return (
     <AppShell title="Companies">
-      <form className="mb-4 flex max-w-xl gap-2">
-        <input
-          name="q"
-          defaultValue={query}
-          placeholder="Search companies"
-          className="h-10 flex-1 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
-        />
-        <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
-          Search
-        </button>
-        {query ? (
-          <Link href="/companies" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
-            Reset
-          </Link>
-        ) : null}
-      </form>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <form className="flex max-w-xl flex-1 gap-2">
+          {mine ? <input type="hidden" name="mine" value="1" /> : null}
+          <input
+            name="q"
+            defaultValue={query}
+            placeholder="Search companies"
+            className="h-10 flex-1 rounded-md border border-border bg-white px-3 text-sm outline-none focus:border-primary"
+          />
+          <button className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
+            Search
+          </button>
+          {query ? (
+            <Link href="/companies" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm">
+              Reset
+            </Link>
+          ) : null}
+        </form>
+        <MineToggle basePath="/companies" params={{ q: query || undefined }} active={mine} />
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-border bg-white shadow-soft">
         <table className="w-full table-fixed border-collapse text-left text-sm">
           <thead className="bg-muted text-xs uppercase text-muted-foreground">
             <tr>
-              <th className="w-[32%] px-4 py-3 font-semibold">Company</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Events</th>
-              <th className="w-[24%] px-4 py-3 font-semibold">Main contact</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Website</th>
+              <th className="w-[28%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Events</th>
+              <th className="w-[20%] px-4 py-3 font-semibold">Main contact</th>
+              <th className="w-[10%] px-4 py-3 font-semibold">Status</th>
+              <th className="w-[16%] px-4 py-3 font-semibold">Owner</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Website</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {companies.length > 0 ? (
-              companies.map((company) => <CompanyRow key={company.company_id} company={company} />)
+              companies.map((company) => (
+                <CompanyRow
+                  key={company.company_id}
+                  company={company}
+                  users={orgUsers}
+                  currentUserId={profile.id}
+                />
+              ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                   No companies found.
                 </td>
               </tr>
@@ -187,14 +212,22 @@ export default async function CompaniesPage({
           pageSize={PAGE_SIZE}
           total={count}
           basePath="/companies"
-          params={{ q: query || undefined }}
+          params={{ q: query || undefined, mine: mine ? "1" : undefined }}
         />
       </div>
     </AppShell>
   );
 }
 
-function CompanyRow({ company }: { company: CompanyListItem }) {
+function CompanyRow({
+  company,
+  users,
+  currentUserId,
+}: {
+  company: CompanyListItem;
+  users: OrgUser[];
+  currentUserId: string;
+}) {
   return (
     <tr className="align-top">
       <td className="px-4 py-4">
@@ -240,6 +273,15 @@ function CompanyRow({ company }: { company: CompanyListItem }) {
       </td>
       <td className="px-4 py-4">
         <StatusBadge value={company.participation_status} />
+      </td>
+      <td className="px-4 py-4">
+        <OwnerCell
+          entity="company"
+          recordId={company.company_id}
+          ownerId={company.owner_id}
+          users={users}
+          currentUserId={currentUserId}
+        />
       </td>
       <td className="px-4 py-4">
         {company.website ? (
