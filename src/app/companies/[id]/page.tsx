@@ -147,7 +147,7 @@ export default async function CompanyDetailPage({
 
       const [companyResult, contactsResult, participationsResult, notesResult, companyBrandLinksResult, actionsResult] =
         await Promise.all([
-          supabase.from("companies").select("*").eq("id", id).single(),
+          supabase.from("companies").select("*").eq("id", id).eq("organization_id", organizationId).maybeSingle(),
           supabase
             .from("company_contacts")
             .select("role,is_primary,contacts(id,first_name,last_name,email,phone,position)")
@@ -177,11 +177,9 @@ export default async function CompanyDetailPage({
             .order("due_date", { ascending: true, nullsFirst: false }),
         ]);
 
+      // Do not call notFound() inside unstable_cache: a missing/transient state can get cached and
+      // make the page stick on 404. Return company=null and decide notFound() outside the cache.
       if (companyResult.error) {
-        if (companyResult.error.code === "PGRST116") {
-          notFound();
-        }
-
         throw new Error(companyResult.error.message);
       }
 
@@ -254,7 +252,7 @@ export default async function CompanyDetailPage({
       const logoSet = await loadCompanyLogoSet(id);
 
       return {
-        company: companyResult.data as Company,
+        company: (companyResult.data as Company | null) ?? null,
         primaryLogoFile,
         logoSet,
         contacts: (contactsResult.data ?? []) as unknown as ContactRow[],
@@ -267,6 +265,10 @@ export default async function CompanyDetailPage({
       };
     },
   );
+
+  if (!company) {
+    notFound();
+  }
 
   let availableBrands: BrandOptionRow[] = [];
   if (panel === "brand") {

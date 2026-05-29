@@ -92,7 +92,7 @@ export default async function EventDetailPage({
 
       const [eventResult, participationsResult, allParticipationsResult, actionsResult, sectionsResult, programResult, totalParticipationsResult, totalConfirmedParticipationsResult] =
         await Promise.all([
-        supabase.from("events").select("*").eq("id", id).single(),
+        supabase.from("events").select("*").eq("id", id).eq("organization_id", orgId).maybeSingle(),
         scopedParticipationsRequest,
         supabase
           .from("participation_list_view")
@@ -156,11 +156,8 @@ export default async function EventDetailPage({
           ? await participationSectionsSupabase.from("participation_sections").select("participation_id,section_id").in("section_id", sectionIds)
           : { data: [] as ParticipationSectionLinkRow[], error: null };
 
+      // notFound() must not run inside unstable_cache (it can cache a sticky 404); decided outside.
       if (eventResult.error) {
-        if (eventResult.error.code === "PGRST116") {
-          notFound();
-        }
-
         throw new Error(eventResult.error.message);
       }
 
@@ -179,7 +176,7 @@ export default async function EventDetailPage({
       }
 
       return {
-        event: eventResult.data as Event,
+        event: (eventResult.data as Event | null) ?? null,
         participations: (participationsResult.data ?? []) as ParticipationRow[],
         allEventParticipations: (allParticipationsResult.data ?? []) as ParticipationRow[],
         actions: (actionsResult.data ?? []) as EventAction[],
@@ -191,6 +188,11 @@ export default async function EventDetailPage({
       };
     },
   );
+
+  if (!event) {
+    notFound();
+  }
+
   const selectedSection = sectionId ? sections.find((section) => section.id === sectionId) ?? null : null;
   const selectedProgramItem = itemId ? program.find((item) => item.id === itemId) ?? null : null;
   const sectionMemberParticipants = allEventParticipations

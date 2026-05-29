@@ -67,10 +67,29 @@ After every successful mutation, call the appropriate helper from [`invalidate.t
 
 Upload API routes (`/api/files/*`) must invalidate after a successful upload and DB update.
 
+## Per-request auth memoization
+
+`supabase.auth.getUser()` is a network round-trip to the Supabase Auth server, and the profile read
+is a DB round-trip. They are NOT cached across requests (identity must stay fresh), but within a
+single render they are memoized with React `cache()` in `loadCurrentUserContext` (`src/lib/auth.ts`).
+`requireActiveProfile` (page guard) and `getCurrentProfileSummary` (AppShell badge + nav) therefore
+share one `getUser()` + one profile query per request instead of issuing their own.
+
+The org user list (`getOrgUsers`, used by the Owner pickers on every list page) is cached per org
+under the `crm:org:{orgId}:profiles` tag and invalidated from `settings/users/actions.ts` on
+invite/update/disable.
+
+## notFound() and unstable_cache (footgun)
+
+Never call `notFound()` (or `redirect()`) inside a `loadCached` / `unstable_cache` loader: the
+control-flow throw can interact badly with the cache and leave a detail page stuck on 404 even after
+the record exists. Pattern: fetch the entity with `.maybeSingle()`, return it (possibly `null`) from
+the loader, and call `notFound()` on the result **outside** the cache. Detail pages also scope the
+entity query by `organization_id` for tenant isolation.
+
 ## What we do not cache
 
-- Supabase `getUser()` / session cookies
-- `requireActiveProfile` (direct DB read each request)
+- Supabase `getUser()` / session cookies (only per-request memoized, never cross-request)
 - Mutation responses (server actions, API POST bodies)
 - Private signed URLs
 - Secrets and tokens

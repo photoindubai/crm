@@ -40,6 +40,10 @@ export function orgActionTemplatesListTag(orgId: string): CacheTag {
   return `crm:org:${orgId}:action-templates`;
 }
 
+export function orgProfilesListTag(orgId: string): CacheTag {
+  return `crm:org:${orgId}:profiles`;
+}
+
 export function eventDetailTag(eventId: string): CacheTag {
   return `crm:event:${eventId}:detail`;
 }
@@ -76,6 +80,7 @@ export const cacheTags = {
   orgActions: orgActionsListTag,
   orgNotes: orgNotesListTag,
   orgActionTemplates: orgActionTemplatesListTag,
+  orgProfiles: orgProfilesListTag,
   eventDetail: eventDetailTag,
   companyDetail: companyDetailTag,
   brandDetail: brandDetailTag,

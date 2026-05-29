@@ -10,6 +10,8 @@ import {
   requireSuperAdmin,
 } from "@/lib/auth";
 import { logActivity } from "@/lib/activity-log";
+import { cacheTags } from "@/lib/cache-tags";
+import { invalidateCacheTags } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -161,6 +163,7 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
       metadata: { email, role },
     });
     revalidatePath(USERS_PATH);
+    invalidateCacheTags([cacheTags.orgProfiles(orgId)]);
     return { message: `Invite sent to ${email}.` };
   }
 
@@ -200,6 +203,7 @@ export async function inviteUser(_state: InviteState, formData: FormData): Promi
       metadata: { email, role },
     });
     revalidatePath(USERS_PATH);
+    invalidateCacheTags([cacheTags.orgProfiles(orgId)]);
     return {
       message: `An existing account for ${email} was granted CRM access. They can sign in with their existing login.`,
     };
@@ -268,6 +272,7 @@ export async function updateUser(formData: FormData): Promise<void> {
     metadata: { role, status },
   });
   revalidatePath(USERS_PATH);
+  invalidateCacheTags([cacheTags.orgProfiles(orgId)]);
   redirect(`${USERS_PATH}?notice=user_updated`);
 }
 
@@ -321,6 +326,7 @@ export async function disableUser(formData: FormData): Promise<void> {
     metadata: { email: target.email },
   });
   revalidatePath(USERS_PATH);
+  invalidateCacheTags([cacheTags.orgProfiles(orgId)]);
   redirect(`${USERS_PATH}?notice=user_disabled`);
 }
 

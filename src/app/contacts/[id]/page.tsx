@@ -71,7 +71,7 @@ export default async function ContactDetailPage({
     async () => {
       const supabase = createSupabaseAdminClient();
       const [contactResult, companiesResult, participationsResult, actionsResult] = await Promise.all([
-        supabase.from("contacts").select("*").eq("id", id).single(),
+        supabase.from("contacts").select("*").eq("id", id).eq("organization_id", orgId).maybeSingle(),
         supabase
           .from("company_contacts")
           .select("role,is_primary,companies(id,company_name,city,country,website)")
@@ -89,11 +89,8 @@ export default async function ContactDetailPage({
           .order("due_date", { ascending: true, nullsFirst: false }),
       ]);
 
+      // notFound() must not run inside unstable_cache (it can cache a sticky 404); decided outside.
       if (contactResult.error) {
-        if (contactResult.error.code === "PGRST116") {
-          notFound();
-        }
-
         throw new Error(contactResult.error.message);
       }
 
@@ -104,13 +101,18 @@ export default async function ContactDetailPage({
       }
 
       return {
-        contact: contactResult.data as Contact,
+        contact: (contactResult.data as Contact | null) ?? null,
         companies: (companiesResult.data ?? []) as unknown as CompanyContactRow[],
         participations: (participationsResult.data ?? []) as unknown as ParticipationContactRow[],
         actions: (actionsResult.data ?? []) as ActionRow[],
       };
     },
   );
+
+  if (!contact) {
+    notFound();
+  }
+
   const name = [contact.first_name, contact.last_name].filter(Boolean).join(" ") || contact.email || "Unnamed contact";
   const flashMessage = getFlashMessage(notice, error);
 

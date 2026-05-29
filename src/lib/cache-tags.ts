@@ -14,6 +14,7 @@ export {
   orgEventsListTag,
   orgNotesListTag,
   orgParticipationsListTag,
+  orgProfilesListTag,
   orgSmmListTag,
   participationDetailTag,
   profileTag,

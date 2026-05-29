@@ -1,5 +1,7 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { User } from "@supabase/supabase-js";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -20,37 +22,64 @@ export type ActiveProfile = Pick<
   "id" | "full_name" | "role" | "status" | "organization_id"
 >;
 
+type CurrentProfileRow = Pick<
+  Database["public"]["Tables"]["profiles"]["Row"],
+  "id" | "full_name" | "email" | "role" | "status" | "organization_id"
+>;
+
+type CurrentUserContext = {
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  user: User | null;
+  profile: CurrentProfileRow | null;
+};
+
+/**
+ * Per-request memoized auth context.
+ *
+ * `auth.getUser()` is a network round-trip to the Supabase Auth server, and the profile read is a
+ * DB round-trip. Several places in a single render need them (page guard + AppShell badge + nav),
+ * so React `cache()` collapses them to a single getUser() + single profile query per request.
+ */
+const loadCurrentUserContext = cache(async (): Promise<CurrentUserContext> => {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { supabase, user: null, profile: null };
+  }
+
+  const admin = createSupabaseAdminClient();
+  const { data } = await admin
+    .from("profiles")
+    .select("id,full_name,email,role,status,organization_id")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  return { supabase, user, profile: (data as CurrentProfileRow | null) ?? null };
+});
+
 /**
  * Strict gate for protected CRM pages and actions: requires an authenticated user with an
  * `active` profile. Invited/disabled/null are always blocked here. Invited users only become
  * active at auth entry points (see `resolveEntryProfile`).
  */
 export async function requireActiveProfile() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { supabase, user, profile } = await loadCurrentUserContext();
 
-  if (error || !user) {
+  if (!user) {
     redirect("/login");
   }
 
-  const admin = createSupabaseAdminClient();
-  const { data, error: profileError } = await admin
-    .from("profiles")
-    .select("id,full_name,role,status,organization_id")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || !data || data.status !== PROFILE_STATUS.active) {
+  if (!profile || profile.status !== PROFILE_STATUS.active) {
     await supabase.auth.signOut();
     redirect("/login");
   }
 
   return {
     user,
-    profile: data as ActiveProfile,
+    profile: profile as ActiveProfile,
   };
 }
 
@@ -83,31 +112,17 @@ export type ProfileSummary = {
  * `requireActiveProfile` / `requireSuperAdmin`.
  */
 export async function getCurrentProfileSummary(): Promise<ProfileSummary | null> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, profile } = await loadCurrentUserContext();
 
-  if (!user) {
-    return null;
-  }
-
-  const admin = createSupabaseAdminClient();
-  const { data } = await admin
-    .from("profiles")
-    .select("id,full_name,email,role,status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!data || data.status !== PROFILE_STATUS.active) {
+  if (!user || !profile || profile.status !== PROFILE_STATUS.active) {
     return null;
   }
 
   return {
-    id: data.id,
-    fullName: data.full_name,
-    email: data.email ?? user.email ?? null,
-    role: data.role,
+    id: profile.id,
+    fullName: profile.full_name,
+    email: profile.email ?? user.email ?? null,
+    role: profile.role,
   };
 }
 

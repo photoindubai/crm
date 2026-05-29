@@ -51,16 +51,13 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
     async () => {
       const supabase = createSupabaseAdminClient();
       const [brandResult, companyLinksResult, participationLinksResult] = await Promise.all([
-        supabase.from("brands").select("*").eq("id", id).single(),
+        supabase.from("brands").select("*").eq("id", id).eq("organization_id", orgId).maybeSingle(),
         supabase.from("company_brands").select("company_id").eq("brand_id", id),
         supabase.from("participation_brands").select("participation_id").eq("brand_id", id),
       ]);
 
+      // notFound() must not run inside unstable_cache (it can cache a sticky 404); decided outside.
       if (brandResult.error) {
-        if (brandResult.error.code === "PGRST116") {
-          notFound();
-        }
-
         throw new Error(brandResult.error.message);
       }
 
@@ -70,7 +67,7 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
         throw new Error(firstError.message);
       }
 
-      const brand = brandResult.data as Brand;
+      const brand = (brandResult.data as Brand | null) ?? null;
       const companyIds = uniqueIds(((companyLinksResult.data ?? []) as CompanyBrand[]).map((link) => link.company_id));
       const participationIds = uniqueIds(((participationLinksResult.data ?? []) as ParticipationBrand[]).map((link) => link.participation_id));
 
@@ -112,11 +109,11 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
       const companies = dedupeCompanies([...directCompanies, ...participationCompanies]);
 
       let primaryLogoFile: FileRow | null = null;
-      if (brand.primary_logo_file_id) {
+      if (brand?.primary_logo_file_id) {
         const { data: fileRow } = await supabase.from("files").select("*").eq("id", brand.primary_logo_file_id).maybeSingle();
         primaryLogoFile = (fileRow as FileRow | null) ?? null;
       }
-      const logoSet = await loadBrandLogoSet(brand.id);
+      const logoSet = await loadBrandLogoSet(id);
 
       return {
         brand,
@@ -130,6 +127,11 @@ export default async function BrandDetailPage({ params }: { params: Promise<{ id
       };
     },
   );
+
+  if (!brand) {
+    notFound();
+  }
+
   const participationCompaniesById = new Map(participationCompanies.map((company) => [company.id, company]));
   const eventsById = new Map(events.map((event) => [event.id, event]));
   const boothsByParticipation = groupBy(booths, (row) => row.participation_id);
