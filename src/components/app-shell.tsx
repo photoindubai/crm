@@ -6,10 +6,15 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/companies", label: "Companies" },
   { href: "/contacts", label: "Contacts" },
-  { href: "/events", label: "Events" },
-  { href: "/participations", label: "Participations" },
-  { href: "/brands", label: "Brands" },
-  { href: "/smm", label: "SMM" },
+  {
+    href: "/events",
+    label: "Events",
+    children: [
+      { href: "/participations", label: "Participations" },
+      { href: "/smm", label: "SMM" },
+      { href: "/brands", label: "Brands" },
+    ],
+  },
   { href: "/tasks", label: "Actions" },
 ];
 
@@ -35,13 +40,27 @@ export async function AppShell({
           </Link>
           <nav className="mt-6 flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
             {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              >
-                {item.label}
-              </Link>
+              <div key={item.href} className="flex shrink-0 flex-col gap-1 md:shrink">
+                <Link
+                  href={item.href}
+                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+                {"children" in item ? (
+                  <div className="flex gap-1 border-l border-border pl-3 md:ml-3 md:flex-col">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             ))}
           </nav>
           <form action="/logout" method="post" className="mt-6">
