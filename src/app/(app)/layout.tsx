@@ -1,5 +1,14 @@
 import { AppShell } from "@/components/app-shell";
+import { QueryProvider } from "@/components/query-provider";
+import { requireActiveProfile } from "@/lib/auth";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, profile } = await requireActiveProfile();
+  const orgId = profile.organization_id ?? "";
+
+  return (
+    <QueryProvider userId={user.id} orgId={orgId}>
+      <AppShell>{children}</AppShell>
+    </QueryProvider>
+  );
 }

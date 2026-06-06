@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentProfileSummary, SUPER_ADMIN_ROLE } from "@/lib/auth";
 import { AppNav, type NavItem } from "@/components/app-nav";
+import { LogoutForm } from "@/components/logout-form";
 import { ProfileBadge } from "@/components/profile-badge";
 
 const navItems: NavItem[] = [
@@ -45,11 +46,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ) : null}
           <AppNav items={items} />
-          <form action="/logout" method="post" className="mt-6">
-            <button className="rounded-md px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
-              Sign out
-            </button>
-          </form>
+          <LogoutForm />
         </aside>
         <section className="px-6 py-6">{children}</section>
       </div>

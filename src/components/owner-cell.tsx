@@ -11,12 +11,14 @@ export function OwnerCell({
   ownerId,
   users,
   currentUserId,
+  onOwnerChanged,
 }: {
   entity: OwnerEntity;
   recordId: string;
   ownerId: string | null;
   users: OrgUser[];
   currentUserId: string;
+  onOwnerChanged?: () => void;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -30,7 +32,11 @@ export function OwnerCell({
     formData.set("owner_id", nextValue);
     startTransition(async () => {
       await setRecordOwner(formData);
-      router.refresh();
+      if (onOwnerChanged) {
+        onOwnerChanged();
+      } else {
+        router.refresh();
+      }
     });
   }
 
