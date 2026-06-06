@@ -19,13 +19,7 @@ const navItems: NavItem[] = [
   { href: "/tasks", label: "Actions" },
 ];
 
-export async function AppShell({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+export async function AppShell({ children }: { children: React.ReactNode }) {
   const summary = await getCurrentProfileSummary();
   const items: NavItem[] =
     summary?.role === SUPER_ADMIN_ROLE
@@ -39,17 +33,8 @@ export async function AppShell({
           <Link href="/" className="block text-lg font-semibold">
             Exhibition CRM
           </Link>
-          <AppNav items={items} />
-          <form action="/logout" method="post" className="mt-6">
-            <button className="rounded-md px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
-              Sign out
-            </button>
-          </form>
-        </aside>
-        <section className="px-6 py-6">
-          <header className="mb-6 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <h1 className="text-2xl font-semibold">{title}</h1>
-            {summary ? (
+          {summary ? (
+            <div className="mt-4 max-w-full overflow-hidden">
               <ProfileBadge
                 first_name={summary.firstName}
                 last_name={summary.lastName}
@@ -57,10 +42,16 @@ export async function AppShell({
                 email={summary.email}
                 role={summary.role}
               />
-            ) : null}
-          </header>
-          {children}
-        </section>
+            </div>
+          ) : null}
+          <AppNav items={items} />
+          <form action="/logout" method="post" className="mt-6">
+            <button className="rounded-md px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
+              Sign out
+            </button>
+          </form>
+        </aside>
+        <section className="px-6 py-6">{children}</section>
       </div>
     </main>
   );
