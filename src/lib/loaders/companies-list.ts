@@ -6,6 +6,7 @@ import {
   CLIENT_CACHE_INELIGIBLE_MESSAGE,
   MAX_CLIENT_LIST_ROWS,
 } from "@/lib/query/limits";
+import { resolveOrganizationId } from "@/lib/org-id";
 import { loadCached } from "@/lib/server-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
@@ -18,6 +19,8 @@ import type {
 } from "@/lib/loaders/companies-list.types";
 import { COMPANIES_PAGE_SIZE } from "@/lib/loaders/companies-list.types";
 
+const ENRICH_BATCH_SIZE = 100;
+
 type PaginatedOptions = {
   page: number;
   query: string;
@@ -25,15 +28,31 @@ type PaginatedOptions = {
   userId: string;
 };
 
-export async function loadCompaniesClientList(orgId: string): Promise<CompaniesClientListResult> {
+type CompaniesQuery<T> = {
+  eq: (column: string, value: string) => T;
+};
+
+function applyOrganizationFilter<T extends CompaniesQuery<T>>(request: T, orgId: string): T {
   if (!orgId) {
-    return { companies: [], total: 0, clientCacheEligible: false };
+    return request;
   }
+
+  return request.eq("organization_id", orgId);
+}
+
+export async function loadCompaniesClientList(
+  organizationId: string | null | undefined,
+): Promise<CompaniesClientListResult> {
+  const orgId = resolveOrganizationId(organizationId);
 
   return loadCached(
     {
-      keyParts: ["companies-client", orgId],
-      tags: [cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
+      keyParts: ["companies-client", orgId || "all"],
+      tags: [
+        cacheTags.orgCompanies(orgId || "all"),
+        cacheTags.orgParticipations(orgId || "all"),
+        cacheTags.orgEvents(orgId || "all"),
+      ],
       revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     () => fetchCompaniesClientList(orgId),
@@ -41,27 +60,34 @@ export async function loadCompaniesClientList(orgId: string): Promise<CompaniesC
 }
 
 export async function loadCompaniesPaginated(
-  orgId: string,
+  organizationId: string | null | undefined,
   options: PaginatedOptions,
 ): Promise<CompaniesPaginatedResult> {
+  const orgId = resolveOrganizationId(organizationId);
   const { page, query, mine, userId } = options;
   const from = (page - 1) * COMPANIES_PAGE_SIZE;
   const to = from + COMPANIES_PAGE_SIZE - 1;
 
   return loadCached(
     {
-      keyParts: ["companies", orgId, page, query, mine ? `mine:${userId}` : "all"],
-      tags: [cacheTags.orgCompanies(orgId), cacheTags.orgParticipations(orgId), cacheTags.orgEvents(orgId)],
+      keyParts: ["companies", orgId || "all", page, query, mine ? `mine:${userId}` : "all"],
+      tags: [
+        cacheTags.orgCompanies(orgId || "all"),
+        cacheTags.orgParticipations(orgId || "all"),
+        cacheTags.orgEvents(orgId || "all"),
+      ],
       revalidateSeconds: CACHE_TTL.LIST_LONG,
     },
     async () => {
       const supabase = createSupabaseAdminClient();
-      let request = supabase
-        .from("companies")
-        .select("id,company_name,company_logo_url,website,owner_id", { count: "exact" })
-        .eq("organization_id", orgId)
-        .order("company_name", { ascending: true })
-        .range(from, to);
+      let request = applyOrganizationFilter(
+        supabase
+          .from("companies")
+          .select("id,company_name,company_logo_url,website,owner_id", { count: "exact" })
+          .order("company_name", { ascending: true })
+          .range(from, to),
+        orgId,
+      );
 
       if (query) {
         request = request.ilike("company_name", `%${query}%`);
@@ -90,10 +116,10 @@ export async function loadCompaniesPaginated(
 async function fetchCompaniesClientList(orgId: string): Promise<CompaniesClientListResult> {
   const supabase = createSupabaseAdminClient();
 
-  const { count, error: countError } = await supabase
-    .from("companies")
-    .select("id", { count: "exact", head: true })
-    .eq("organization_id", orgId);
+  const { count, error: countError } = await applyOrganizationFilter(
+    supabase.from("companies").select("id", { count: "exact", head: true }),
+    orgId,
+  );
 
   if (countError) {
     throw new Error(countError.message);
@@ -110,12 +136,16 @@ async function fetchCompaniesClientList(orgId: string): Promise<CompaniesClientL
     };
   }
 
-  const { data, error } = await supabase
-    .from("companies")
-    .select("id,company_name,company_logo_url,website,owner_id")
-    .eq("organization_id", orgId)
-    .order("company_name", { ascending: true })
-    .limit(MAX_CLIENT_LIST_ROWS);
+  const request = applyOrganizationFilter(
+    supabase
+      .from("companies")
+      .select("id,company_name,company_logo_url,website,owner_id")
+      .order("company_name", { ascending: true })
+      .limit(MAX_CLIENT_LIST_ROWS),
+    orgId,
+  );
+
+  const { data, error } = await request;
 
   if (error) {
     throw new Error(error.message);
@@ -131,37 +161,44 @@ async function fetchCompaniesClientList(orgId: string): Promise<CompaniesClientL
 }
 
 async function enrichCompanies(companies: CompanyRow[]): Promise<CompanyListItem[]> {
-  const companyIds = companies.map((company) => company.id);
-
-  if (companyIds.length === 0) {
+  if (companies.length === 0) {
     return [];
   }
 
+  const participations: ParticipationWithEvent[] = [];
+  const contactLinks: ContactLink[] = [];
   const supabase = createSupabaseAdminClient();
 
-  const [participationsResult, contactLinksResult] = await Promise.all([
-    supabase
-      .from("participations")
-      .select("id,company_id,status,event_id,events(id,event_name)")
-      .in("company_id", companyIds)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("company_contacts")
-      .select("company_id,is_primary,created_at,contacts(first_name,last_name,email,phone,created_at)")
-      .in("company_id", companyIds),
-  ]);
+  for (const batch of chunk(companies, ENRICH_BATCH_SIZE)) {
+    const companyIds = batch.map((company) => company.id);
 
-  if (participationsResult.error) {
-    throw new Error(participationsResult.error.message);
+    const [participationsResult, contactLinksResult] = await Promise.all([
+      supabase
+        .from("participations")
+        .select("id,company_id,status,event_id,events(id,event_name)")
+        .in("company_id", companyIds)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("company_contacts")
+        .select("company_id,is_primary,created_at,contacts(first_name,last_name,email,phone,created_at)")
+        .in("company_id", companyIds),
+    ]);
+
+    if (participationsResult.error) {
+      throw new Error(participationsResult.error.message);
+    }
+
+    if (contactLinksResult.error) {
+      throw new Error(contactLinksResult.error.message);
+    }
+
+    participations.push(...((participationsResult.data ?? []) as ParticipationWithEvent[]));
+    contactLinks.push(...((contactLinksResult.data ?? []) as ContactLink[]));
   }
 
-  if (contactLinksResult.error) {
-    throw new Error(contactLinksResult.error.message);
-  }
-
-  const eventsByCompany = buildEventsByCompany((participationsResult.data ?? []) as ParticipationWithEvent[]);
-  const statusByCompany = buildStatusByCompany((participationsResult.data ?? []) as ParticipationWithEvent[]);
-  const primaryContactByCompany = buildPrimaryContactByCompany((contactLinksResult.data ?? []) as ContactLink[]);
+  const eventsByCompany = buildEventsByCompany(participations);
+  const statusByCompany = buildStatusByCompany(participations);
+  const primaryContactByCompany = buildPrimaryContactByCompany(contactLinks);
 
   return companies.map((company) => {
     const primaryContact = primaryContactByCompany.get(company.id);
@@ -179,6 +216,16 @@ async function enrichCompanies(companies: CompanyRow[]): Promise<CompanyListItem
       events: eventsByCompany.get(company.id) ?? [],
     };
   });
+}
+
+function chunk<T>(items: T[], size: number): T[][] {
+  const batches: T[][] = [];
+
+  for (let index = 0; index < items.length; index += size) {
+    batches.push(items.slice(index, index + size));
+  }
+
+  return batches;
 }
 
 function buildEventsByCompany(participations: ParticipationWithEvent[]) {

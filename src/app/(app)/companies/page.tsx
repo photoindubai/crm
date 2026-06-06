@@ -2,7 +2,10 @@ import { PageHeader } from "@/components/page-header";
 import { CompaniesLegacyView } from "@/app/(app)/companies/companies-legacy-view";
 import { CompaniesPageClient } from "@/app/(app)/companies/companies-page-client";
 import { requireActiveProfile } from "@/lib/auth";
+import { CLIENT_CACHE_INELIGIBLE_MESSAGE } from "@/lib/query/limits";
 import { loadCompaniesClientList, loadCompaniesPaginated } from "@/lib/loaders/companies-list";
+import type { CompaniesClientListResult } from "@/lib/loaders/companies-list.types";
+import { resolveOrganizationId } from "@/lib/org-id";
 import { getOrgUsers } from "@/lib/ownership.server";
 import { getPageParam, getStringParam, resolveSearchParams, type PageSearchParams } from "@/lib/search-params";
 
@@ -15,14 +18,14 @@ export default async function CompaniesPage({
 }) {
   const params = await resolveSearchParams(searchParams);
   const { profile } = await requireActiveProfile();
-  const orgId = profile.organization_id ?? "";
+  const orgId = resolveOrganizationId(profile.organization_id);
 
   const page = getPageParam(params);
   const query = getStringParam(params, "q")?.trim() ?? "";
   const mine = getStringParam(params, "mine") === "1";
 
   const orgUsers = await getOrgUsers(orgId);
-  const clientList = await loadCompaniesClientList(orgId);
+  const clientList = await loadCompaniesClientListSafe(profile.organization_id);
 
   return (
     <>
@@ -38,7 +41,7 @@ export default async function CompaniesPage({
         />
       ) : (
         <CompaniesLegacyContent
-          orgId={orgId}
+          organizationId={profile.organization_id}
           userId={profile.id}
           page={page}
           query={query}
@@ -52,8 +55,24 @@ export default async function CompaniesPage({
   );
 }
 
+async function loadCompaniesClientListSafe(
+  organizationId: string | null | undefined,
+): Promise<CompaniesClientListResult> {
+  try {
+    return await loadCompaniesClientList(organizationId);
+  } catch (error) {
+    console.error("Failed to load companies client list", error);
+    return {
+      companies: [],
+      total: 0,
+      clientCacheEligible: false,
+      message: CLIENT_CACHE_INELIGIBLE_MESSAGE,
+    };
+  }
+}
+
 async function CompaniesLegacyContent({
-  orgId,
+  organizationId,
   userId,
   page,
   query,
@@ -62,7 +81,7 @@ async function CompaniesLegacyContent({
   ineligibleMessage,
   total,
 }: {
-  orgId: string;
+  organizationId: string | null | undefined;
   userId: string;
   page: number;
   query: string;
@@ -71,7 +90,7 @@ async function CompaniesLegacyContent({
   ineligibleMessage?: string;
   total: number;
 }) {
-  const { companies, count } = await loadCompaniesPaginated(orgId, {
+  const { companies, count } = await loadCompaniesPaginated(organizationId, {
     page,
     query,
     mine,

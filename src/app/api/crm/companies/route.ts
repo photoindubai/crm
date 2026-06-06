@@ -8,6 +8,14 @@ export async function GET() {
     return auth;
   }
 
-  const result = await loadCompaniesClientList(auth.organizationId);
+  const result = await loadCompaniesClientList(auth.organizationId).catch((error) => {
+    console.error("GET /api/crm/companies failed", error);
+    return {
+      companies: [],
+      total: 0,
+      clientCacheEligible: false,
+      message: "Failed to load companies.",
+    };
+  });
   return NextResponse.json(result);
 }
