@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getCurrentProfileSummary, SUPER_ADMIN_ROLE } from "@/lib/auth";
+import { AppNav, type NavItem } from "@/components/app-nav";
 import { ProfileBadge } from "@/components/profile-badge";
 
-const navItems = [
+const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/companies", label: "Companies" },
   { href: "/contacts", label: "Contacts" },
@@ -11,8 +12,8 @@ const navItems = [
     label: "Events",
     children: [
       { href: "/participations", label: "Participations" },
-      { href: "/smm", label: "SMM" },
       { href: "/brands", label: "Brands" },
+      { href: "/smm", label: "SMM" },
     ],
   },
   { href: "/tasks", label: "Actions" },
@@ -26,7 +27,7 @@ export async function AppShell({
   children: React.ReactNode;
 }) {
   const summary = await getCurrentProfileSummary();
-  const items =
+  const items: NavItem[] =
     summary?.role === SUPER_ADMIN_ROLE
       ? [...navItems, { href: "/settings/users", label: "Settings" }]
       : navItems;
@@ -38,31 +39,7 @@ export async function AppShell({
           <Link href="/" className="block text-lg font-semibold">
             Exhibition CRM
           </Link>
-          <nav className="mt-6 flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
-            {items.map((item) => (
-              <div key={item.href} className="flex shrink-0 flex-col gap-1 md:shrink">
-                <Link
-                  href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  {item.label}
-                </Link>
-                {"children" in item ? (
-                  <div className="flex gap-1 border-l border-border pl-3 md:ml-3 md:flex-col">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </nav>
+          <AppNav items={items} />
           <form action="/logout" method="post" className="mt-6">
             <button className="rounded-md px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
               Sign out
